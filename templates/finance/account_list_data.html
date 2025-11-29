@@ -1,4 +1,5 @@
 {# Account list content (loaded via HTMX) #}
+{% load money_filters %}
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 content-fade-in" role="list" aria-label="Accounts list">
     {% for account in accounts %}
     <article class="card-primary p-6 hover:shadow-lg transition-all duration-300 cursor-pointer group" role="listitem">

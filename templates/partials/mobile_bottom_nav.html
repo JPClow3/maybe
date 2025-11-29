@@ -1,6 +1,6 @@
 {# Mobile Bottom Navigation Bar - visible only on mobile #}
 <nav 
-    class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40 block md:hidden"
+    class="header-glass fixed bottom-0 left-0 right-0 border-t border-gray-200 dark:border-gray-800 z-40 block md:hidden"
     role="navigation"
     aria-label="Mobile navigation"
 >
@@ -9,7 +9,7 @@
         {% with url_name=request.resolver_match.url_name %}
         <a 
             href="{% url 'dashboard' %}"
-            class="flex flex-col items-center justify-center flex-1 h-full {% if url_name == 'dashboard' or url_name == 'dashboard_stats' %}text-primary-600{% else %}text-gray-500 hover:text-primary-600{% endif %} transition-colors"
+            class="flex flex-col items-center justify-center flex-1 h-full {% if url_name == 'dashboard' or url_name == 'dashboard_stats' %}text-primary-600 dark:text-primary-400{% else %}text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400{% endif %} transition-colors"
             hx-boost="true"
             hx-target="#main-content" hx-select="#main-content" hx-swap="innerHTML"
             aria-label="Dashboard"
@@ -23,7 +23,7 @@
         {# Transactions #}
         <a 
             href="{% url 'transaction_list' %}"
-            class="flex flex-col items-center justify-center flex-1 h-full {% if url_name == 'transaction_list' or url_name == 'transaction_detail' or url_name == 'transaction_new' or url_name == 'transaction_edit' or url_name == 'transaction_update_category' or url_name == 'transaction_update_amount' %}text-primary-600{% else %}text-gray-500 hover:text-primary-600{% endif %} transition-colors"
+            class="flex flex-col items-center justify-center flex-1 h-full {% if url_name == 'transaction_list' or url_name == 'transaction_detail' or url_name == 'transaction_new' or url_name == 'transaction_edit' or url_name == 'transaction_update_category' or url_name == 'transaction_update_amount' %}text-primary-600 dark:text-primary-400{% else %}text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400{% endif %} transition-colors"
             hx-boost="true"
             hx-target="#main-content" hx-select="#main-content" hx-swap="innerHTML"
             aria-label="Transactions"
@@ -52,7 +52,7 @@
         {% with url_name=request.resolver_match.url_name %}
         <a 
             href="{% url 'security_list' %}"
-            class="flex flex-col items-center justify-center flex-1 h-full {% if url_name == 'security_list' or url_name == 'holding_list' or url_name == 'trade_list' %}text-primary-600{% else %}text-gray-500 hover:text-primary-600{% endif %} transition-colors"
+            class="flex flex-col items-center justify-center flex-1 h-full {% if url_name == 'security_list' or url_name == 'holding_list' or url_name == 'trade_list' %}text-primary-600 dark:text-primary-400{% else %}text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400{% endif %} transition-colors"
             hx-boost="true"
             hx-target="#main-content" hx-select="#main-content" hx-swap="innerHTML"
             aria-label="Investments"
@@ -67,7 +67,7 @@
         {# Profile placeholder - can be expanded later #}
         <a 
             href="#"
-            class="flex flex-col items-center justify-center flex-1 h-full text-gray-500 hover:text-primary-600 transition-colors"
+            class="flex flex-col items-center justify-center flex-1 h-full text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
             aria-label="Perfil"
         >
             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">

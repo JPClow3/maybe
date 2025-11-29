@@ -2,6 +2,33 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================================
+   PHASE 0: COLOR & OPACITY DEFINITIONS
+   ============================================================================
+   
+   Glass Surface Opacities (Dark Mode):
+   - Primary glass panel: rgba(0, 0, 0, 0.4) with border rgba(255, 255, 255, 0.1)
+   - Secondary glass panel: rgba(0, 0, 0, 0.3) with border rgba(255, 255, 255, 0.08)
+   - Header glass: rgba(0, 0, 0, 0.5) with border rgba(255, 255, 255, 0.12)
+   - Mobile panels: rgba(0, 0, 0, 0.95) (almost solid for readability)
+   
+   Glass Surface Opacities (Light Mode):
+   - Primary glass panel: rgba(255, 255, 255, 0.7) with border rgba(0, 0, 0, 0.1)
+   - Secondary glass panel: rgba(255, 255, 255, 0.6) with border rgba(0, 0, 0, 0.08)
+   - Mobile panels: rgba(255, 255, 255, 0.95) (almost solid)
+   
+   Backdrop Blur Values:
+   - Desktop primary: blur(12px)
+   - Desktop secondary: blur(8px)
+   - Mobile: blur(4px) or disabled (fallback to solid)
+   - Header: blur(16px) (always enabled)
+   
+   Glow Usage:
+   - Text Glow: ONLY for main balance number - text-shadow: 0 0 8px rgba(16, 185, 129, 0.4)
+   - Border Glow: Subtle on hover only - box-shadow: 0 0 12px rgba(16, 185, 129, 0.2)
+   - NO glow on: Regular text, labels, secondary numbers, form inputs
+   ============================================================================ */
+
 /* Geist Fonts - @font-face declarations */
 @font-face {
   font-family: 'Geist Sans';
@@ -26,6 +53,60 @@
   font-style: normal;
   font-display: swap;
 }
+
+/* ============================================================================
+   PHASE 1.2: PERFORMANCE OPTIMIZATIONS (CRITICAL - DO FIRST)
+   ============================================================================ */
+
+/* Reduced motion support - disable animations for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Will-change utilities - use sparingly, ONLY on orbs */
+@layer utilities {
+  .will-change-transform {
+    will-change: transform;
+  }
+  
+  .will-change-auto {
+    will-change: auto;
+  }
+}
+
+/* Feature detection classes - applied via JavaScript */
+.no-backdrop-filter .glass-panel,
+.no-backdrop-filter .header-glass,
+.no-backdrop-filter .glass-mobile {
+  /* Fallback: solid colors with same opacity */
+  backdrop-filter: none !important;
+}
+
+/* Performance mode classes - applied via JavaScript */
+[data-performance-mode="low"] .orb {
+  display: none !important;
+}
+
+[data-performance-mode="low"] .glass-panel,
+[data-performance-mode="low"] .glass-mobile {
+  backdrop-filter: blur(2px) !important;
+}
+
+[data-performance-mode="medium"] .orb {
+  /* Limit orb animations */
+  animation-duration: 8s !important;
+}
+
+/* ============================================================================
+   END PERFORMANCE OPTIMIZATIONS
+   ============================================================================ */
 
 /* Custom design tokens - Dark mode preparation */
 @layer base {
@@ -54,11 +135,24 @@
     --color-border: #e5e7eb;
   }
   
-  /* Dark mode (prepared for future implementation) */
-  @media (prefers-color-scheme: dark) {
-    :root {
-      /* Dark mode values can be added here later */
-    }
+  /* Dark mode variables */
+  .dark {
+    --color-surface: #0a0a0b;
+    --color-surface-subtle: #18181b;
+    --color-text-primary: #fafafa;
+    --color-text-secondary: #a1a1aa;
+    --color-bg-container: #0a0a0b;
+    --color-bg-surface: #18181b;
+    --color-border: rgba(255, 255, 255, 0.1);
+    
+    /* Glass surface opacities (from Phase 0) */
+    --glass-primary: rgba(0, 0, 0, 0.4);
+    --glass-secondary: rgba(0, 0, 0, 0.3);
+    --glass-header: rgba(0, 0, 0, 0.5);
+    --glass-mobile: rgba(0, 0, 0, 0.95);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-border-secondary: rgba(255, 255, 255, 0.08);
+    --glass-border-header: rgba(255, 255, 255, 0.12);
   }
 }
 
@@ -81,9 +175,19 @@
     @apply bg-transparent text-gray-700 px-4 py-2 rounded-lg min-h-[44px] active:scale-95 transition-all duration-200 ease-in-out hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:active:scale-100;
   }
   
-  /* Form inputs - Notion/Mac OS style */
+  /* Form inputs - Notion/Mac OS style with glass effect */
   .form-input {
-    @apply mt-1 block w-full rounded-lg border-gray-200 bg-white px-3 py-2 text-sm shadow-sm min-h-[44px] transition-all duration-200 ease-in-out focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none;
+    @apply mt-1 block w-full rounded-lg border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/50 px-3 py-2 text-sm shadow-sm min-h-[44px] transition-all duration-200 ease-in-out focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 dark:focus:ring-indigo-400/20 focus:outline-none;
+  }
+  
+  /* Mobile: 98% opacity for maximum readability */
+  @media (max-width: 768px) {
+    .form-input {
+      background: rgba(255, 255, 255, 0.98);
+    }
+    .dark .form-input {
+      background: rgba(0, 0, 0, 0.98);
+    }
   }
   
   .form-input[type="number"],
@@ -92,11 +196,29 @@
   }
 
   .form-select {
-    @apply mt-1 block w-full rounded-lg border-gray-200 bg-white px-3 py-2 text-sm shadow-sm min-h-[44px] transition-all duration-200 ease-in-out focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none;
+    @apply mt-1 block w-full rounded-lg border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/50 px-3 py-2 text-sm shadow-sm min-h-[44px] transition-all duration-200 ease-in-out focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 dark:focus:ring-indigo-400/20 focus:outline-none;
+  }
+  
+  @media (max-width: 768px) {
+    .form-select {
+      background: rgba(255, 255, 255, 0.98);
+    }
+    .dark .form-select {
+      background: rgba(0, 0, 0, 0.98);
+    }
   }
 
   .form-textarea {
-    @apply mt-1 block w-full rounded-lg border-gray-200 bg-white px-3 py-2 text-sm shadow-sm transition-all duration-200 ease-in-out focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none;
+    @apply mt-1 block w-full rounded-lg border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/50 px-3 py-2 text-sm shadow-sm transition-all duration-200 ease-in-out focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 dark:focus:ring-indigo-400/20 focus:outline-none;
+  }
+  
+  @media (max-width: 768px) {
+    .form-textarea {
+      background: rgba(255, 255, 255, 0.98);
+    }
+    .dark .form-textarea {
+      background: rgba(0, 0, 0, 0.98);
+    }
   }
 
   /* Form validation states - using direct CSS to avoid circular dependency */
@@ -223,6 +345,218 @@
   .font-tabular-nums {
     font-variant-numeric: tabular-nums;
   }
+  
+  /* ============================================================================
+     PHASE 1.2: GLASS COMPONENTS (with fallbacks)
+     ============================================================================ */
+  
+  /* Background Layers */
+  .ambient-light {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  
+  /* Noise overlay - SVG-based texture */
+  .noise-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 50;
+    pointer-events: none;
+    opacity: 0.02;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  }
+  
+  /* Orb system - maximum 3-4 orbs total */
+  .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    will-change: transform;
+    opacity: 0.6;
+  }
+  
+  .orb-emerald {
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.3) 0%, transparent 70%);
+  }
+  
+  .orb-indigo {
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%);
+  }
+  
+  .orb-rose {
+    background: radial-gradient(circle, rgba(244, 63, 94, 0.3) 0%, transparent 70%);
+  }
+  
+  /* Disable orbs on reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .orb {
+      animation: none !important;
+    }
+  }
+  
+  /* Glass Panel - Main glass card */
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 1rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04), inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  }
+  
+  @supports (backdrop-filter: blur(12px)) {
+    .glass-panel {
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+  }
+  
+  /* Fallback for no backdrop-filter support */
+  .no-backdrop-filter .glass-panel {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: none;
+  }
+  
+  /* Dark mode glass panel */
+  .dark .glass-panel {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2), inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+  }
+  
+  .no-backdrop-filter .dark .glass-panel {
+    background: rgba(0, 0, 0, 0.8);
+  }
+  
+  /* Glass panel hover - NO blur increase (performance) */
+  .glass-panel:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 25px 30px -5px rgba(0, 0, 0, 0.15), 0 15px 15px -5px rgba(0, 0, 0, 0.05), inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+  }
+  
+  .dark .glass-panel:hover {
+    box-shadow: 0 25px 30px -5px rgba(0, 0, 0, 0.4), 0 15px 15px -5px rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+  }
+  
+  /* Glass Mobile - 95% opacity, minimal blur */
+  .glass-mobile {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 1rem;
+  }
+  
+  @supports (backdrop-filter: blur(4px)) {
+    .glass-mobile {
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+    }
+  }
+  
+  .no-backdrop-filter .glass-mobile {
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: none;
+  }
+  
+  .dark .glass-mobile {
+    background: rgba(0, 0, 0, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .no-backdrop-filter .dark .glass-mobile {
+    background: rgba(0, 0, 0, 0.98);
+  }
+  
+  /* Header Glass - Translucent header with backdrop-blur */
+  .header-glass {
+    background: rgba(255, 255, 255, 0.8);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+  
+  @supports (backdrop-filter: blur(16px)) {
+    .header-glass {
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+  }
+  
+  .no-backdrop-filter .header-glass {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: none;
+  }
+  
+  .dark .header-glass {
+    background: rgba(0, 0, 0, 0.5);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  }
+  
+  .no-backdrop-filter .dark .header-glass {
+    background: rgba(0, 0, 0, 0.9);
+  }
+  
+  /* Card Lift - Magnetic hover effect (transform only, no blur) */
+  .card-lift {
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  }
+  
+  .card-lift:hover {
+    transform: translateY(-2px);
+  }
+  
+  /* Typography - Text Glow ONLY for main balance number */
+  .text-glow {
+    text-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+  }
+  
+  .dark .text-glow {
+    text-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+  }
+  
+  /* Button Enhancements */
+  .btn-liquid {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  
+  .dark .btn-liquid {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .btn-primary-glow {
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);
+  }
+  
+  .btn-primary-glow:hover {
+    box-shadow: 0 0 16px rgba(16, 185, 129, 0.3);
+  }
+  
+  /* Update existing card to use glass variant */
+  .card {
+    @apply glass-panel;
+  }
+  
+  /* Mobile-specific: Use glass-mobile on small screens */
+  @media (max-width: 768px) {
+    .card {
+      @apply glass-mobile;
+    }
+  }
+  
+  /* ============================================================================
+     END GLASS COMPONENTS
+     ============================================================================ */
 }
 
 /* Utility classes */
@@ -350,6 +684,69 @@
   /* Body background gradient */
   body {
     @apply bg-gradient-to-br from-slate-50 via-gray-50 to-slate-50 min-h-screen;
+  }
+  
+  .dark body {
+    @apply bg-gradient-to-br from-zinc-900 via-zinc-950 to-zinc-900;
+    background-attachment: fixed;
+  }
+  
+  /* Orb animations - floating effect */
+  @keyframes float-orb-1 {
+    0%, 100% {
+      transform: translate(0, 0) scale(1);
+    }
+    33% {
+      transform: translate(30px, -30px) scale(1.1);
+    }
+    66% {
+      transform: translate(-20px, 20px) scale(0.9);
+    }
+  }
+  
+  @keyframes float-orb-2 {
+    0%, 100% {
+      transform: translate(0, 0) scale(1);
+    }
+    33% {
+      transform: translate(-40px, 40px) scale(0.9);
+    }
+    66% {
+      transform: translate(30px, -20px) scale(1.1);
+    }
+  }
+  
+  @keyframes float-orb-3 {
+    0%, 100% {
+      transform: translate(0, 0) scale(1);
+    }
+    33% {
+      transform: translate(20px, 30px) scale(1.05);
+    }
+    66% {
+      transform: translate(-30px, -40px) scale(0.95);
+    }
+  }
+  
+  .orb-1 {
+    animation: float-orb-1 20s ease-in-out infinite;
+  }
+  
+  .orb-2 {
+    animation: float-orb-2 25s ease-in-out infinite;
+  }
+  
+  .orb-3 {
+    animation: float-orb-3 22s ease-in-out infinite;
+  }
+  
+  /* Disable animations on reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .orb-1,
+    .orb-2,
+    .orb-3 {
+      animation: none;
+    }
   }
   
   /* Enhanced table row hover effects */

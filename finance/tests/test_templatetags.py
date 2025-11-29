@@ -16,7 +16,7 @@ class MoneyFiltersTestCase(TestCase):
         result = real_br(value)
         self.assertIn('R$', result)
         self.assertIn('1.234,56', result)
-        self.assertIn('font-tabular-nums', result)
+        self.assertIn('tabular-nums', result)
     
     def test_real_br_integer(self):
         """Test real_br filter with integer"""
