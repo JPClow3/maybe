@@ -1,7 +1,8 @@
 {# Transaction list table partial - returned by /transactions/data endpoint #}
 {% load money_filters %}
 
-<div class="bg-white shadow-sm rounded-lg overflow-hidden border border-gray-200">
+{% if transactions %}
+<div class="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200">
     <table class="min-w-full divide-y divide-gray-200" role="table" aria-label="Transactions list">
         <thead class="bg-gray-50">
             <tr>
@@ -33,14 +34,14 @@
                 {% include 'finance/transaction_category_cell.html' %}
                 {% endwith %}
             </tr>
-            {% empty %}
-            <tr>
-                <td colspan="5" class="px-6 py-4 text-center text-gray-500">
-                    No transactions yet.
-                </td>
-            </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
+{% else %}
+<div class="bg-white shadow-sm rounded-lg border border-gray-200">
+    {% url 'import_new' as import_new_url %}
+    {% include 'partials/_empty.html' with title="Nenhuma transação encontrada" description="Quando você importar seu primeiro extrato, suas transações aparecerão aqui." button_text="Importar meu primeiro Extrato" button_url=import_new_url %}
+</div>
+{% endif %}
 

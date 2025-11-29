@@ -1,6 +1,6 @@
 {% load money_filters %}
 <td 
-    class="px-6 py-4 whitespace-nowrap text-sm font-tabular-nums cursor-pointer hover:bg-gray-50 {% if transaction.amount < 0 %}text-success-600{% else %}text-danger-600{% endif %}"
+    class="px-6 py-4 whitespace-nowrap text-sm tabular-nums tracking-tight font-mono cursor-pointer hover:bg-gray-50 {% if transaction.category and transaction.category.classification == 'income' %}text-emerald-600{% else %}text-zinc-900{% endif %}"
     hx-get="{% url 'transaction_update_amount' transaction.pk %}"
     hx-trigger="click"
     hx-target="this"

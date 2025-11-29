@@ -22,7 +22,7 @@
         <div class="flex items-center gap-4">
             <div class="text-right">
                 <p class="text-sm text-gray-500">Current Balance</p>
-                <p class="text-3xl font-bold">{{ account.balance|real_br }}</p>
+                <p class="text-3xl font-bold tabular-nums tracking-tight font-mono">{{ account.balance|real_br }}</p>
             </div>
             <a href="{% url 'account_edit' account.pk %}" class="btn-primary">
                 Edit Account
@@ -31,7 +31,7 @@
     </div>
 </div>
 
-<section class="bg-white shadow-sm rounded-lg p-6 mb-6 border border-gray-200" aria-labelledby="account-details-heading">
+<section class="bg-white shadow-sm rounded-xl p-6 mb-6 border border-gray-200" aria-labelledby="account-details-heading">
     <h2 id="account-details-heading" class="text-lg font-semibold mb-4">Account Details</h2>
     <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
@@ -53,7 +53,7 @@
     </dl>
 </section>
 
-<section class="bg-white shadow-sm rounded-lg overflow-hidden border border-gray-200" aria-labelledby="recent-transactions-heading">
+<section class="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200" aria-labelledby="recent-transactions-heading">
     <div class="px-6 py-4 border-b border-gray-200">
         <h2 id="recent-transactions-heading" class="text-lg font-semibold">Recent Transactions</h2>
     </div>
@@ -78,7 +78,7 @@
                         {{ transaction.name }}
                     </a>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm {% if transaction.amount < 0 %}text-success-600{% else %}text-danger-600{% endif %} font-tabular-nums">
+                <td class="px-6 py-4 whitespace-nowrap text-sm {% if transaction.amount < 0 %}text-emerald-600{% else %}text-zinc-900{% endif %} tabular-nums tracking-tight font-mono">
                     {{ transaction.amount|real_br }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

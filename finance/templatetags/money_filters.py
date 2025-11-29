@@ -34,8 +34,8 @@ def real_br(value, currency='BRL'):
         money = Money(amount, currency)
         formatted = money.format()
         
-        # Apply font-tabular-nums for proper number alignment
-        return mark_safe(f'<span class="font-tabular-nums">{formatted}</span>')
+        # Apply tabular-nums tracking-tight font-mono for proper number alignment
+        return mark_safe(f'<span class="tabular-nums tracking-tight font-mono">{formatted}</span>')
     except (ValueError, TypeError):
         return str(value)
     except Exception:

@@ -106,30 +106,30 @@ def account_new(request):
                 account.user = request.user
                 account.save()
                 if is_htmx:
-                    response = HttpResponse()
-                    response['HX-Redirect'] = f'/accounts/{account.pk}/'
+                    response = HttpResponse(status=204)
+                    response['HX-Trigger'] = 'accountListChanged'
                     add_toast_trigger(response, f'Conta "{account.name}" criada com sucesso!', 'success')
                     return response
                 messages.success(request, f'Account "{account.name}" created successfully.')
                 return redirect('account_detail', pk=account.pk)
             except IntegrityError:
-                error_msg = 'Já existe uma conta com este nome. Por favor, escolha outro nome.'
+                form.add_error('name', 'Já existe uma conta com este nome. Por favor, escolha outro nome.')
                 if is_htmx:
-                    response = render(request, 'finance/account_form_partial.html', {'form': form})
-                    add_toast_trigger(response, error_msg, 'error')
-                    return response
-                messages.error(request, error_msg)
+                    return render(request, 'finance/account_form_partial.html', {'form': form})
+                messages.error(request, 'Já existe uma conta com este nome. Por favor, escolha outro nome.')
             except DatabaseError as e:
-                error_msg = 'Ocorreu um erro ao salvar a conta. Por favor, tente novamente.'
+                form.add_error(None, 'Ocorreu um erro ao salvar a conta. Por favor, tente novamente.')
                 if is_htmx:
-                    response = render(request, 'finance/account_form_partial.html', {'form': form})
-                    add_toast_trigger(response, error_msg, 'error')
-                    return response
-                messages.error(request, error_msg)
+                    return render(request, 'finance/account_form_partial.html', {'form': form})
+                messages.error(request, 'Ocorreu um erro ao salvar a conta. Por favor, tente novamente.')
+        else:
+            # Form validation failed - return form with errors
+            if is_htmx:
+                return render(request, 'finance/account_form_partial.html', {'form': form})
     else:
         form = AccountForm()
     
-    if is_htmx and request.method == 'POST':
+    if is_htmx:
         return render(request, 'finance/account_form_partial.html', {'form': form})
     return render(request, 'finance/account_form.html', {'form': form, 'title': 'New Account'})
 
@@ -171,30 +171,30 @@ def transaction_new(request):
                 transaction = form.save(commit=False)
                 transaction.save()
                 if is_htmx:
-                    response = HttpResponse()
-                    response['HX-Redirect'] = transaction.get_absolute_url() if hasattr(transaction, 'get_absolute_url') else f'/transactions/{transaction.pk}/'
+                    response = HttpResponse(status=204)
+                    response['HX-Trigger'] = 'transactionListChanged'
                     add_toast_trigger(response, f'Transação "{transaction.name}" criada com sucesso!', 'success')
                     return response
                 messages.success(request, f'Transaction "{transaction.name}" created successfully.')
                 return redirect('transaction_detail', pk=transaction.pk)
             except IntegrityError:
-                error_msg = 'Ocorreu um erro ao salvar a transação. Verifique os dados e tente novamente.'
+                form.add_error(None, 'Ocorreu um erro ao salvar a transação. Verifique os dados e tente novamente.')
                 if is_htmx:
-                    response = render(request, 'finance/transaction_form_partial.html', {'form': form})
-                    add_toast_trigger(response, error_msg, 'error')
-                    return response
-                messages.error(request, error_msg)
+                    return render(request, 'finance/transaction_form_partial.html', {'form': form})
+                messages.error(request, 'Ocorreu um erro ao salvar a transação. Verifique os dados e tente novamente.')
             except DatabaseError as e:
-                error_msg = 'Ocorreu um erro ao salvar a transação. Por favor, tente novamente.'
+                form.add_error(None, 'Ocorreu um erro ao salvar a transação. Por favor, tente novamente.')
                 if is_htmx:
-                    response = render(request, 'finance/transaction_form_partial.html', {'form': form})
-                    add_toast_trigger(response, error_msg, 'error')
-                    return response
-                messages.error(request, error_msg)
+                    return render(request, 'finance/transaction_form_partial.html', {'form': form})
+                messages.error(request, 'Ocorreu um erro ao salvar a transação. Por favor, tente novamente.')
+        else:
+            # Form validation failed - return form with errors
+            if is_htmx:
+                return render(request, 'finance/transaction_form_partial.html', {'form': form})
     else:
         form = TransactionForm(user=request.user)
     
-    if is_htmx and request.method == 'POST':
+    if is_htmx:
         return render(request, 'finance/transaction_form_partial.html', {'form': form})
     return render(request, 'finance/transaction_form.html', {'form': form, 'title': 'New Transaction'})
 
@@ -210,30 +210,30 @@ def account_edit(request, pk):
             try:
                 account = form.save()
                 if is_htmx:
-                    response = HttpResponse()
-                    response['HX-Redirect'] = account.get_absolute_url() if hasattr(account, 'get_absolute_url') else f'/accounts/{account.pk}/'
+                    response = HttpResponse(status=204)
+                    response['HX-Trigger'] = 'accountListChanged'
                     add_toast_trigger(response, f'Conta "{account.name}" atualizada com sucesso!', 'success')
                     return response
                 messages.success(request, f'Account "{account.name}" updated successfully.')
                 return redirect('account_detail', pk=account.pk)
             except IntegrityError:
-                error_msg = 'Ocorreu um erro ao salvar a conta. Verifique os dados e tente novamente.'
+                form.add_error('name', 'Já existe uma conta com este nome. Por favor, escolha outro nome.')
                 if is_htmx:
-                    response = render(request, 'finance/account_form_partial.html', {'form': form})
-                    add_toast_trigger(response, error_msg, 'error')
-                    return response
-                messages.error(request, error_msg)
+                    return render(request, 'finance/account_form_partial.html', {'form': form})
+                messages.error(request, 'Ocorreu um erro ao salvar a conta. Verifique os dados e tente novamente.')
             except DatabaseError as e:
-                error_msg = 'Ocorreu um erro ao salvar a conta. Por favor, tente novamente.'
+                form.add_error(None, 'Ocorreu um erro ao salvar a conta. Por favor, tente novamente.')
                 if is_htmx:
-                    response = render(request, 'finance/account_form_partial.html', {'form': form})
-                    add_toast_trigger(response, error_msg, 'error')
-                    return response
-                messages.error(request, error_msg)
+                    return render(request, 'finance/account_form_partial.html', {'form': form})
+                messages.error(request, 'Ocorreu um erro ao salvar a conta. Por favor, tente novamente.')
+        else:
+            # Form validation failed - return form with errors
+            if is_htmx:
+                return render(request, 'finance/account_form_partial.html', {'form': form})
     else:
         form = AccountForm(instance=account)
     
-    if is_htmx and request.method == 'POST':
+    if is_htmx:
         return render(request, 'finance/account_form_partial.html', {'form': form})
     return render(request, 'finance/account_form.html', {'form': form, 'title': 'Edit Account', 'account': account})
 
@@ -274,30 +274,30 @@ def transaction_edit(request, pk):
             try:
                 transaction = form.save()
                 if is_htmx:
-                    response = HttpResponse()
-                    response['HX-Redirect'] = transaction.get_absolute_url() if hasattr(transaction, 'get_absolute_url') else f'/transactions/{transaction.pk}/'
+                    response = HttpResponse(status=204)
+                    response['HX-Trigger'] = 'transactionListChanged'
                     add_toast_trigger(response, f'Transação "{transaction.name}" atualizada com sucesso!', 'success')
                     return response
                 messages.success(request, f'Transaction "{transaction.name}" updated successfully.')
                 return redirect('transaction_detail', pk=transaction.pk)
             except IntegrityError:
-                error_msg = 'Ocorreu um erro ao salvar a transação. Verifique os dados e tente novamente.'
+                form.add_error(None, 'Ocorreu um erro ao salvar a transação. Verifique os dados e tente novamente.')
                 if is_htmx:
-                    response = render(request, 'finance/transaction_form_partial.html', {'form': form})
-                    add_toast_trigger(response, error_msg, 'error')
-                    return response
-                messages.error(request, error_msg)
+                    return render(request, 'finance/transaction_form_partial.html', {'form': form})
+                messages.error(request, 'Ocorreu um erro ao salvar a transação. Verifique os dados e tente novamente.')
             except DatabaseError as e:
-                error_msg = 'Ocorreu um erro ao salvar a transação. Por favor, tente novamente.'
+                form.add_error(None, 'Ocorreu um erro ao salvar a transação. Por favor, tente novamente.')
                 if is_htmx:
-                    response = render(request, 'finance/transaction_form_partial.html', {'form': form})
-                    add_toast_trigger(response, error_msg, 'error')
-                    return response
-                messages.error(request, error_msg)
+                    return render(request, 'finance/transaction_form_partial.html', {'form': form})
+                messages.error(request, 'Ocorreu um erro ao salvar a transação. Por favor, tente novamente.')
+        else:
+            # Form validation failed - return form with errors
+            if is_htmx:
+                return render(request, 'finance/transaction_form_partial.html', {'form': form})
     else:
         form = TransactionForm(instance=transaction, user=request.user)
     
-    if is_htmx and request.method == 'POST':
+    if is_htmx:
         return render(request, 'finance/transaction_form_partial.html', {'form': form})
     return render(request, 'finance/transaction_form.html', {'form': form, 'title': 'Edit Transaction', 'transaction': transaction})
 

@@ -2,11 +2,48 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom design tokens */
+/* Geist Fonts - @font-face declarations */
+@font-face {
+  font-family: 'Geist Sans';
+  src: url('../fonts/Geist-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Geist Sans';
+  src: url('../fonts/Geist-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Geist Mono';
+  src: url('../fonts/GeistMono-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Custom design tokens - Dark mode preparation */
 @layer base {
   :root {
-    --color-primary: #3b82f6;
-    --color-primary-dark: #2563eb;
+    /* Primary colors */
+    --color-primary: #18181b; /* Zinc 900 */
+    --color-primary-hover: #27272a; /* Zinc 800 */
+    
+    /* Surface colors */
+    --color-surface: #ffffff;
+    --color-surface-subtle: #f9fafb; /* Gray 50 */
+    
+    /* Money semantic colors */
+    --color-money-income: #059669; /* Emerald 600 */
+    --color-money-expense: #18181b; /* Zinc 900 (gray instead of red) */
+    --color-money-debt: #e11d48; /* Rose 600 (only for critical alerts) */
+    
+    /* Legacy colors (for backward compatibility) */
     --color-secondary: #6b7280;
     --color-success: #22c55e;
     --color-danger: #ef4444;
@@ -16,32 +53,50 @@
     --color-bg-surface: #f9fafb;
     --color-border: #e5e7eb;
   }
+  
+  /* Dark mode (prepared for future implementation) */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      /* Dark mode values can be added here later */
+    }
+  }
 }
 
 /* Custom component styles */
 @layer components {
+  /* Buttons - Brazilian minimalism with micro-interactions */
   .btn-primary {
-    @apply bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary-600;
+    @apply bg-primary text-white px-4 py-2 rounded-lg min-h-[44px] active:scale-95 transition-all duration-200 ease-in-out hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary disabled:active:scale-100;
   }
   
   .btn-secondary {
-    @apply bg-secondary-200 text-secondary-900 px-4 py-2 rounded-md hover:bg-secondary-300 focus:outline-none focus:ring-2 focus:ring-secondary-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-secondary-200;
+    @apply bg-secondary-200 text-secondary-900 px-4 py-2 rounded-lg min-h-[44px] active:scale-95 transition-all duration-200 ease-in-out hover:bg-secondary-300 focus:outline-none focus:ring-2 focus:ring-secondary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-secondary-200 disabled:active:scale-100;
   }
   
   .btn-danger {
-    @apply bg-danger-600 text-white px-4 py-2 rounded-md hover:bg-danger-700 focus:outline-none focus:ring-2 focus:ring-danger-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-danger-600;
+    @apply bg-rose-600 text-white px-4 py-2 rounded-lg min-h-[44px] active:scale-95 transition-all duration-200 ease-in-out hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-rose-600 disabled:active:scale-100;
   }
   
+  .btn-ghost {
+    @apply bg-transparent text-gray-700 px-4 py-2 rounded-lg min-h-[44px] active:scale-95 transition-all duration-200 ease-in-out hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:active:scale-100;
+  }
+  
+  /* Form inputs - Notion/Mac OS style */
   .form-input {
-    @apply mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 transition-colors;
+    @apply mt-1 block w-full rounded-lg border-gray-200 bg-white px-3 py-2 text-sm shadow-sm min-h-[44px] transition-all duration-200 ease-in-out focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none;
+  }
+  
+  .form-input[type="number"],
+  .form-input.input-numeric {
+    @apply tabular-nums;
   }
 
   .form-select {
-    @apply mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 transition-colors;
+    @apply mt-1 block w-full rounded-lg border-gray-200 bg-white px-3 py-2 text-sm shadow-sm min-h-[44px] transition-all duration-200 ease-in-out focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none;
   }
 
   .form-textarea {
-    @apply mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 transition-colors;
+    @apply mt-1 block w-full rounded-lg border-gray-200 bg-white px-3 py-2 text-sm shadow-sm transition-all duration-200 ease-in-out focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none;
   }
 
   /* Form validation states - using direct CSS to avoid circular dependency */
@@ -59,8 +114,9 @@
     --tw-ring-color: theme('colors.danger.500');
   }
   
+  /* Cards - Subtle depth with rounded-xl */
   .card {
-    @apply bg-white shadow rounded-lg p-6;
+    @apply bg-white border border-gray-100 rounded-xl shadow-sm p-5;
   }
   
   .text-primary {
@@ -73,6 +129,23 @@
   
   .text-danger {
     @apply text-danger-600;
+  }
+  
+  /* Badges - Subtle style for categories and status */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-medium;
+  }
+  
+  .badge-income {
+    @apply bg-emerald-50 text-emerald-700;
+  }
+  
+  .badge-expense {
+    @apply bg-zinc-50 text-zinc-700;
+  }
+  
+  .badge-debt {
+    @apply bg-rose-50 text-rose-700;
   }
   
   .sr-only {
@@ -106,6 +179,20 @@
   textarea:focus {
     outline: 2px solid theme('colors.primary.500');
     outline-offset: 2px;
+  }
+  
+  /* Global micro-interactions - tactile click effect */
+  button:not(:disabled),
+  a:not([aria-disabled="true"]),
+  [role="button"]:not([aria-disabled="true"]) {
+    @apply transition-transform duration-200 ease-in-out active:scale-95;
+  }
+  
+  /* Ensure disabled elements don't scale */
+  button:disabled,
+  a[aria-disabled="true"],
+  [role="button"][aria-disabled="true"] {
+    @apply active:scale-100;
   }
   
   /* Tabular numbers for monetary values - proper alignment */

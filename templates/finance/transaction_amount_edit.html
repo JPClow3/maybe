@@ -11,7 +11,7 @@
             type="text"
             name="amount"
             value="{{ transaction.amount|real_br_plain }}"
-            class="form-input text-sm py-1 font-tabular-nums disabled:opacity-70 disabled:cursor-not-allowed"
+            class="form-input text-sm py-1 tabular-nums tracking-tight font-mono disabled:opacity-70 disabled:cursor-not-allowed"
             placeholder="R$ 0,00"
             autofocus
             x-data="moneyInput('{{ transaction.amount|real_br_plain }}')"

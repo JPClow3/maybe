@@ -398,7 +398,7 @@
                         optimisticState.set('transaction-amount', originalText);
                         // Optimistically update UI (format as currency)
                         const formatted = newAmount.replace('.', ',').replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
-                        td.innerHTML = `<span class="opacity-70 font-tabular-nums">R$ ${formatted}</span>`;
+                        td.innerHTML = `<span class="opacity-70 tabular-nums tracking-tight font-mono">R$ ${formatted}</span>`;
                     }
                 }
             }

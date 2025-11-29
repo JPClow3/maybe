@@ -15,7 +15,7 @@
             <div class="flex items-center gap-4">
                 <div class="text-right">
                     <p class="text-sm text-gray-500">Amount</p>
-                    <p class="text-3xl font-bold {% if transaction.amount < 0 %}text-success-600{% else %}text-danger-600{% endif %} font-tabular-nums">
+                    <p class="text-3xl font-bold {% if transaction.amount < 0 %}text-emerald-600{% else %}text-zinc-900{% endif %} tabular-nums tracking-tight font-mono">
                         {{ transaction.amount|real_br }}
                     </p>
                 </div>
@@ -26,7 +26,7 @@
         </div>
     </div>
     
-    <div class="bg-white shadow rounded-lg p-6">
+    <div class="bg-white shadow-sm rounded-xl p-6 border border-gray-100">
         <h2 class="text-lg font-semibold mb-4">Transaction Details</h2>
         <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>

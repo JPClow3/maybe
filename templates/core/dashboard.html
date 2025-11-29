@@ -23,11 +23,11 @@
         <div class="flex items-center justify-between">
             <div>
                 <h3 class="text-sm font-medium text-gray-500 mb-1">Gastos este mês</h3>
-                <p class="text-2xl font-bold text-gray-900 font-tabular-nums">
+                <p class="text-2xl font-bold text-gray-900 tabular-nums tracking-tight font-mono">
                     {% if spending_change > 0 %}
-                        <span class="text-danger-600">+{{ spending_change|floatformat:1 }}%</span>
+                        <span class="text-rose-600">+{{ spending_change|floatformat:1 }}%</span>
                     {% else %}
-                        <span class="text-success-600">{{ spending_change|floatformat:1 }}%</span>
+                        <span class="text-emerald-600">{{ spending_change|floatformat:1 }}%</span>
                     {% endif %}
                     <span class="text-sm text-gray-500 font-normal">vs mês passado</span>
                 </p>
@@ -53,7 +53,7 @@
                     <p class="text-sm text-gray-500">{{ transaction.account.name }} • {{ transaction.date|date:"d/m/Y" }}</p>
                 </div>
                 <div class="ml-4 text-right">
-                    <p class="text-lg font-semibold {% if transaction.amount < 0 %}text-success-600{% else %}text-danger-600{% endif %} font-tabular-nums">
+                    <p class="text-lg font-semibold {% if transaction.amount < 0 %}text-emerald-600{% else %}text-zinc-900{% endif %} tabular-nums tracking-tight font-mono">
                         {{ transaction.amount|real_br }}
                     </p>
                     {% if transaction.category %}
