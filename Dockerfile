@@ -33,12 +33,12 @@ RUN apt-get update -qq && \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
-COPY maybe_django/requirements.txt /tmp/requirements.txt
+COPY requirements.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r /tmp/requirements.txt
 
 # Copy application code
-COPY maybe_django/ /app/
+COPY . /app/
 
 # Final stage for app image
 FROM base

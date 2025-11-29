@@ -1,0 +1,29 @@
+<div id="account-name-display">
+    <h1 class="text-2xl font-bold">
+        <form hx-post="{% url 'account_edit_inline' account.pk %}" 
+              hx-target="#account-name-display" 
+              hx-swap="outerHTML"
+              class="inline-block">
+            {% csrf_token %}
+            <input type="text" 
+                   name="name" 
+                   value="{{ account.name }}" 
+                   class="text-2xl font-bold border-2 border-primary-500 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-70 disabled:cursor-not-allowed"
+                   autofocus
+                   aria-label="Account name"
+                   aria-describedby="account-name-edit-loading">
+            <span id="account-name-edit-loading" class="sr-only" aria-live="polite"></span>
+            <button type="submit" class="btn-primary ml-2 text-sm relative">
+                <span class="htmx-indicator-button">Save</span>
+                <span class="absolute right-1 top-1/2 -translate-y-1/2">
+                    {% include 'partials/spinner.html' with size='h-4 w-4' color='text-white' %}
+                </span>
+            </button>
+            <button type="button" 
+                    onclick="location.reload()"
+                    class="btn-secondary ml-2 text-sm">Cancel</button>
+        </form>
+    </h1>
+    <p class="text-gray-600">{{ account.get_accountable_type_display }}</p>
+</div>
+

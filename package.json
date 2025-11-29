@@ -15,8 +15,8 @@
 		"lint:fix": "biome lint --write",
 		"format:check": "biome format",
 		"format": "biome format --write",
-		"css:build": "tailwindcss -i maybe_django/static/css/input.css -o maybe_django/static/css/main.css --minify",
-		"css:watch": "tailwindcss -i maybe_django/static/css/input.css -o maybe_django/static/css/main.css --watch"
+		"css:build": "tailwindcss -i static/css/input.css -o static/css/main.css --minify",
+		"css:watch": "tailwindcss -i static/css/input.css -o static/css/main.css --watch"
 	},
 	"author": "",
 	"license": "AGPL-3.0"

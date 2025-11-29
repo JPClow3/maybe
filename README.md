@@ -32,7 +32,6 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 2. Install dependencies:
 ```bash
-cd maybe_django
 pip install -r requirements.txt
 ```
 
@@ -69,10 +68,10 @@ python manage.py runserver
 
 ## Project Structure
 
-- `maybe_django/core/` - User authentication and core models
-- `maybe_django/finance/` - Accounts, transactions, balances, categories, rules, budgets
-- `maybe_django/investments/` - Securities, holdings, trades
-- `maybe_django/imports/` - OFX/CSV file importers
+- `core/` - User authentication and core models
+- `finance/` - Accounts, transactions, balances, categories, rules, budgets
+- `investments/` - Securities, holdings, trades
+- `imports/` - OFX/CSV file importers
 
 ## Features
 

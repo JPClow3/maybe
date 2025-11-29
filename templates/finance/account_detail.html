@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load money_filters %}
+
+{% block title %}{{ account.name }} - Maybe Finance{% endblock %}
+
+{% block content %}
+<div class="px-4 py-6 sm:px-0">
+    <div id="account-detail-content"
+         hx-get="{% url 'account_detail_data' account.pk %}"
+         hx-trigger="load"
+         hx-swap="innerHTML"
+         hx-indicator="#account-detail-loading"
+         class="relative">
+        {% if show_skeleton %}
+            {% include 'finance/account_detail_skeleton.html' %}
+        {% else %}
+            {% include 'finance/account_detail_data.html' %}
+        {% endif %}
+        <div id="account-detail-loading" class="htmx-indicator absolute inset-0 flex items-center justify-center bg-white/80 backdrop-blur-sm rounded-lg">
+            {% include 'partials/spinner.html' with size='h-8 w-8' color='text-primary-600' %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+

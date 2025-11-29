@@ -1,0 +1,14 @@
+{% load money_filters %}
+<td 
+    class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 cursor-pointer hover:bg-gray-50"
+    hx-get="{% url 'transaction_update_category' transaction.pk %}"
+    hx-trigger="click"
+    hx-target="this"
+    hx-swap="outerHTML"
+    role="button"
+    tabindex="0"
+    aria-label="Click to edit category"
+>
+    {{ transaction.category.name|default:"—" }}
+</td>
+
