@@ -74,18 +74,22 @@ def account_validate_field(request):
     
     # Validate only the specific field
     if field_name in form.fields:
-        form.full_clean()
-        field = form[field_name]
-        
-        if field.errors:
-            return render(request, 'partials/field_error.html', {
-                'errors': field.errors,
-                'field_id': field.id_for_label
-            })
-        else:
-            return render(request, 'partials/field_success.html', {
-                'field_id': field.id_for_label
-            })
+        try:
+            form.full_clean()
+            field = form[field_name]
+            
+            if field.errors:
+                return render(request, 'partials/field_error.html', {
+                    'errors': field.errors,
+                    'field_id': field.id_for_label
+                })
+            else:
+                return render(request, 'partials/field_success.html', {
+                    'field_id': field.id_for_label
+                })
+        except Exception:
+            # If validation fails for any reason, return empty response
+            return HttpResponse('', status=400)
     
     return HttpResponse('', status=400)
 

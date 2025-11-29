@@ -13,9 +13,9 @@
     </div>
     
     <div id="account-list-content"
-         hx-get="{% url 'account_list_data' %}"
+         {% if show_skeleton %}hx-get="{% url 'account_list_data' %}"
          hx-trigger="load"
-         hx-swap="innerHTML"
+         hx-swap="innerHTML"{% endif %}
          hx-indicator="#account-list-loading"
          class="relative">
         {% if show_skeleton %}

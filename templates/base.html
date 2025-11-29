@@ -531,6 +531,8 @@
                                         if (errorEl) errorEl.style.display = 'none';
                                     }
                                 }
+                            }).catch(() => {
+                                // Silently fail validation requests (network errors, etc.)
                             });
                         } else {
                             // Clear validation indicator if field is empty
