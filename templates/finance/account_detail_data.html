@@ -2,7 +2,7 @@
 {# Account detail content (loaded via HTMX) #}
 <div class="content-fade-in">
 <div class="mb-6">
-    <a href="{% url 'account_list' %}" class="text-primary-600 hover:text-primary-700 mb-4 inline-block" hx-boost="true" hx-target="main">← Back to Accounts</a>
+    <a href="{% url 'account_list' %}" class="text-primary-600 hover:text-primary-700 mb-4 inline-block" hx-boost="true" hx-target="#main-content" hx-select="#main-content" hx-swap="innerHTML">← Back to Accounts</a>
     <div class="flex justify-between items-center">
         <div id="account-name-display">
             <h1 class="text-2xl font-bold">

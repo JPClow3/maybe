@@ -6,7 +6,10 @@
 
 {% block content %}
 <div class="px-4 py-6 sm:px-0">
-    <h1 class="text-2xl font-bold mb-6">Dashboard</h1>
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold bg-gradient-to-r from-primary-700 to-primary-500 bg-clip-text text-transparent">Dashboard</h1>
+        <p class="text-sm text-gray-600 mt-1">Overview of your finances</p>
+    </div>
     
     {# Main financial cards - loaded via HTMX with skeleton initial state #}
     <div 
@@ -45,7 +48,7 @@
         {% if recent_transactions %}
         <div class="space-y-2">
             {% for transaction in recent_transactions|slice:":10" %}
-            <div class="flex justify-between items-center py-3 border-b border-gray-200 last:border-0 hover:bg-gray-50">
+            <div class="flex justify-between items-center py-3 border-b border-gray-200 last:border-0 hover:bg-gradient-to-r hover:from-primary-50/50 hover:to-transparent transition-all duration-200 rounded-lg px-2 -mx-2 cursor-pointer group">
                 <div class="flex-1 min-w-0">
                     <a href="{% url 'transaction_detail' transaction.pk %}" class="font-medium text-gray-900 hover:text-primary-600 block truncate">
                         {{ transaction.name }}

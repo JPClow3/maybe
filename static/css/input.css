@@ -114,9 +114,33 @@
     --tw-ring-color: theme('colors.danger.500');
   }
   
-  /* Cards - Subtle depth with rounded-xl */
+  /* Cards - Subtle depth with rounded-xl and enhanced hover effects */
   .card {
-    @apply bg-white border border-gray-100 rounded-xl shadow-sm p-5;
+    @apply bg-white border border-gray-100 rounded-xl shadow-sm p-5 transition-all duration-300 ease-in-out;
+  }
+  
+  .card:hover {
+    @apply shadow-md border-gray-200;
+    transform: translateY(-2px);
+  }
+  
+  /* Card variants with colored accents */
+  .card-primary {
+    @apply bg-white border-l-4 border-primary-600 shadow-sm p-5 transition-all duration-300 ease-in-out;
+  }
+  
+  .card-primary:hover {
+    @apply shadow-md border-primary-700;
+    transform: translateY(-2px);
+  }
+  
+  .card-success {
+    @apply bg-white border-l-4 border-emerald-500 shadow-sm p-5 transition-all duration-300 ease-in-out;
+  }
+  
+  .card-success:hover {
+    @apply shadow-md border-emerald-600;
+    transform: translateY(-2px);
   }
   
   .text-primary {
@@ -321,6 +345,21 @@
       opacity: 1;
       transform: translateY(0);
     }
+  }
+  
+  /* Body background gradient */
+  body {
+    @apply bg-gradient-to-br from-slate-50 via-gray-50 to-slate-50 min-h-screen;
+  }
+  
+  /* Enhanced table row hover effects */
+  .table-row-hover {
+    @apply transition-all duration-200 ease-in-out;
+  }
+  
+  .table-row-hover:hover {
+    @apply bg-gradient-to-r from-primary-50/50 to-transparent;
+    transform: scale(1.01);
   }
 }
 

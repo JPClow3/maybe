@@ -1,14 +1,22 @@
 {# Account list content (loaded via HTMX) #}
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 content-fade-in" role="list" aria-label="Accounts list">
     {% for account in accounts %}
-    <article class="card p-5 hover:shadow-md transition-shadow" role="listitem">
-        <h2 class="text-lg font-semibold">{{ account.name }}</h2>
-        <p class="text-gray-600">{{ account.get_accountable_type_display }}</p>
-        <p class="text-2xl font-bold mt-2 tabular-nums tracking-tight font-mono">
+    <article class="card-primary p-6 hover:shadow-lg transition-all duration-300 cursor-pointer group" role="listitem">
+        <div class="flex items-start justify-between mb-3">
+            <div class="flex-1">
+                <h2 class="text-lg font-bold text-gray-900 group-hover:text-primary-700 transition-colors">{{ account.name }}</h2>
+                <p class="text-sm text-gray-600 mt-1">{{ account.get_accountable_type_display }}</p>
+            </div>
+            <div class="w-2 h-2 rounded-full {% if account.classification == 'asset' %}bg-emerald-500{% else %}bg-rose-500{% endif %} opacity-60 group-hover:opacity-100 transition-opacity"></div>
+        </div>
+        <p class="text-3xl font-bold mt-4 tabular-nums tracking-tight font-mono {% if account.balance >= 0 %}text-emerald-700{% else %}text-rose-600{% endif %}">
             {{ account.balance|real_br }}
         </p>
-        <a href="{% url 'account_detail' account.pk %}" class="text-primary-600 hover:text-primary-700 mt-2 inline-block" hx-boost="true" hx-target="main">
-            View Details →
+        <a href="{% url 'account_detail' account.pk %}" class="text-primary-600 hover:text-primary-800 mt-4 inline-flex items-center gap-2 font-medium transition-all group-hover:gap-3" hx-boost="true" hx-target="#main-content" hx-select="#main-content" hx-swap="innerHTML">
+            View Details 
+            <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
         </a>
     </article>
     {% empty %}

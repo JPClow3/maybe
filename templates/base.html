@@ -17,7 +17,7 @@
 </head>
 <body>
     <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 focus:z-50 focus:p-2 focus:bg-primary-600 focus:text-white">Skip to main content</a>
-    <nav class="bg-white shadow" role="navigation" aria-label="Main navigation">
+    <nav class="bg-white/95 backdrop-blur-md shadow-md border-b border-gray-200" role="navigation" aria-label="Main navigation">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex">
@@ -28,19 +28,19 @@
                     </div>
                     {% if user.is_authenticated %}
                     <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-                        <a href="{% url 'dashboard' %}" class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-gray-300 hover:text-gray-700" aria-current="page" hx-boost="true" hx-target="main">
+                        <a href="{% url 'dashboard' %}" class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-gray-300 hover:text-gray-700" aria-current="page" hx-boost="true" hx-target="#main-content" hx-select="#main-content" hx-swap="innerHTML">
                             Dashboard
                         </a>
-                        <a href="{% url 'account_list' %}" class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:border-gray-300 hover:text-gray-700" hx-boost="true" hx-target="main">
+                        <a href="{% url 'account_list' %}" class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:border-gray-300 hover:text-gray-700" hx-boost="true" hx-target="#main-content" hx-select="#main-content" hx-swap="innerHTML">
                             Accounts
                         </a>
-                        <a href="{% url 'transaction_list' %}" class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:border-gray-300 hover:text-gray-700" hx-boost="true" hx-target="main">
+                        <a href="{% url 'transaction_list' %}" class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:border-gray-300 hover:text-gray-700" hx-boost="true" hx-target="#main-content" hx-select="#main-content" hx-swap="innerHTML">
                             Transactions
                         </a>
-                        <a href="{% url 'import_list' %}" class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:border-gray-300 hover:text-gray-700" hx-boost="true" hx-target="main">
+                        <a href="{% url 'import_list' %}" class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:border-gray-300 hover:text-gray-700" hx-boost="true" hx-target="#main-content" hx-select="#main-content" hx-swap="innerHTML">
                             Imports
                         </a>
-                        <a href="{% url 'security_list' %}" class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:border-gray-300 hover:text-gray-700" hx-boost="true" hx-target="main">
+                        <a href="{% url 'security_list' %}" class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:border-gray-300 hover:text-gray-700" hx-boost="true" hx-target="#main-content" hx-select="#main-content" hx-swap="innerHTML">
                             Investments
                         </a>
                     </div>
@@ -64,7 +64,7 @@
     {# Page loading overlay for HTMX boost transitions #}
     {% include 'partials/page_loading_overlay.html' %}
     
-    <main id="main-content" class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8" role="main">
+    <main id="main-content" class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8 bg-white/60 backdrop-blur-sm rounded-t-2xl shadow-lg border-t border-gray-200" role="main">
         {% if messages %}
         <div class="px-4 sm:px-6 lg:px-8 mb-4" role="alert" aria-live="polite">
             {% for message in messages %}
@@ -159,7 +159,7 @@
                 // Check if it's a boost navigation
                 if (target.tagName === 'A' && (
                     target.hasAttribute('hx-boost') || 
-                    target.getAttribute('hx-target') === 'main'
+                    target.getAttribute('hx-target') === '#main-content'
                 )) {
                     const pageName = target.textContent.trim() || target.getAttribute('aria-label') || 'page';
                     loadingEl.textContent = `Loading ${pageName}, please wait...`;
@@ -238,10 +238,10 @@
             // Show overlay/bar only for boost navigation (full page transitions)
             document.body.addEventListener('htmx:beforeRequest', function(evt) {
                 const target = evt.target;
-                // Check if this is a boost navigation (anchor tag with hx-boost or hx-target="main")
+                // Check if this is a boost navigation (anchor tag with hx-boost or hx-target="#main-content")
                 const isBoostLink = target.tagName === 'A' && (
                     target.hasAttribute('hx-boost') || 
-                    target.getAttribute('hx-target') === 'main' ||
+                    target.getAttribute('hx-target') === '#main-content' ||
                     target.closest('[hx-boost]')
                 );
                 
@@ -559,6 +559,43 @@
             if (accountForm) {
                 setupFieldValidation(accountForm, '/accounts/validate-field/');
             }
+        });
+        
+        // Fix duplicate headers - remove any nav elements that appear inside main-content
+        document.body.addEventListener('htmx:afterSwap', function(evt) {
+            // Small delay to ensure DOM is fully updated
+            setTimeout(function() {
+                const mainContent = document.getElementById('main-content');
+                if (mainContent) {
+                    // Remove any nav elements that might have been accidentally included in the swap
+                    const duplicateNavs = mainContent.querySelectorAll('nav');
+                    duplicateNavs.forEach(nav => nav.remove());
+                    
+                    // Also remove any elements with "Maybe Finance" text that appear inside main-content
+                    const allElements = mainContent.querySelectorAll('*');
+                    allElements.forEach(function(el) {
+                        if (el.textContent && el.textContent.includes('Maybe Finance') && 
+                            (el.tagName === 'NAV' || el.closest('nav'))) {
+                            const nav = el.tagName === 'NAV' ? el : el.closest('nav');
+                            if (nav && mainContent.contains(nav)) {
+                                nav.remove();
+                            }
+                        }
+                    });
+                    
+                    // Final check: count all nav elements and remove duplicates inside main-content
+                    const allNavs = document.querySelectorAll('nav[role="navigation"]');
+                    if (allNavs.length > 1) {
+                        // Keep only the first nav (the one outside main-content)
+                        for (let i = 1; i < allNavs.length; i++) {
+                            // Only remove navs that are inside main-content
+                            if (mainContent.contains(allNavs[i])) {
+                                allNavs[i].remove();
+                            }
+                        }
+                    }
+                }
+            }, 10);
         });
     </script>
 </body>

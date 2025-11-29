@@ -13,7 +13,7 @@
     </p>
     {% if button_text and button_url %}
     <div class="mt-6">
-        <a href="{{ button_url }}" class="btn-primary inline-flex items-center" hx-boost="true" hx-target="main">
+        <a href="{{ button_url }}" class="btn-primary inline-flex items-center" hx-boost="true" hx-target="#main-content" hx-select="#main-content" hx-swap="innerHTML">
             {{ button_text }}
         </a>
     </div>

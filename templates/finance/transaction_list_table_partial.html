@@ -20,7 +20,7 @@
                     {{ transaction.date|date:"d/m/Y" }}
                 </td>
                 <td class="px-6 py-4 text-sm text-gray-900">
-                    <a href="{% url 'transaction_detail' transaction.pk %}" class="text-primary-600 hover:text-primary-700 font-medium" hx-boost="true" hx-target="main">
+                    <a href="{% url 'transaction_detail' transaction.pk %}" class="text-primary-600 hover:text-primary-700 font-medium" hx-boost="true" hx-target="#main-content" hx-select="#main-content" hx-swap="innerHTML">
                         {{ transaction.name }}
                     </a>
                 </td>
