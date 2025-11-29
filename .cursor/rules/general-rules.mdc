@@ -5,17 +5,19 @@ alwaysApply: true
 ---
 # General rules for AI 
 
-- Use `Current.user` for the current user. Do NOT use `current_user`.
-- Use `Current.family` for the current family. Do NOT use `current_family`.
+- Use `request.user` for the current user in views and templates. Do NOT use `current_user`.
 - Prior to generating any code, carefully read the project conventions and guidelines
   - Read [project-design.mdc](mdc:.cursor/rules/project-design.mdc) to understand the codebase
   - Read [project-conventions.mdc](mdc:.cursor/rules/project-conventions.mdc) to understand _how_ to write code for the codebase
   - Read [ui-ux-design-guidelines.mdc](mdc:.cursor/rules/ui-ux-design-guidelines.mdc) to understand how to implement frontend code specifically
+  - Read [stimulus_conventions.mdc](mdc:.cursor/rules/stimulus_conventions.mdc) for HTMX patterns
 - Ignore i18n methods and files. Hardcode strings in English for now to optimize speed of development.
+- Always use design system component classes (`btn-primary`, `card`, `form-input`, etc.) from the design system defined in `maybe_django/static/css/input.css`
+- When modifying CSS, update `maybe_django/static/css/input.css` and run `npm run css:build` to compile
 
 ## Prohibited actions
 
-- Do not run `rails server` in your responses.
-- Do not run `touch tmp/restart.txt`
-- Do not run `rails credentials`
+- Do not run `python manage.py runserver` in your responses.
 - Do not automatically run migrations
+- Do not run `python manage.py createsuperuser` in your responses
+- Do not modify `maybe_django/static/css/main.css` directly - it is generated from `input.css`

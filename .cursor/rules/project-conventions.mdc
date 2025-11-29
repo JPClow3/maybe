@@ -1,73 +1,72 @@
 ---
-description: 
-globs: 
+description: High-level conventions for writing code in the Maybe Django codebase
+globs: maybe_django/**/*
 alwaysApply: true
 ---
 This rule serves as high-level documentation for how you should write code for the Maybe codebase. 
 
 ## Project Tech Stack
 
-- Web framework: Ruby on Rails
-  - Minitest + fixtures for testing
-  - Propshaft for asset pipeline
-  - Hotwire Turbo/Stimulus for SPA-like UI/UX
-  - TailwindCSS for styles
-  - Lucide Icons for icons
-  - OpenAI for AI chat
+- Web framework: Django 5.0+
+  - Django unittest for testing
+  - Django templates for server-side rendering
+  - HTMX for SPA-like UI/UX
+  - django-components for reusable UI components
+  - TailwindCSS v3.4+ for styles (built via PostCSS with custom design system)
 - Database: PostgreSQL
-- Jobs: Sidekiq + Redis
+- Jobs: Celery + Redis
 - External
-  - Payments: Stripe
-  - User bank data syncing: Plaid 
-  - Market data: Synth (our custom API)
+  - B3 investment data: yfinance for Brazilian stock market
+  - OFX parsing: ofxparse for bank file imports
+  - CSV parsing: pandas for data processing
 
 ## Project conventions
 
 These conventions should be used when writing code for Maybe.
 
-### Convention 1: Minimize dependencies, vanilla Rails is plenty
+### Convention 1: Minimize dependencies, vanilla Django is plenty
 
 Dependencies are a natural part of building software, but we aim to minimize them when possible to keep this open-source codebase easy to understand, maintain, and contribute to.
 
-- Push Rails to its limits before adding new dependencies
+- Push Django to its limits before adding new dependencies
 - When a new dependency is added, there must be a strong technical or business reason to add it
 - When adding dependencies, you should favor old and reliable over new and flashy 
 
-### Convention 2: Leverage POROs and concerns over "service objects"
+### Convention 2: Leverage model methods and service classes over "service objects"
 
-This codebase adopts a "skinny controller, fat models" convention.  Furthermore, we put almost _everything_ directly in the `app/models/` folder and avoid separate folders for business logic such as `app/services/`.
+This codebase adopts a "skinny views, fat models" convention. Business logic primarily lives in model methods and service classes organized within each Django app.
 
-- Organize large pieces of business logic into Rails concerns and POROs (Plain ole' Ruby Objects)
-- While a Rails concern _may_ offer shared functionality (i.e. "duck types"), it can also be a "one-off" concern that is only included in one place for better organization and readability.
-- When concerns are used for code organization, they should be organized around the "traits" of a model; not for simply moving code to another spot in the codebase.
-- When possible, models should answer questions about themselves—for example, we might have a method, `account.balance_series` that returns a time-series of the account's most recent balances.  We prefer this over something more service-like such as `AccountSeries.new(account).call`.
+- Organize complex business logic into service classes in `maybe_django/*/services/` directories
+- While a service class may offer shared functionality, it can also be a "one-off" service that is only used in one place for better organization and readability
+- When services are used for code organization, they should be organized around the "traits" or "operations" of a domain model
+- When possible, models should answer questions about themselves—for example, we might have a method, `account.get_balance_series()` that returns a time-series of the account's most recent balances.  We prefer this over something more service-like such as `BalanceService.get_series(account)`.
 
-### Convention 3: Leverage Hotwire, write semantic HTML, CSS, and JS, prefer server-side solutions
+### Convention 3: Leverage HTMX, write semantic HTML, CSS, and JS, prefer server-side solutions
 
 - Native HTML is always preferred over JS-based components
   - Example 1: Use `<dialog>` element for modals instead of creating a custom component
   - Example 2: Use `<details><summary>...</summary></details>` for disclosures rather than custom components
-- Leverage Turbo frames to break up the page over JS-driven client-side solutions
-  - Example 1: A good example of turbo frame usage is in [application.html.erb](mdc:app/views/layouts/application.html.erb) where we load [chats_controller.rb](mdc:app/controllers/chats_controller.rb) actions in a turbo frame in the global layout
+- Leverage HTMX to break up the page over JS-driven client-side solutions
+  - Example: Use HTMX attributes (`hx-get`, `hx-post`, `hx-swap`) for dynamic content loading
+  - Use HTMX to replace page sections with server-rendered HTML
 - Leverage query params in the URL for state over local storage and sessions.  If absolutely necessary, utilize the DB for persistent state.
-- Use Turbo streams to enhance functionality, but do not solely depend on it
-- Format currencies, numbers, dates, and other values server-side, then pass to Stimulus controllers for display only
-- Keep client-side code for where it truly shines.  For example, @bulk_select_controller.js is a case where server-side solutions would degrade the user experience significantly.  When bulk-selecting entries, client-side solutions are the way to go and Stimulus provides the right toolset to achieve this.
-- Always use the `icon` helper in [application_helper.rb](mdc:app/helpers/application_helper.rb) for icons.  NEVER use `lucide_icon` helper directly.
+- Format currencies, numbers, dates, and other values server-side, then pass to templates for display only
+- Keep client-side code for where it truly shines.  For example, bulk selection interfaces may require JavaScript for a good user experience. When bulk-selecting entries, client-side solutions are the way to go.
+- Use django-components for reusable UI components. Components should live in `maybe_django/*/components/` or similar structure if using django-components directory organization.
 
-The Hotwire suite (Turbo/Stimulus) works very well with these native elements and we optimize for this.
+The HTMX approach works very well with these native elements and we optimize for this.
 
-### Convention 4: Optimize for simplicitly and clarity
+### Convention 4: Optimize for simplicity and clarity
 
 All code should maximize readability and simplicity.
 
 - Prioritize good OOP domain design over performance
 - Only focus on performance for critical and global areas of the codebase; otherwise, don't sweat the small stuff.
-  - Example 1: be mindful of loading large data payloads in global layouts
-  - Example 2: Avoid N+1 queries
+  - Example 1: be mindful of loading large data payloads in global templates
+  - Example 2: Avoid N+1 queries using `select_related()` and `prefetch_related()`
 
-### Convention 5: Use ActiveRecord for complex validations, DB for simple ones, keep business logic out of DB
+### Convention 5: Use Django ORM for complex validations, DB for simple ones, keep business logic in models
 
-- Enforce `null` checks, unique indexes, and other simple validations in the DB
-- ActiveRecord validations _may_ mirror the DB level ones, but not 100% necessary.  These are for convenience when error handling in forms.  Always prefer client-side form validation when possible.
-- Complex validations and business logic should remain in ActiveRecord
+- Enforce `null` checks, unique constraints, and other simple validations in the DB via model field definitions
+- Django model validations _may_ mirror the DB level ones, but not 100% necessary.  These are for convenience when error handling in forms.  Always prefer client-side form validation when possible.
+- Complex validations and business logic should remain in Django models (via `clean()` method or model methods)

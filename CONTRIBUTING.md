@@ -21,13 +21,63 @@ In general, _full features_ that get us closer to [our Vision](https://github.co
 
 ### Setup
 
-To get setup for local development, you have two options:
+To get setup for local development:
 
-1. [Dev Containers](https://code.visualstudio.com/docs/devcontainers/containers) with VSCode (see the `.devcontainer` folder)
-2. Local Development
-   - [Mac Setup Guide](https://github.com/maybe-finance/maybe/wiki/Mac-Dev-Setup-Guide)
-   - [Linux Setup Guide](https://github.com/maybe-finance/maybe/wiki/Linux-Dev-Setup-Guide)
-   - [Windows Setup Guide](https://github.com/maybe-finance/maybe/wiki/Windows-Dev-Setup-Guide)
+1. Clone the repository
+
+2. Create a virtual environment:
+
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. Install Python dependencies:
+
+   ```bash
+   cd maybe_django
+   pip install -r requirements.txt
+   ```
+
+4. Install Node.js dependencies and build CSS:
+
+   ```bash
+   npm install
+   npm run css:build
+   ```
+
+5. Set up environment variables:
+
+   ```bash
+   cp .env.example .env
+   # Edit .env with your configuration
+   ```
+
+6. Create PostgreSQL database:
+
+   ```bash
+   createdb maybe_django
+   ```
+
+7. Run migrations:
+
+   ```bash
+   python manage.py migrate
+   ```
+
+8. Create superuser:
+
+   ```bash
+   python manage.py createsuperuser
+   ```
+
+9. Run development server:
+
+   ```bash
+   python manage.py runserver
+   ```
+
+Alternatively, you can use Docker Compose (see `compose.example.yml`).
 
 ### Making a Pull Request
 

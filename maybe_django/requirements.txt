@@ -1,0 +1,10 @@
+Django>=5.0,<6.0
+psycopg2-binary>=2.9.0
+django-components>=0.28
+ofxparse>=0.21
+pandas>=2.0.0
+yfinance>=0.2.0
+celery>=5.3.0
+redis>=5.0.0
+python-decouple>=3.8
+python-dateutil>=2.8.0

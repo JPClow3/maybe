@@ -4,16 +4,9 @@
 /.git/
 /.gitignore
 
-# Ignore bundler config.
-/.bundle
-
 # Ignore all environment files (except templates).
 /.env*
-!/.env*.erb
-
-# Ignore all default key files.
-/config/master.key
-/config/credentials/*.key
+!/.env*.example
 
 # Ignore all logfiles and tempfiles.
 /log/*
@@ -31,10 +24,51 @@
 /tmp/storage/*
 !/tmp/storage/.keep
 
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+venv/
+ENV/
+env/
+.venv
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+/media
+/staticfiles
+/static_collected
+
 # Ignore assets.
 /node_modules/
-/app/assets/builds/*
-!/app/assets/builds/.keep
 /public/assets
 
 # Ignore CI service files.

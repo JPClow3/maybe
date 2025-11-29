@@ -4,9 +4,40 @@
 # or operating system, you probably want to add a global ignore instead:
 #   git config --global core.excludesfile '~/.gitignore_global'
 
-# Ignore bundler config.
-/.bundle
-/vendor/bundle
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+venv/
+ENV/
+env/
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.mypy_cache/
+.dmypy.json
+dmypy.json
 
 # Ignore all environment files (except templates).
 /.env*
@@ -33,11 +64,14 @@
 
 /public/assets
 
-# Ignore master key for decrypting credentials and more.
-/config/master.key
-
-/app/assets/builds/*
-!/app/assets/builds/.keep
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+/media
+/staticfiles
+/static_collected
 
 # Ignore Jetbrains IDEs
 .idea
@@ -67,6 +101,9 @@ coverage
 
 # Ignore node related files
 node_modules
+
+# Ignore vendor directory (JavaScript dependencies)
+vendor/
 
 compose.yml
 

@@ -14,25 +14,19 @@ assignees: ''
 
 - [ ] I have removed personal / sensitive data from screenshots and logs
 - [ ] I have searched [existing issues](https://github.com/maybe-finance/maybe/issues?q=is:issue) and [discussions](https://github.com/maybe-finance/maybe/discussions) to ensure this is not a duplicate issue
-    
-### How are you using Maybe?
 
-- [ ] I am a paying Maybe customer (hosted version)
-  - Paying Maybe users can also open requests in Intercom (if there is sensitive info involved)
-- [ ] I am a self-hosted user
+### Environment information
 
-### Self hoster checklist
+Please complete all of the information below.  Issues with incomplete information will be marked as `Needs Info` to help our small team prioritize bug fixes.
 
-_Paying, hosted users should delete this entire section._
-
-If you are a self-hosted user, please complete all of the information below.  Issues with incomplete information will be marked as `Needs Info` to help our small team prioritize bug fixes.
-
-- Self hosted app commit SHA (find in user menu): [enter commit sha here]
-  - [ ] I have confirmed that my app's commit is the latest version of Maybe
-- Where are you hosting?
-  - [ ] Render
+- **Commit SHA**: [enter commit sha here - find in git log or repository]
+  - [ ] I have confirmed that my app's commit is the latest version of Maybe Django
+- **Python version**: [e.g., Python 3.11]
+- **Django version**: [e.g., Django 5.0]
+- **Database**: [e.g., PostgreSQL 16]
+- **Where are you hosting?**
+  - [ ] Local development
   - [ ] Docker Compose
-  - [ ] Umbrel
   - [ ] Other (please specify)
 
 ---

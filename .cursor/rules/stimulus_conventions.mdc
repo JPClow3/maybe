@@ -1,64 +1,79 @@
 ---
-description: 
-globs: 
+description: This rule describes how to write HTMX-enhanced templates
+globs: maybe_django/**/*.html
 alwaysApply: false
 ---
-This rule describes how to write Stimulus controllers.
+This rule describes how to write HTMX-enhanced Django templates for the Maybe Django application.
 
-- **Use declarative actions, not imperative event listeners**
-  - Instead of assigning a Stimulus target and binding it to an event listener in the initializer, always write Controllers + ERB views declaratively by using Stimulus actions in ERB to call methods in the Stimulus JS controller.  Below are good vs. bad code.
+- **Use declarative HTMX attributes, not imperative JavaScript**
+  - Instead of writing JavaScript event listeners, always write templates declaratively by using HTMX attributes in HTML to call server endpoints. Below are good vs. bad examples.
 
   BAD code:
 
-  ```js
+  ```javascript
   // BAD!!!! DO NOT DO THIS!!
-  // Imperative - controller does all the work
-  export default class extends Controller {
-    static targets = ["button", "content"]
-
-    connect() {
-      this.buttonTarget.addEventListener("click", this.toggle.bind(this))
-    }
-
-    toggle() {
-      this.contentTarget.classList.toggle("hidden")
-      this.buttonTarget.textContent = this.contentTarget.classList.contains("hidden") ? "Show" : "Hide"
-    }
-  }
+  // Imperative - JavaScript does all the work
+  document.getElementById('toggle-button').addEventListener('click', function() {
+    document.getElementById('content').classList.toggle('hidden');
+  });
   ```
 
   GOOD code:
 
-  ```erb
+  ```html
   <!-- Declarative - HTML declares what happens -->
-
-  <div data-controller="toggle">
-    <button data-action="click->toggle#toggle" data-toggle-target="button">Show</button>
-    <div data-toggle-target="content" class="hidden">Hello World!</div>
+  <button id="toggle-button" 
+          hx-get="/api/toggle/"
+          hx-target="#content"
+          hx-swap="innerHTML">
+    Toggle Content
+  </button>
+  <div id="content" class="hidden">
+    Content here
   </div>
   ```
 
-  ```js
-  // Declarative - controller just responds
-  export default class extends Controller {
-    static targets = ["button", "content"]
+- **Keep HTMX usage simple and server-focused**
+  - Always aim for minimal client-side JavaScript
+  - Use HTMX attributes (`hx-get`, `hx-post`, `hx-swap`, `hx-target`) for dynamic updates
+  - Let the server render HTML fragments that HTMX swaps into the page
+  - Use HTMX triggers (`hx-trigger`) for event handling
 
-    toggle() {
-      this.contentTarget.classList.toggle("hidden")
-      this.buttonTarget.textContent = this.contentTarget.classList.contains("hidden") ? "Show" : "Hide"
-    }
-  }
+- **Keep HTMX interactions focused on what they do best**
+  - Domain logic does NOT belong in client-side JavaScript
+  - HTMX should be used for UI interactions and dynamic content loading
+  - Business logic always lives on the server (in views/models/services)
+
+- **HTMX pattern guidelines**
+  - Use `hx-swap="outerHTML"` when replacing an entire element
+  - Use `hx-swap="innerHTML"` when updating content inside an element
+  - Use `hx-target` to specify which element to update
+  - Use `hx-trigger` for custom event handling (e.g., `hx-trigger="click delay:500ms"`)
+  - Use `hx-indicator` to show loading states
+
+- **Example HTMX patterns**
+  
+  ```html
+  <!-- Dynamic content loading -->
+  <div hx-get="/accounts/list/"
+       hx-trigger="load"
+       hx-swap="innerHTML">
+    Loading...
+  </div>
+  
+  <!-- Form submission with partial update -->
+  <form hx-post="/transactions/create/"
+        hx-target="#transaction-list"
+        hx-swap="afterbegin">
+    {% csrf_token %}
+    <!-- form fields -->
+  </form>
+  
+  <!-- Delete with confirmation -->
+  <button hx-delete="/accounts/{{ account.id }}/"
+          hx-confirm="Are you sure?"
+          hx-target="closest .account-item"
+          hx-swap="outerHTML">
+    Delete
+  </button>
   ```
-
-- **Keep Stimulus controllers lightweight and simple**
-  - Always aim for less than 7 controller targets. Any more is a sign of too much complexity.
-  - Use private methods and expose a clear public API
-
-- **Keep Stimulus controllers focused on what they do best**
-  - Domain logic does NOT belong in a Stimulus controller
-  - Stimulus controllers should aim for a single responsibility, or a group of highly related responsibilities
-  - Make good use of Stimulus's callbacks, actions, targets, values, and classes
-
-- **Component controllers should not be used outside the component**
-  - If a Stimulus controller is in the app/components directory, it should only be used in its component view. It should not be used anywhere in app/views.
-

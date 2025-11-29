@@ -1,100 +1,93 @@
 ---
-description: 
-globs: app/views/**,app/javascript/**,app/components/**/*.js
+description: Guidelines for writing Django templates and using django-components
+globs: maybe_django/**/*.html
 alwaysApply: false
 ---
-Use this rule to learn how to write ERB views, partials, and Stimulus controllers should be incorporated into them.
+Use this rule to learn how to write Django templates and django-components.
 
-- **Component vs. Partial Decision Making**
-  - **Use ViewComponents when:**
+- **Component vs. Template Decision Making**
+  - **Use django-components when:**
     - Element has complex logic or styling patterns
     - Element will be reused across multiple views/contexts
     - Element needs structured styling with variants/sizes (like buttons, badges)
-    - Element requires interactive behavior or Stimulus controllers
+    - Element requires interactive behavior or HTMX attributes
     - Element has configurable slots or complex APIs
     - Element needs accessibility features or ARIA support
   
-  - **Use Partials when:**
+  - **Use regular Django templates/partials when:**
     - Element is primarily static HTML with minimal logic
     - Element is used in only one or few specific contexts
-    - Element is simple template content (like CTAs, static sections)
+    - Element is simple template content (like static sections)
     - Element doesn't need variants, sizes, or complex configuration
     - Element is more about content organization than reusable functionality
 
 - **Prefer components over partials**
-  - If there is a component available for the use case in app/components, use it
-  - If there is no component, look for a partial
+  - If there is a django-component available for the use case, use it
+  - If there is no component, look for a template partial (included template)
   - If there is no partial, decide between component or partial based on the criteria above
 
-- **Examples of Component vs. Partial Usage**
-  ```erb
-  <%# Component: Complex, reusable with variants and interactivity %>
-  <%= render DialogComponent.new(variant: :drawer) do |dialog| %>
-    <% dialog.with_header(title: "Account Settings") %>
-    <% dialog.with_body { "Dialog content here" } %>
-  <% end %>
+- **Examples of Component vs. Template Usage**
+  ```django
+  {%# Component: Complex, reusable with variants and interactivity %}
+  {% component "button" variant="primary" size="large" %}
+    Save Changes
+  {% endcomponent %}
   
-  <%# Component: Interactive with complex styling options %>
-  <%= render ButtonComponent.new(text: "Save Changes", variant: "primary", confirm: "Are you sure?") %>
+  {%# Component: Interactive with complex styling options %}
+  {% component "dialog" variant="drawer" %}
+    {% fill "header" %}
+      Account Settings
+    {% endfill %}
+    {% fill "body" %}
+      Dialog content here
+    {% endfill %}
+  {% endcomponent %}
   
-  <%# Component: Reusable with variants %>
-  <%= render FilledIconComponent.new(icon: "credit-card", variant: :surface) %>
+  {%# Template partial: Static template content %}
+  {% include "shared/logo.html" %}
   
-  <%# Partial: Static template content %>
-  <%= render "shared/logo" %>
-  
-  <%# Partial: Simple, context-specific content with basic styling %>
-  <%= render "shared/trend_change", trend: @account.trend, comparison_label: "vs last month" %>
-  
-  <%# Partial: Simple divider/utility %>
-  <%= render "shared/ruler", classes: "my-4" %>
-  
-  <%# Partial: Simple form utility %>
-  <%= render "shared/form_errors", model: @account %>
+  {%# Template partial: Simple, context-specific content %}
+  {% include "shared/trend_change.html" with trend=account.trend comparison_label="vs last month" %}
   ```
 
 - **Keep domain logic out of the views**
-   ```erb
-    <%# BAD!!! %>
+   ```django
+    {%# BAD!!! %}
+    {%# This belongs in the view or model method, not the template! %}
+    {% if account.balance > 1000 %}
+      <div class="bg-green-500">High balance</div>
+    {% endif %}
 
-    <%# This belongs in the component file, not the template file! %>
-    <% button_classes = { class: "bg-blue-500 hover:bg-blue-600" } %>
+    {%# GOOD! %}
+    {%# Logic in view: %}
+    {# view.py: context['account_status'] = account.get_status_display() #}
+    <div class="{{ account_status_classes }}">
+      {{ account.get_status_display }}
+    </div>
+   ```
 
-    <%= tag.button class: button_classes do %>
-      Save Account
-    <% end %>
+- **HTMX Integration in Templates**
+  - Always use the **declarative approach** when integrating HTMX
+  - The Django template should declare what happens with HTMX attributes, the server renders the response
+  - Refer to [stimulus_conventions.mdc](mdc:.cursor/rules/stimulus_conventions.mdc) for HTMX conventions and patterns
 
-    <%# GOOD! %>
+  GOOD HTMX integration into templates:
 
-    <%= tag.button class: computed_button_classes do %>
-      Save Account
-    <% end %>
-    ```
-
-- **Stimulus Integration in Views**
-  - Always use the **declarative approach** when integrating Stimulus controllers
-  - The ERB template should declare what happens, the Stimulus controller should respond
-  - Refer to [stimulus_conventions.mdc](mdc:.cursor/rules/stimulus_conventions.mdc) to learn how to incorporate them into 
-
-  GOOD Stimulus controller integration into views:
-
-  ```erb
-  <!-- Declarative - HTML declares what happens -->
-
-  <div data-controller="toggle">
-    <button data-action="click->toggle#toggle" data-toggle-target="button">Show</button>
-    <div data-toggle-target="content" class="hidden">Hello World!</div>
+  ```django
+  {%# Declarative - HTML declares what happens %}
+  <div hx-get="/api/accounts/" hx-trigger="load" hx-swap="innerHTML">
+    Loading accounts...
   </div>
   ```
 
-- **Stimulus Controller Placement Guidelines**
-  - **Component controllers** (in `app/components/`) should only be used within their component templates
-  - **Global controllers** (in `app/javascript/controllers/`) can be used across any view
-  - Pass data from Rails to Stimulus using `data-*-value` attributes, not inline JavaScript
-  - Use Stimulus targets to reference DOM elements, not manual `getElementById` calls
-
 - **Naming Conventions**
-  - **Components**: Use `ComponentName` suffix (e.g., `ButtonComponent`, `DialogComponent`, `FilledIconComponent`)
-  - **Partials**: Use underscore prefix (e.g., `_trend_change.html.erb`, `_form_errors.html.erb`, `_sync_indicator.html.erb`)
-  - **Shared partials**: Place in `app/views/shared/` directory for reusable content
-  - **Context-specific partials**: Place in relevant controller view directory (e.g., `accounts/_account_sidebar_tabs.html.erb`)
+  - **Components**: Use snake_case names in component directories
+  - **Template partials**: No underscore prefix needed - place in `maybe_django/templates/partials/` directory (e.g., `form_errors.html`)
+  - **Shared partials**: Place in `maybe_django/templates/partials/` directory for reusable content
+  - **Context-specific partials**: Place in relevant app template directory (e.g., `maybe_django/templates/finance/account_form_partial.html`)
+
+- **Django Template Best Practices**
+  - Use template tags and filters for reusable logic
+  - Use `{% include %}` for template partials
+  - Use template inheritance with `{% extends %}` for layouts
+  - Keep templates DRY by extracting common patterns

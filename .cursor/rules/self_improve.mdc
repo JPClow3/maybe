@@ -32,17 +32,14 @@ alwaysApply: true
     - Implementation details have changed
 
 - **Example Pattern Recognition:**
-  ```typescript
-  // If you see repeated patterns like:
-  const data = await prisma.user.findMany({
-    select: { id: true, email: true },
-    where: { status: 'ACTIVE' }
-  });
+  ```python
+  # If you see repeated patterns like:
+  accounts = Account.objects.filter(user=request.user, status='active').select_related('category')
   
-  // Consider adding to [prisma.mdc](mdc:.cursor/rules/prisma.mdc):
-  // - Standard select fields
-  // - Common where conditions
-  // - Performance optimization patterns
+  # Consider adding to relevant rule file:
+  # - Standard queryset patterns
+  # - Common filters and annotations
+  # - Performance optimization patterns (select_related, prefetch_related)
   ```
 
 - **Rule Quality Checks:**

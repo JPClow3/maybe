@@ -1,22 +1,26 @@
 ---
 description: This file describes Maybe's design system and how views should be styled
-globs: app/views/**,app/helpers/**,app/javascript/controllers/**
+globs: maybe_django/**/*.html,maybe_django/**/*.css,maybe_django/static/**
 alwaysApply: true
 ---
 Use the rules below when:
 
-- You are writing HTML
+- You are writing HTML templates
 - You are writing CSS
-- You are writing styles in a JavaScript Stimulus controller
+- You are writing styles in Django templates
 
 ## Rules for AI (mandatory)
 
-The codebase uses TailwindCSS v4.x (the newest version) with a custom design system defined in [maybe-design-system.css](mdc:app/assets/tailwind/maybe-design-system.css)
+The codebase uses TailwindCSS v3.4+ with a custom design system built via PostCSS.
 
-- Always start by referencing [maybe-design-system.css](mdc:app/assets/tailwind/maybe-design-system.css) to see the base primitives, functional tokens, and component tokens we use in the codebase
-- Always prefer using the functional "tokens" defined in @maybe-design-system.css when possible.
-  - Example 1: use `text-primary` rather than `text-white`
-  - Example 2: use `bg-container` rather than `bg-white`
-  - Example 3: use `border border-primary` rather than `border border-gray-200` 
-- Never create new styles in [maybe-design-system.css](mdc:app/assets/tailwind/maybe-design-system.css) or [application.css](mdc:app/assets/tailwind/application.css) without explicitly receiving permission to do so
+- Always start by referencing the Tailwind configuration (`tailwind.config.js`) and custom CSS files in `maybe_django/static/css/input.css` to see the base primitives, functional tokens, and component tokens we use in the codebase
+- The compiled CSS is generated from `maybe_django/static/css/input.css` to `maybe_django/static/css/main.css` using `npm run css:build`
+- Always prefer using functional "tokens" and component classes defined in the design system when possible.
+  - Example 1: use `text-primary-600` or `text-primary` (component class) rather than `text-blue-500`
+  - Example 2: use `card` (component class) rather than `bg-white shadow rounded-lg p-6`
+  - Example 3: use `btn-primary` (component class) rather than `bg-blue-500 text-white px-4 py-2 rounded`
+  - Example 4: use `form-input`, `form-select`, `form-textarea` (component classes) for form fields
+- Design tokens are defined in `maybe_django/static/css/input.css` using Tailwind's `@layer components`
+- Never create new styles in design system files without explicitly receiving permission to do so
 - Always generate semantic HTML
+- Use design token classes: `text-primary`, `text-success`, `text-danger`, `btn-primary`, `btn-secondary`, `btn-danger`, `card`, `form-input`, etc.

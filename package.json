@@ -1,18 +1,23 @@
 {
 	"devDependencies": {
-		"@biomejs/biome": "^1.9.3"
+		"@biomejs/biome": "^1.9.3",
+		"tailwindcss": "^3.4.1",
+		"postcss": "^8.4.35",
+		"autoprefixer": "^10.4.17"
 	},
-	"name": "maybe",
-	"version": "1.0.0",
-	"description": "The OS for your personal finances",
+	"name": "maybe-django",
+	"version": "2.0.0",
+	"description": "Personal finance app built with Django",
 	"scripts": {
 		"style:check": "biome check",
 		"style:fix": "biome check --write",
 		"lint": "biome lint",
 		"lint:fix": "biome lint --write",
 		"format:check": "biome format",
-		"format": "biome format --write"
+		"format": "biome format --write",
+		"css:build": "tailwindcss -i maybe_django/static/css/input.css -o maybe_django/static/css/main.css --minify",
+		"css:watch": "tailwindcss -i maybe_django/static/css/input.css -o maybe_django/static/css/main.css --watch"
 	},
 	"author": "",
-	"license": "ISC"
+	"license": "AGPL-3.0"
 }

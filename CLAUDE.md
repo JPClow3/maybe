@@ -5,269 +5,216 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Common Development Commands
 
 ### Development Server
-- `bin/dev` - Start development server (Rails, Sidekiq, Tailwind CSS watcher)
-- `bin/rails server` - Start Rails server only
-- `bin/rails console` - Open Rails console
+- `cd maybe_django && python manage.py runserver` - Start Django development server
+- `cd maybe_django && python manage.py shell` - Open Django shell
+- `cd maybe_django && python manage.py shell_plus` - Open Django shell with auto-imports (if django-extensions installed)
 
 ### Testing
-- `bin/rails test` - Run all tests
-- `bin/rails test:db` - Run tests with database reset
-- `bin/rails test:system` - Run system tests only (use sparingly - they take longer)
-- `bin/rails test test/models/account_test.rb` - Run specific test file
-- `bin/rails test test/models/account_test.rb:42` - Run specific test at line
+- `cd maybe_django && python manage.py test` - Run all tests
+- `cd maybe_django && python manage.py test finance` - Run tests for finance app
+- `cd maybe_django && python manage.py test finance.tests.AccountTestCase.test_account_creation` - Run specific test
+- `cd maybe_django && python manage.py test --verbosity=2` - Run tests with verbose output
 
 ### Linting & Formatting
-- `bin/rubocop` - Run Ruby linter
-- `npm run lint` - Check JavaScript/TypeScript code
+- `npm run lint` - Check JavaScript/TypeScript code with Biome
 - `npm run lint:fix` - Fix JavaScript/TypeScript issues
 - `npm run format` - Format JavaScript/TypeScript code
-- `bin/brakeman` - Run security analysis
+- `npm run style:check` - Check code style with Biome
+- `npm run style:fix` - Fix code style issues
+
+### CSS Build
+- `npm run css:build` - Build Tailwind CSS from `maybe_django/static/css/input.css` to `maybe_django/static/css/main.css`
+- `npm run css:watch` - Watch for changes and rebuild CSS automatically
 
 ### Database
-- `bin/rails db:prepare` - Create and migrate database
-- `bin/rails db:migrate` - Run pending migrations
-- `bin/rails db:rollback` - Rollback last migration
-- `bin/rails db:seed` - Load seed data
+- `cd maybe_django && python manage.py makemigrations` - Create new migration files
+- `cd maybe_django && python manage.py migrate` - Apply pending migrations
+- `cd maybe_django && python manage.py migrate finance zero` - Rollback all migrations for finance app
+- `cd maybe_django && python manage.py showmigrations` - Show migration status
+- `cd maybe_django && python manage.py sqlmigrate finance 0001` - Show SQL for a migration
+
+### Background Tasks (Celery)
+- `cd maybe_django && celery -A maybe_django worker -l info` - Start Celery worker
+- `cd maybe_django && celery -A maybe_django beat -l info` - Start Celery beat scheduler
 
 ### Setup
-- `bin/setup` - Initial project setup (installs dependencies, prepares database)
+- `cd maybe_django && pip install -r requirements.txt` - Install Python dependencies
+- `cd maybe_django && python manage.py createsuperuser` - Create admin user
 
 ## Pre-Pull Request CI Workflow
 
 ALWAYS run these commands before opening a pull request:
 
 1. **Tests** (Required):
-   - `bin/rails test` - Run all tests (always required)
-   - `bin/rails test:system` - Run system tests (only when applicable, they take longer)
+   - `cd maybe_django && python manage.py test` - Run all tests (always required)
 
 2. **Linting** (Required):
-   - `bin/rubocop -f github -a` - Ruby linting with auto-correct
-   - `bundle exec erb_lint ./app/**/*.erb -a` - ERB linting with auto-correct
+   - `npm run lint` - JavaScript/TypeScript linting
+   - `npm run style:check` - Code style checking
 
-3. **Security** (Required):
-   - `bin/brakeman --no-pager` - Security analysis
+3. **Code Quality** (Recommended):
+   - Ensure all migrations are created for model changes
+   - Check for Python syntax errors
 
 Only proceed with pull request creation if ALL checks pass.
 
 ## General Development Rules
 
 ### Authentication Context
-- Use `Current.user` for the current user. Do NOT use `current_user`.
-- Use `Current.family` for the current family. Do NOT use `current_family`.
+- Use `request.user` for the current user in views and templates
+- User authentication is handled via Django's built-in authentication system
+- Single-user application (no multi-tenant Family model)
 
 ### Development Guidelines
 - Prior to generating any code, carefully read the project conventions and guidelines
-- Ignore i18n methods and files. Hardcode strings in English for now to optimize speed of development
-- Do not run `rails server` in your responses
-- Do not run `touch tmp/restart.txt`
-- Do not run `rails credentials`
+  - Read [project-design.mdc](mdc:.cursor/rules/project-design.mdc) to understand the codebase
+  - Read [project-conventions.mdc](mdc:.cursor/rules/project-conventions.mdc) to understand _how_ to write code for the codebase
+  - Read [ui-ux-design-guidelines.mdc](mdc:.cursor/rules/ui-ux-design-guidelines.mdc) to understand how to implement frontend code specifically
+- Ignore i18n methods and files. Hardcode strings in English for now to optimize speed of development (even though app defaults to pt-BR)
+
+## Prohibited Actions
+
+- Do not run `python manage.py runserver` in your responses
 - Do not automatically run migrations
+- Do not run `python manage.py createsuperuser` in your responses
 
 ## High-Level Architecture
 
-### Application Modes
-The Maybe app runs in two distinct modes:
-- **Managed**: The Maybe team operates and manages servers for users (Rails.application.config.app_mode = "managed")
-- **Self Hosted**: Users host the Maybe app on their own infrastructure, typically through Docker Compose (Rails.application.config.app_mode = "self_hosted")
+### Application Mode
+The Maybe Django app is a single-user personal finance application optimized for Brazil. It does not support multi-tenancy.
 
 ### Core Domain Model
 The application is built around financial data management with these key relationships:
 - **User** → has many **Accounts** → has many **Transactions**
-- **Account** types: checking, savings, credit cards, investments, crypto, loans, properties
+- **Account** types: checking, savings, credit cards, investments, loans, properties, vehicles
 - **Transaction** → belongs to **Category**, can have **Tags** and **Rules**
 - **Investment accounts** → have **Holdings** → track **Securities** via **Trades**
 
 ### API Architecture
-The application provides both internal and external APIs:
-- Internal API: Controllers serve JSON via Turbo for SPA-like interactions
-- External API: `/api/v1/` namespace with Doorkeeper OAuth and API key authentication
-- API responses use Jbuilder templates for JSON rendering
-- Rate limiting via Rack Attack with configurable limits per API key
+The application uses HTMX for SPA-like interactions:
+- Server-rendered HTML templates with HTMX for dynamic updates
+- No separate API layer for internal features
+- Django templates serve HTML directly with HTMX enhancements
 
-### Sync & Import System
-Two primary data ingestion methods:
-1. **Plaid Integration**: Real-time bank account syncing
-   - `PlaidItem` manages connections
-   - `Sync` tracks sync operations
-   - Background jobs handle data updates
-2. **CSV Import**: Manual data import with mapping
-   - `Import` manages import sessions
+### Import System
+Data ingestion methods:
+1. **OFX Import**: Support for Brazilian bank OFX files
+   - `Import` model manages import sessions
    - Supports transaction and balance imports
+   - Automatic duplicate detection
+2. **CSV Import**: Manual data import with mapping
    - Custom field mapping with transformation rules
+   - Flexible format support
 
 ### Background Processing
-Sidekiq handles asynchronous tasks:
-- Account syncing (`SyncAccountsJob`)
-- Import processing (`ImportDataJob`)
-- AI chat responses (`CreateChatResponseJob`)
-- Scheduled maintenance via sidekiq-cron
+Celery handles asynchronous tasks:
+- Account syncing
+- Balance calculations
+- Investment price fetching (B3 market data)
+- Scheduled tasks via Celery Beat
 
 ### Frontend Architecture
-- **Hotwire Stack**: Turbo + Stimulus for reactive UI without heavy JavaScript
-- **ViewComponents**: Reusable UI components in `app/components/`
-- **Stimulus Controllers**: Handle interactivity, organized alongside components
-- **Charts**: D3.js for financial visualizations (time series, donut, sankey)
-- **Styling**: Tailwind CSS v4.x with custom design system
-  - Design system defined in `app/assets/tailwind/maybe-design-system.css`
-  - Always use functional tokens (e.g., `text-primary` not `text-white`)
+- **HTMX**: Server-side rendering with HTMX for reactive UI without heavy JavaScript
+- **Django Components**: Reusable UI components using django-components
+- **Tailwind CSS v3.4+**: Styling with custom design system built via PostCSS
+  - Design system defined in `maybe_django/static/css/input.css` with component classes
+  - Compiled to `maybe_django/static/css/main.css` using `npm run css:build`
+  - Always use functional tokens and component classes (`btn-primary`, `card`, `form-input`, etc.) when available
   - Prefer semantic HTML elements over JS components
-  - Use `icon` helper for icons, never `lucide_icon` directly
+  - Build CSS with: `npm run css:build` or watch with: `npm run css:watch`
 
-### Multi-Currency Support
-- All monetary values stored in base currency (user's primary currency)
-- Exchange rates fetched from Synth API
-- `Money` objects handle currency conversion and formatting
-- Historical exchange rates for accurate reporting
+### Currency Support
+- Single currency default: BRL (Brazilian Real)
+- All monetary values stored as Decimal with 4 decimal places
+- `Money` utility class handles formatting and calculations
 
 ### Security & Authentication
-- Session-based auth for web users
-- API authentication via:
-  - OAuth2 (Doorkeeper) for third-party apps
-  - API keys with JWT tokens for direct API access
-- Scoped permissions system for API access
-- Strong parameters and CSRF protection throughout
+- Django's built-in session-based authentication
+- CSRF protection enabled by default
+- Strong password validation via Django validators
+- Single-user application (no API authentication needed)
 
 ### Testing Philosophy
-- Comprehensive test coverage using Rails' built-in Minitest
-- Fixtures for test data (avoid FactoryBot)
-- Keep fixtures minimal (2-3 per model for base cases)
-- VCR for external API testing
-- System tests for critical user flows (use sparingly)
-- Test helpers in `test/support/` for common scenarios
-- Only test critical code paths that significantly increase confidence
-- Write tests as you go, when required
+- Comprehensive test coverage using Django's built-in unittest framework
+- Test models in `maybe_django/*/tests.py` files
+- Keep tests minimal and focused on critical business logic
+- Only test important code paths that significantly increase confidence
 
 ### Performance Considerations
 - Database queries optimized with proper indexes
-- N+1 queries prevented via includes/joins
-- Background jobs for heavy operations
+- N+1 queries prevented via `select_related()` and `prefetch_related()`
+- Background jobs for heavy operations (Celery)
 - Caching strategies for expensive calculations
-- Turbo Frames for partial page updates
 
 ### Development Workflow
 - Feature branches merged to `main`
-- Docker support for consistent environments
-- Environment variables via `.env` files
-- Lookbook for component development (`/lookbook`)
-- Letter Opener for email preview in development
+- Docker support for consistent environments (see `compose.example.yml`)
+- Environment variables via `.env` files (use `python-decouple` or `os.environ.get()`)
+- Django admin at `/admin/` for data management
 
 ## Project Conventions
 
 ### Convention 1: Minimize Dependencies
-- Push Rails to its limits before adding new dependencies
+- Push Django to its limits before adding new dependencies
 - Strong technical/business reason required for new dependencies
 - Favor old and reliable over new and flashy
 
-### Convention 2: Skinny Controllers, Fat Models
-- Business logic in `app/models/` folder, avoid `app/services/`
-- Use Rails concerns and POROs for organization
-- Models should answer questions about themselves: `account.balance_series` not `AccountSeries.new(account).call`
+### Convention 2: Fat Models, Skinny Views
+- Business logic in model methods and utility classes
+- Views should be thin controllers that delegate to models/services
+- Organize complex logic into service classes in `maybe_django/*/services/` directories
+- Models should answer questions about themselves: `account.get_balance_series()` not `AccountService.get_balance_series(account)`
 
-### Convention 3: Hotwire-First Frontend
+### Convention 3: HTMX-First Frontend
 - **Native HTML preferred over JS components**
   - Use `<dialog>` for modals, `<details><summary>` for disclosures
-- **Leverage Turbo frames** for page sections over client-side solutions
-- **Query params for state** over localStorage/sessions
+- **Leverage HTMX for dynamic updates**
+  - Use HTMX attributes (`hx-get`, `hx-post`, `hx-swap`, `hx-target`, `hx-boost`) for SPA-like interactions
+  - Server-side rendering with selective DOM updates
+  - Use partial templates for form submissions and dynamic content
+  - Use `HX-Redirect` header for successful form submissions
+- **Query params for state** over localStorage/sessions when possible
 - **Server-side formatting** for currencies, numbers, dates
-- **Always use `icon` helper** in `application_helper.rb`, NEVER `lucide_icon` directly
+- Use django-components for reusable UI components
+- Use design system component classes (`btn-primary`, `card`, `form-input`, etc.) from `maybe_django/static/css/input.css`
 
 ### Convention 4: Optimize for Simplicity
-- Prioritize good OOP domain design over performance
-- Focus performance only on critical/global areas (avoid N+1 queries, mindful of global layouts)
+- Prioritize good domain design over performance
+- Focus performance only on critical/global areas (avoid N+1 queries, mindful of global templates)
 
-### Convention 5: Database vs ActiveRecord Validations
-- Simple validations (null checks, unique indexes) in DB
-- ActiveRecord validations for convenience in forms (prefer client-side when possible)
-- Complex validations and business logic in ActiveRecord
+### Convention 5: Database vs Django ORM Validations
+- Simple validations (null checks, unique constraints) in DB via model fields
+- Django model validations for form convenience and business rules
+- Complex validations and business logic in model methods or `clean()` methods
 
-## TailwindCSS Design System
+## Django Components
 
-### Design System Rules
-- **Always reference `app/assets/tailwind/maybe-design-system.css`** for primitives and tokens
-- **Use functional tokens** defined in design system:
-  - `text-primary` instead of `text-white`
-  - `bg-container` instead of `bg-white`
-  - `border border-primary` instead of `border border-gray-200`
-- **NEVER create new styles** in design system files without permission
-- **Always generate semantic HTML**
+### Component vs. Template Decision Making
 
-## Component Architecture
-
-### ViewComponent vs Partials Decision Making
-
-**Use ViewComponents when:**
+**Use django-components when:**
 - Element has complex logic or styling patterns
 - Element will be reused across multiple views/contexts
 - Element needs structured styling with variants/sizes
-- Element requires interactive behavior or Stimulus controllers
-- Element has configurable slots or complex APIs
-- Element needs accessibility features or ARIA support
+- Element requires interactive behavior with HTMX
 
-**Use Partials when:**
+**Use regular templates/partials when:**
 - Element is primarily static HTML with minimal logic
 - Element is used in only one or few specific contexts
 - Element is simple template content
-- Element doesn't need variants, sizes, or complex configuration
-- Element is more about content organization than reusable functionality
-
-**Component Guidelines:**
-- Prefer components over partials when available
-- Keep domain logic OUT of view templates
-- Logic belongs in component files, not template files
-
-### Stimulus Controller Guidelines
-
-**Declarative Actions (Required):**
-```erb
-<!-- GOOD: Declarative - HTML declares what happens -->
-<div data-controller="toggle">
-  <button data-action="click->toggle#toggle" data-toggle-target="button">Show</button>
-  <div data-toggle-target="content" class="hidden">Hello World!</div>
-</div>
-```
-
-**Controller Best Practices:**
-- Keep controllers lightweight and simple (< 7 targets)
-- Use private methods and expose clear public API
-- Single responsibility or highly related responsibilities
-- Component controllers stay in component directory, global controllers in `app/javascript/controllers/`
-- Pass data via `data-*-value` attributes, not inline JavaScript
 
 ## Testing Philosophy
 
 ### General Testing Rules
-- **ALWAYS use Minitest + fixtures** (NEVER RSpec or factories)
-- Keep fixtures minimal (2-3 per model for base cases)
-- Create edge cases on-the-fly within test context
-- Use Rails helpers for large fixture creation needs
+- Always use Django's unittest framework
+- Keep tests minimal and focused
+- Only write tests for critical and important code paths
+- Write tests as you go, when required
+- Take a practical approach - tests are effective when their presence significantly increases confidence
 
 ### Test Quality Guidelines
-- **Write minimal, effective tests** - system tests sparingly
-- **Only test critical and important code paths**
-- **Test boundaries correctly:**
+- Write minimal, effective tests
+- Only test critical code paths
+- Test boundaries correctly:
   - Commands: test they were called with correct params
   - Queries: test output
   - Don't test implementation details of other classes
-
-### Testing Examples
-
-```ruby
-# GOOD - Testing critical domain business logic
-test "syncs balances" do
-  Holding::Syncer.any_instance.expects(:sync_holdings).returns([]).once
-  assert_difference "@account.balances.count", 2 do
-    Balance::Syncer.new(@account, strategy: :forward).sync_balances
-  end
-end
-
-# BAD - Testing ActiveRecord functionality
-test "saves balance" do 
-  balance_record = Balance.new(balance: 100, currency: "USD")
-  assert balance_record.save
-end
-```
-
-### Stubs and Mocks
-- Use `mocha` gem
-- Prefer `OpenStruct` for mock instances
-- Only mock what's necessary

@@ -6,7 +6,7 @@
 # --------
 #
 # This file is an example Docker Compose configuration for self hosting
-# Maybe on your local machine or on a cloud VPS.
+# Maybe Django on your local machine or on a cloud VPS.
 #
 # The configuration below is a "standard" setup that works out of the box,
 # but if you're running this outside of a local network, it is recommended
@@ -15,9 +15,14 @@
 # Setup:
 # ------
 #
-# To run this, you should read the setup guide:
+# To run this, copy this file to `compose.yml` and configure environment variables:
 #
-# https://github.com/maybe-finance/maybe/blob/main/docs/hosting/docker.md
+# cp compose.example.yml compose.yml
+# # Edit compose.yml with your settings
+#
+# Then run:
+#
+# docker compose up -d
 #
 # Troubleshooting:
 # ----------------
@@ -30,30 +35,32 @@
 x-db-env: &db_env
   POSTGRES_USER: ${POSTGRES_USER:-maybe_user}
   POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-maybe_password}
-  POSTGRES_DB: ${POSTGRES_DB:-maybe_production}
+  POSTGRES_DB: ${POSTGRES_DB:-maybe_django}
 
-x-rails-env: &rails_env
+x-django-env: &django_env
   <<: *db_env
-  SECRET_KEY_BASE: ${SECRET_KEY_BASE:-a7523c3d0ae56415046ad8abae168d71074a79534a7062258f8d1d51ac2f76d3c3bc86d86b6b0b307df30d9a6a90a2066a3fa9e67c5e6f374dbd7dd4e0778e13}
-  SELF_HOSTED: "true"
-  RAILS_FORCE_SSL: "false"
-  RAILS_ASSUME_SSL: "false"
+  SECRET_KEY: ${SECRET_KEY:-django-insecure-change-me-in-production}
+  DEBUG: ${DEBUG:-True}
   DB_HOST: db
   DB_PORT: 5432
-  REDIS_URL: redis://redis:6379/1
-# NOTE: enabling OpenAI will incur costs when you use AI-related features in the app (chat, rules).  Make sure you have set appropriate spend limits on your account before adding this.
-  OPENAI_ACCESS_TOKEN: ${OPENAI_ACCESS_TOKEN}
+  DB_NAME: ${POSTGRES_DB:-maybe_django}
+  DB_USER: ${POSTGRES_USER:-maybe_user}
+  DB_PASSWORD: ${POSTGRES_PASSWORD:-maybe_password}
+  CELERY_BROKER_URL: redis://redis:6379/0
+  CELERY_RESULT_BACKEND: redis://redis:6379/0
 
 services:
   web:
-    image: ghcr.io/maybe-finance/maybe:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     volumes:
-      - app-storage:/rails/storage
+      - app-storage:/app/storage
     ports:
-      - 3000:3000
+      - 8000:8000
     restart: unless-stopped
     environment:
-      <<: *rails_env
+      <<: *django_env
     depends_on:
       db:
         condition: service_healthy
@@ -61,18 +68,37 @@ services:
         condition: service_healthy
     networks:
       - maybe_net
+    command: python manage.py runserver 0.0.0.0:8000
 
   worker:
-    image: ghcr.io/maybe-finance/maybe:latest
-    command: bundle exec sidekiq
+    build:
+      context: .
+      dockerfile: Dockerfile
     restart: unless-stopped
     depends_on:
       redis:
         condition: service_healthy
     environment:
-      <<: *rails_env
+      <<: *django_env
     networks:
       - maybe_net
+    command: celery -A maybe_django worker -l info
+    working_dir: /app
+
+  beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      <<: *django_env
+    networks:
+      - maybe_net
+    command: celery -A maybe_django beat -l info
+    working_dir: /app
 
   db:
     image: postgres:16
