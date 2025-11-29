@@ -68,32 +68,26 @@ def account_validate_field(request):
     if not field_name:
         return HttpResponse('', status=400)
     
-    # Only validate fields that exist in the form
-    if field_name not in AccountForm.base_fields:
-        return HttpResponse('', status=400)
-    
     # Create a minimal form instance to validate the field
-    # Use empty dict for other fields to avoid validation errors from missing required fields
     form_data = {field_name: field_value}
     form = AccountForm(form_data)
     
-    # Only validate the specific field, not the entire form
-    try:
-        # Validate the field in isolation
-        field = form.fields[field_name]
-        value = field.clean(field_value) if field_value else field.clean('')
+    # Validate only the specific field
+    if field_name in form.fields:
+        form.full_clean()
+        field = form[field_name]
         
-        # If clean succeeds, return success
-        return render(request, 'partials/field_success.html', {
-            'field_id': f'id_{field_name}'
-        })
-    except Exception as e:
-        # If validation fails, return error
-        error_messages = [str(e)] if not hasattr(e, 'messages') else e.messages
-        return render(request, 'partials/field_error.html', {
-            'errors': error_messages,
-            'field_id': f'id_{field_name}'
-        })
+        if field.errors:
+            return render(request, 'partials/field_error.html', {
+                'errors': field.errors,
+                'field_id': field.id_for_label
+            })
+        else:
+            return render(request, 'partials/field_success.html', {
+                'field_id': field.id_for_label
+            })
+    
+    return HttpResponse('', status=400)
 
 @login_required
 def account_new(request):

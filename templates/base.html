@@ -396,9 +396,9 @@
                         // Store original value
                         const originalText = td.textContent.trim();
                         optimisticState.set('transaction-amount', originalText);
-                        // Optimistically update UI - preserve existing format or use simple display
-                        // The server will return the properly formatted value
-                        td.innerHTML = `<span class="opacity-70 font-tabular-nums">${newAmount}</span>`;
+                        // Optimistically update UI (format as currency)
+                        const formatted = newAmount.replace('.', ',').replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
+                        td.innerHTML = `<span class="opacity-70 font-tabular-nums">R$ ${formatted}</span>`;
                     }
                 }
             }
@@ -499,63 +499,47 @@
             
             const fields = form.querySelectorAll('input[type="text"], input[type="date"], input[type="email"], select, textarea');
             fields.forEach(field => {
-                // Skip hidden fields and CSRF token
-                if (!field.name || field.name === 'csrfmiddlewaretoken') return;
-                if (field.type === 'hidden') return;
-                
-                // Remove existing listener if any (to prevent duplicates)
-                const existingListener = field._validationListener;
-                if (existingListener) {
-                    field.removeEventListener('blur', existingListener);
-                }
-                
-                // Create new validation listener
-                const validationListener = function() {
-                    const fieldValue = this.value.trim();
-                    const isRequired = this.hasAttribute('required') || this.getAttribute('aria-required') === 'true';
-                    
-                    if (fieldValue || isRequired) {
-                        const url = new URL(validateUrl, window.location.origin);
-                        url.searchParams.set('field', this.name);
-                        url.searchParams.set('value', fieldValue);
-                        
-                        // Use HTMX to validate
-                        htmx.ajax('GET', url.toString(), {
-                            target: '#' + this.id + '_validation',
-                            swap: 'innerHTML'
-                        }).then(() => {
-                            // Check validation result and update field styling
-                            const validationEl = document.getElementById(this.id + '_validation');
-                            const errorEl = document.getElementById(this.id + '_error');
+                if (field.name && field.name !== 'csrfmiddlewaretoken' && field.type !== 'hidden') {
+                    // Add validation on blur
+                    field.addEventListener('blur', function() {
+                        const fieldValue = this.value.trim();
+                        if (fieldValue || field.hasAttribute('required')) {
+                            const url = new URL(validateUrl, window.location.origin);
+                            url.searchParams.set('field', this.name);
+                            url.searchParams.set('value', fieldValue);
                             
-                            if (validationEl) {
-                                const hasError = validationEl.querySelector('.text-danger-600');
-                                const hasSuccess = validationEl.querySelector('.text-success-600');
+                            // Use HTMX to validate
+                            htmx.ajax('GET', url.toString(), {
+                                target: '#' + this.id + '_validation',
+                                swap: 'innerHTML'
+                            }).then(() => {
+                                // Check validation result and update field styling
+                                const validationEl = document.getElementById(this.id + '_validation');
+                                const errorEl = document.getElementById(this.id + '_error');
                                 
-                                // Update field border color
-                                this.classList.remove('border-danger-500', 'ring-danger-500', 'border-success-500', 'ring-success-500');
-                                if (hasError) {
-                                    this.classList.add('border-danger-500', 'ring-danger-500');
-                                    if (errorEl) errorEl.style.display = 'block';
-                                } else if (hasSuccess && fieldValue) {
-                                    this.classList.add('border-success-500', 'ring-success-500');
-                                    if (errorEl) errorEl.style.display = 'none';
+                                if (validationEl) {
+                                    const hasError = validationEl.querySelector('.text-danger-600');
+                                    const hasSuccess = validationEl.querySelector('.text-success-600');
+                                    
+                                    // Update field border color
+                                    this.classList.remove('border-danger-500', 'ring-danger-500', 'border-success-500', 'ring-success-500');
+                                    if (hasError) {
+                                        this.classList.add('border-danger-500', 'ring-danger-500');
+                                        if (errorEl) errorEl.style.display = 'block';
+                                    } else if (hasSuccess && fieldValue) {
+                                        this.classList.add('border-success-500', 'ring-success-500');
+                                        if (errorEl) errorEl.style.display = 'none';
+                                    }
                                 }
-                            }
-                        }).catch(() => {
-                            // Silently fail validation requests
-                        });
-                    } else {
-                        // Clear validation indicator if field is empty
-                        const validationEl = document.getElementById(this.id + '_validation');
-                        if (validationEl) validationEl.innerHTML = '';
-                        this.classList.remove('border-danger-500', 'ring-danger-500', 'border-success-500', 'ring-success-500');
-                    }
-                };
-                
-                // Store listener reference and attach
-                field._validationListener = validationListener;
-                field.addEventListener('blur', validationListener);
+                            });
+                        } else {
+                            // Clear validation indicator if field is empty
+                            const validationEl = document.getElementById(this.id + '_validation');
+                            if (validationEl) validationEl.innerHTML = '';
+                            this.classList.remove('border-danger-500', 'ring-danger-500', 'border-success-500', 'ring-success-500');
+                        }
+                    });
+                }
             });
         }
         
