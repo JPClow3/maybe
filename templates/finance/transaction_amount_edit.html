@@ -1,0 +1,28 @@
+{% load money_filters %}
+<td class="px-6 py-4 whitespace-nowrap text-sm">
+    <form 
+        hx-post="{% url 'transaction_update_amount' transaction.pk %}"
+        hx-target="closest td"
+        hx-swap="outerHTML swap:0.5s"
+        hx-trigger="submit, keyup[key=='Escape'] from:input"
+        class="relative"
+    >
+        <input 
+            type="text"
+            name="amount"
+            value="{{ transaction.amount|real_br_plain }}"
+            class="form-input text-sm py-1 font-tabular-nums disabled:opacity-70 disabled:cursor-not-allowed"
+            placeholder="R$ 0,00"
+            autofocus
+            x-data="moneyInput('{{ transaction.amount|real_br_plain }}')"
+            x-ref="input"
+            aria-describedby="amount-edit-loading"
+        />
+        {{ form.amount }}
+        <span id="amount-edit-loading" class="sr-only" aria-live="polite"></span>
+        <span class="absolute right-2 top-1/2 -translate-y-1/2">
+            {% include 'partials/spinner.html' with size='h-4 w-4' color='text-gray-400' %}
+        </span>
+    </form>
+</td>
+

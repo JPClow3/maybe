@@ -1,0 +1,14 @@
+{% load money_filters %}
+<td 
+    class="px-6 py-4 whitespace-nowrap text-sm font-tabular-nums cursor-pointer hover:bg-gray-50 {% if transaction.amount < 0 %}text-success-600{% else %}text-danger-600{% endif %}"
+    hx-get="{% url 'transaction_update_amount' transaction.pk %}"
+    hx-trigger="click"
+    hx-target="this"
+    hx-swap="outerHTML"
+    role="button"
+    tabindex="0"
+    aria-label="Click to edit amount"
+>
+    {{ transaction.amount|real_br }}
+</td>
+

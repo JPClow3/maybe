@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Maybe Finance{% endblock %}</title>
+    {% load static %}
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="theme-color" content="#3b82f6">
+    <meta name="msapplication-TileColor" content="#3b82f6">
+    <meta name="msapplication-config" content="/browserconfig.xml">
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/cleave.js@1.6.0/dist/cleave.min.js"></script>
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <script src="{% static 'js/money-input.js' %}"></script>
+</head>
+<body>
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 focus:z-50 focus:p-2 focus:bg-primary-600 focus:text-white">Skip to main content</a>
+    <nav class="bg-white shadow" role="navigation" aria-label="Main navigation">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <a href="{% url 'dashboard' %}" class="text-xl font-bold text-gray-900 hover:text-gray-700" aria-label="Maybe Finance - Home">
+                            Maybe Finance
+                        </a>
+                    </div>
+                    {% if user.is_authenticated %}
+                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                        <a href="{% url 'dashboard' %}" class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 border-b-2 border-transparent hover:border-gray-300 hover:text-gray-700" aria-current="page" hx-boost="true" hx-target="main">
+                            Dashboard
+                        </a>
+                        <a href="{% url 'account_list' %}" class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:border-gray-300 hover:text-gray-700" hx-boost="true" hx-target="main">
+                            Accounts
+                        </a>
+                        <a href="{% url 'transaction_list' %}" class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:border-gray-300 hover:text-gray-700" hx-boost="true" hx-target="main">
+                            Transactions
+                        </a>
+                        <a href="{% url 'import_list' %}" class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:border-gray-300 hover:text-gray-700" hx-boost="true" hx-target="main">
+                            Imports
+                        </a>
+                        <a href="{% url 'security_list' %}" class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:border-gray-300 hover:text-gray-700" hx-boost="true" hx-target="main">
+                            Investments
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="flex items-center">
+                    {% if user.is_authenticated %}
+                        <span class="text-gray-700 mr-4">{{ user.email }}</span>
+                        <a href="{% url 'logout' %}" class="text-gray-700 hover:text-gray-900" aria-label="Logout">Logout</a>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="text-gray-700 hover:text-gray-900" aria-label="Login">Login</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    {# Loading state announcements for screen readers #}
+    <div id="loading-announcements" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+    
+    {# Page loading overlay for HTMX boost transitions #}
+    {% include 'partials/page_loading_overlay.html' %}
+    
+    <main id="main-content" class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8" role="main">
+        {% if messages %}
+        <div class="px-4 sm:px-6 lg:px-8 mb-4" role="alert" aria-live="polite">
+            {% for message in messages %}
+            <div class="mb-2 p-4 rounded-md {% if message.tags == 'error' %}bg-danger-50 border border-danger-200 text-danger-800{% elif message.tags == 'success' %}bg-success-50 border border-success-200 text-success-800{% else %}bg-secondary-50 border border-secondary-200 text-secondary-800{% endif %}">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        {% if message.tags == 'error' %}
+                        <svg class="h-5 w-5 text-danger-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
+                        </svg>
+                        {% elif message.tags == 'success' %}
+                        <svg class="h-5 w-5 text-success-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+                        </svg>
+                        {% endif %}
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium">{{ message }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </main>
+    
+    {# Toast notifications container #}
+    {% include 'partials/toast_container.html' %}
+    
+    {# Mobile bottom navigation #}
+    {% if user.is_authenticated %}
+    {% include 'partials/mobile_bottom_nav.html' %}
+    {% endif %}
+    
+    {# HTMX event handlers for button disabled states #}
+    <script>
+        // Disable buttons during HTMX requests
+        document.body.addEventListener('htmx:beforeRequest', function(evt) {
+            const form = evt.target.closest('form');
+            if (form) {
+                const submitButtons = form.querySelectorAll('button[type="submit"]');
+                submitButtons.forEach(btn => {
+                    btn.disabled = true;
+                    btn.setAttribute('aria-disabled', 'true');
+                });
+                // Disable form inputs during submission
+                const inputs = form.querySelectorAll('input:not([type="hidden"]), select, textarea');
+                inputs.forEach(input => {
+                    input.disabled = true;
+                });
+            }
+        });
+        
+        // Re-enable buttons after HTMX requests complete
+        document.body.addEventListener('htmx:afterRequest', function(evt) {
+            const form = evt.target.closest('form');
+            if (form) {
+                const submitButtons = form.querySelectorAll('button[type="submit"]');
+                submitButtons.forEach(btn => {
+                    btn.disabled = false;
+                    btn.removeAttribute('aria-disabled');
+                });
+                const inputs = form.querySelectorAll('input:not([type="hidden"]), select, textarea');
+                inputs.forEach(input => {
+                    input.disabled = false;
+                });
+            }
+        });
+        
+        // Re-enable buttons on error
+        document.body.addEventListener('htmx:responseError', function(evt) {
+            const form = evt.target.closest('form');
+            if (form) {
+                const submitButtons = form.querySelectorAll('button[type="submit"]');
+                submitButtons.forEach(btn => {
+                    btn.disabled = false;
+                    btn.removeAttribute('aria-disabled');
+                });
+                const inputs = form.querySelectorAll('input:not([type="hidden"]), select, textarea');
+                inputs.forEach(input => {
+                    input.disabled = false;
+                });
+            }
+        });
+        
+        // Announce loading states to screen readers
+        document.body.addEventListener('htmx:beforeRequest', function(evt) {
+            const target = evt.target;
+            const loadingEl = document.getElementById('loading-announcements');
+            if (loadingEl) {
+                // Check if it's a boost navigation
+                if (target.tagName === 'A' && (
+                    target.hasAttribute('hx-boost') || 
+                    target.getAttribute('hx-target') === 'main'
+                )) {
+                    const pageName = target.textContent.trim() || target.getAttribute('aria-label') || 'page';
+                    loadingEl.textContent = `Loading ${pageName}, please wait...`;
+                } else if (target.tagName === 'FORM' || target.closest('form')) {
+                    loadingEl.textContent = 'Saving, please wait...';
+                } else if (target.hasAttribute('hx-get') || target.hasAttribute('hx-post')) {
+                    loadingEl.textContent = 'Loading content, please wait...';
+                }
+            }
+        });
+        
+        document.body.addEventListener('htmx:afterRequest', function(evt) {
+            const loadingEl = document.getElementById('loading-announcements');
+            if (loadingEl && !evt.detail.failed) {
+                loadingEl.textContent = '';
+            }
+        });
+        
+        document.body.addEventListener('htmx:responseError', function(evt) {
+            const loadingEl = document.getElementById('loading-announcements');
+            if (loadingEl) {
+                loadingEl.textContent = 'An error occurred. Please try again.';
+            }
+        });
+        
+        // Page loading overlay for HTMX boost navigation
+        (function() {
+            const overlay = document.getElementById('page-loading-overlay');
+            const loadingBar = document.getElementById('page-loading-bar');
+            const mainContent = document.getElementById('main-content');
+            let isBoostNavigation = false;
+            let overlayTimeout = null;
+            let progressInterval = null;
+            
+            function hideLoadingIndicators() {
+                if (overlayTimeout) {
+                    clearTimeout(overlayTimeout);
+                    overlayTimeout = null;
+                }
+                if (progressInterval) {
+                    clearInterval(progressInterval);
+                    progressInterval = null;
+                }
+                if (loadingBar) {
+                    loadingBar.style.display = 'none';
+                    loadingBar.style.transform = 'scaleX(0)';
+                }
+                if (overlay) {
+                    overlay.classList.add('opacity-0', 'pointer-events-none');
+                    overlay.classList.remove('opacity-100');
+                }
+                isBoostNavigation = false;
+            }
+            
+            function showSkeletonInMain() {
+                // Show skeleton state in main content during boost navigation
+                if (mainContent) {
+                    // Check if there's a skeleton template we can inject
+                    const contentContainers = mainContent.querySelectorAll('[id$="-content"]');
+                    contentContainers.forEach(container => {
+                        // Add skeleton class to show loading state
+                        container.classList.add('opacity-50');
+                    });
+                }
+            }
+            
+            function hideSkeletonInMain() {
+                if (mainContent) {
+                    const contentContainers = mainContent.querySelectorAll('[id$="-content"]');
+                    contentContainers.forEach(container => {
+                        container.classList.remove('opacity-50');
+                    });
+                }
+            }
+            
+            // Show overlay/bar only for boost navigation (full page transitions)
+            document.body.addEventListener('htmx:beforeRequest', function(evt) {
+                const target = evt.target;
+                // Check if this is a boost navigation (anchor tag with hx-boost or hx-target="main")
+                const isBoostLink = target.tagName === 'A' && (
+                    target.hasAttribute('hx-boost') || 
+                    target.getAttribute('hx-target') === 'main' ||
+                    target.closest('[hx-boost]')
+                );
+                
+                if (isBoostLink) {
+                    isBoostNavigation = true;
+                    
+                    // Show skeleton state in main content
+                    showSkeletonInMain();
+                    
+                    // Show subtle loading bar at top immediately
+                    if (loadingBar) {
+                        loadingBar.style.transform = 'scaleX(0)';
+                        loadingBar.style.display = 'block';
+                        
+                        // Animate progress bar
+                        let progress = 0;
+                        progressInterval = setInterval(() => {
+                            if (progress < 90 && isBoostNavigation) {
+                                progress += Math.random() * 15;
+                                if (progress > 90) progress = 90;
+                                if (loadingBar) {
+                                    loadingBar.style.transform = `scaleX(${progress / 100})`;
+                                }
+                            }
+                        }, 100);
+                        
+                        // Initial progress
+                        requestAnimationFrame(() => {
+                            if (isBoostNavigation && loadingBar) {
+                                loadingBar.style.transform = 'scaleX(0.2)';
+                            }
+                        });
+                    }
+                    
+                    // Show overlay after a delay (only if request takes time)
+                    overlayTimeout = setTimeout(() => {
+                        if (isBoostNavigation && overlay) {
+                            overlay.classList.remove('opacity-0', 'pointer-events-none');
+                            overlay.classList.add('opacity-100');
+                        }
+                    }, 500); // Show overlay only if loading takes more than 500ms
+                } else {
+                    isBoostNavigation = false;
+                }
+            });
+            
+            // Complete loading bar and hide overlay
+            document.body.addEventListener('htmx:afterRequest', function(evt) {
+                if (isBoostNavigation) {
+                    // Complete the loading bar
+                    if (loadingBar) {
+                        loadingBar.style.transform = 'scaleX(1)';
+                    }
+                    
+                    // Hide skeleton state
+                    hideSkeletonInMain();
+                    
+                    // Hide overlay immediately if visible
+                    if (overlayTimeout) {
+                        clearTimeout(overlayTimeout);
+                        overlayTimeout = null;
+                    }
+                    if (overlay) {
+                        overlay.classList.add('opacity-0', 'pointer-events-none');
+                        overlay.classList.remove('opacity-100');
+                    }
+                    
+                    // Hide loading bar after animation completes
+                    setTimeout(() => {
+                        hideLoadingIndicators();
+                    }, 200);
+                }
+            });
+            
+            // Handle errors - hide loading indicators
+            document.body.addEventListener('htmx:responseError', function(evt) {
+                if (isBoostNavigation) {
+                    hideSkeletonInMain();
+                    hideLoadingIndicators();
+                }
+            });
+            
+            // Handle timeouts
+            document.body.addEventListener('htmx:timeout', function(evt) {
+                if (isBoostNavigation) {
+                    hideSkeletonInMain();
+                    hideLoadingIndicators();
+                }
+            });
+            
+            // Also handle history navigation (back/forward)
+            window.addEventListener('htmx:pushedIntoHistory', function() {
+                hideSkeletonInMain();
+                hideLoadingIndicators();
+            });
+            
+            // Clean up on page unload
+            window.addEventListener('beforeunload', function() {
+                hideSkeletonInMain();
+                hideLoadingIndicators();
+            });
+        })();
+        
+        // Store original values for optimistic updates
+        const optimisticState = new Map();
+        
+        // Optimistic UI updates for inline edits
+        document.body.addEventListener('htmx:beforeRequest', function(evt) {
+            const target = evt.target;
+            const form = target.closest('form');
+            
+            // Account name inline edit
+            if (form && form.action && form.action.includes('edit-inline')) {
+                const nameInput = form.querySelector('input[name="name"]');
+                if (nameInput) {
+                    const newName = nameInput.value.trim();
+                    const nameDisplay = document.getElementById('account-name');
+                    if (nameDisplay && newName) {
+                        // Store original value
+                        optimisticState.set('account-name', nameDisplay.textContent.trim());
+                        // Optimistically update UI
+                        nameDisplay.textContent = newName;
+                        nameDisplay.classList.add('opacity-70');
+                    }
+                }
+            }
+            
+            // Transaction category inline edit
+            if (form && form.action && form.action.includes('update-category')) {
+                const select = form.querySelector('select[name="category_id"]');
+                if (select) {
+                    const selectedOption = select.options[select.selectedIndex];
+                    const newCategoryName = selectedOption ? selectedOption.text : '—';
+                    const td = form.closest('td');
+                    if (td) {
+                        // Store original value
+                        const originalText = td.textContent.trim();
+                        optimisticState.set('transaction-category', originalText);
+                        // Optimistically update UI
+                        td.innerHTML = `<span class="opacity-70">${newCategoryName}</span>`;
+                    }
+                }
+            }
+            
+            // Transaction amount inline edit
+            if (form && form.action && form.action.includes('update-amount')) {
+                const amountInput = form.querySelector('input[name="amount"]');
+                if (amountInput) {
+                    const newAmount = amountInput.value.trim();
+                    const td = form.closest('td');
+                    if (td && newAmount) {
+                        // Store original value
+                        const originalText = td.textContent.trim();
+                        optimisticState.set('transaction-amount', originalText);
+                        // Optimistically update UI (format as currency)
+                        const formatted = newAmount.replace('.', ',').replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
+                        td.innerHTML = `<span class="opacity-70 font-tabular-nums">R$ ${formatted}</span>`;
+                    }
+                }
+            }
+            
+            // Account form submissions
+            if (form && form.action && (form.action.includes('account_new') || form.action.includes('account_edit'))) {
+                const formContent = document.getElementById('account-form-content');
+                if (formContent) {
+                    // Store original form state
+                    optimisticState.set('account-form', formContent.innerHTML);
+                    // Add loading state
+                    formContent.classList.add('opacity-70', 'pointer-events-none');
+                }
+            }
+            
+            // Transaction form submissions
+            if (form && form.action && (form.action.includes('transaction_new') || form.action.includes('transaction_edit'))) {
+                const formContent = document.querySelector('[id*="transaction-form"], [id*="form-content"]');
+                if (formContent) {
+                    // Store original form state
+                    optimisticState.set('transaction-form', formContent.innerHTML);
+                    // Add loading state
+                    formContent.classList.add('opacity-70', 'pointer-events-none');
+                }
+            }
+        });
+        
+        // Confirm or revert optimistic updates
+        document.body.addEventListener('htmx:afterRequest', function(evt) {
+            // Success - remove opacity class to show final state
+            if (!evt.detail.failed) {
+                const nameDisplay = document.getElementById('account-name');
+                if (nameDisplay) {
+                    nameDisplay.classList.remove('opacity-70');
+                }
+                
+                // Check for redirect (successful form submission)
+                if (evt.detail.xhr) {
+                    const redirect = evt.detail.xhr.getResponseHeader('HX-Redirect');
+                    if (redirect) {
+                        // Form submission was successful, redirect will happen
+                        // Remove loading state
+                        const formContent = document.getElementById('account-form-content') || 
+                                           document.querySelector('[id*="transaction-form"], [id*="form-content"]');
+                        if (formContent) {
+                            formContent.classList.remove('opacity-70', 'pointer-events-none');
+                        }
+                    }
+                }
+                optimisticState.clear();
+            }
+        });
+        
+        // Revert optimistic updates on error
+        document.body.addEventListener('htmx:responseError', function(evt) {
+            // Revert account name
+            const nameDisplay = document.getElementById('account-name');
+            if (nameDisplay && optimisticState.has('account-name')) {
+                nameDisplay.textContent = optimisticState.get('account-name');
+                nameDisplay.classList.remove('opacity-70');
+            }
+            
+            // Revert transaction category
+            const categoryForms = document.querySelectorAll('form[action*="update-category"]');
+            categoryForms.forEach(form => {
+                const td = form.closest('td');
+                if (td && optimisticState.has('transaction-category')) {
+                    // Server will return the correct state, but we can show a brief error
+                    td.classList.add('text-danger-600');
+                    setTimeout(() => td.classList.remove('text-danger-600'), 2000);
+                }
+            });
+            
+            // Revert transaction amount
+            const amountForms = document.querySelectorAll('form[action*="update-amount"]');
+            amountForms.forEach(form => {
+                const td = form.closest('td');
+                if (td && optimisticState.has('transaction-amount')) {
+                    // Server will return the correct state, but we can show a brief error
+                    td.classList.add('text-danger-600');
+                    setTimeout(() => td.classList.remove('text-danger-600'), 2000);
+                }
+            });
+            
+            // Remove loading state from forms
+            const formContent = document.getElementById('account-form-content') || 
+                               document.querySelector('[id*="transaction-form"], [id*="form-content"]');
+            if (formContent) {
+                formContent.classList.remove('opacity-70', 'pointer-events-none');
+            }
+            
+            optimisticState.clear();
+        });
+        
+        // Real-time form validation on blur
+        function setupFieldValidation(form, validateUrl) {
+            if (!form) return;
+            
+            const fields = form.querySelectorAll('input[type="text"], input[type="date"], input[type="email"], select, textarea');
+            fields.forEach(field => {
+                if (field.name && field.name !== 'csrfmiddlewaretoken' && field.type !== 'hidden') {
+                    // Add validation on blur
+                    field.addEventListener('blur', function() {
+                        const fieldValue = this.value.trim();
+                        if (fieldValue || field.hasAttribute('required')) {
+                            const url = new URL(validateUrl, window.location.origin);
+                            url.searchParams.set('field', this.name);
+                            url.searchParams.set('value', fieldValue);
+                            
+                            // Use HTMX to validate
+                            htmx.ajax('GET', url.toString(), {
+                                target: '#' + this.id + '_validation',
+                                swap: 'innerHTML'
+                            }).then(() => {
+                                // Check validation result and update field styling
+                                const validationEl = document.getElementById(this.id + '_validation');
+                                const errorEl = document.getElementById(this.id + '_error');
+                                
+                                if (validationEl) {
+                                    const hasError = validationEl.querySelector('.text-danger-600');
+                                    const hasSuccess = validationEl.querySelector('.text-success-600');
+                                    
+                                    // Update field border color
+                                    this.classList.remove('border-danger-500', 'ring-danger-500', 'border-success-500', 'ring-success-500');
+                                    if (hasError) {
+                                        this.classList.add('border-danger-500', 'ring-danger-500');
+                                        if (errorEl) errorEl.style.display = 'block';
+                                    } else if (hasSuccess && fieldValue) {
+                                        this.classList.add('border-success-500', 'ring-success-500');
+                                        if (errorEl) errorEl.style.display = 'none';
+                                    }
+                                }
+                            });
+                        } else {
+                            // Clear validation indicator if field is empty
+                            const validationEl = document.getElementById(this.id + '_validation');
+                            if (validationEl) validationEl.innerHTML = '';
+                            this.classList.remove('border-danger-500', 'ring-danger-500', 'border-success-500', 'ring-success-500');
+                        }
+                    });
+                }
+            });
+        }
+        
+        // Setup validation for account forms
+        document.addEventListener('DOMContentLoaded', function() {
+            const accountForm = document.querySelector('form[action*="account"]');
+            if (accountForm) {
+                setupFieldValidation(accountForm, '/accounts/validate-field/');
+            }
+        });
+        
+        // Re-setup validation after HTMX swaps
+        document.body.addEventListener('htmx:afterSwap', function(evt) {
+            const accountForm = document.querySelector('form[action*="account"]');
+            if (accountForm) {
+                setupFieldValidation(accountForm, '/accounts/validate-field/');
+            }
+        });
+    </script>
+</body>
+</html>
+

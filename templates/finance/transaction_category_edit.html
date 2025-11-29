@@ -1,0 +1,29 @@
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+    <form 
+        hx-post="{% url 'transaction_update_category' transaction.pk %}"
+        hx-target="closest td"
+        hx-swap="outerHTML swap:0.5s"
+        hx-trigger="change"
+        class="relative"
+    >
+        <select 
+            name="category_id" 
+            class="form-select text-sm py-1 disabled:opacity-70 disabled:cursor-not-allowed"
+            autofocus
+            hx-trigger="change, blur"
+            aria-describedby="category-edit-loading"
+        >
+            <option value="">— Sem categoria —</option>
+            {% for category in categories %}
+            <option value="{{ category.pk }}" {% if transaction.category and transaction.category.pk == category.pk %}selected{% endif %}>
+                {{ category.name }}
+            </option>
+            {% endfor %}
+        </select>
+        <span id="category-edit-loading" class="sr-only" aria-live="polite"></span>
+        <span class="absolute right-2 top-1/2 -translate-y-1/2">
+            {% include 'partials/spinner.html' with size='h-4 w-4' color='text-gray-400' %}
+        </span>
+    </form>
+</td>
+

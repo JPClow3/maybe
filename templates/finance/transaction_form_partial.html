@@ -1,0 +1,63 @@
+{% include 'partials/form_errors.html' %}
+
+{% for field in form %}
+{% if field.name != 'amount' %}
+<div>
+    <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">
+        {{ field.label }}
+        {% if field.field.required %}<span class="text-danger-600" aria-label="required">*</span>{% endif %}
+    </label>
+    {{ field }}
+    {% if field.help_text %}
+    <p class="mt-1 text-sm text-gray-500" id="{{ field.id_for_label }}_help">{{ field.help_text }}</p>
+    {% endif %}
+    {% if field.errors %}
+    <div class="mt-1 text-sm text-danger-600" role="alert" id="{{ field.id_for_label }}_error">
+        {% for error in field.errors %}
+        <p>{{ error }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+{% endfor %}
+
+{# Custom Brazilian money input for amount field #}
+<div x-data="moneyInput('{{ form.amount_display.value|default:"" }}')">
+    <label for="id_amount_display" class="block text-sm font-medium text-gray-700">
+        Amount <span class="text-danger-600" aria-label="required">*</span>
+    </label>
+    <div class="relative">
+        <input 
+            type="text" 
+            name="amount_display" 
+            id="id_amount_display"
+            x-ref="input"
+            class="form-input font-tabular-nums pl-8"
+            placeholder="R$ 0,00"
+            autocomplete="off"
+            value="{{ form.amount_display.value|default:'' }}"
+        />
+        <input type="hidden" name="amount" x-ref="hiddenInput" value="{{ form.amount.value|default:'' }}" />
+    </div>
+    {% if form.amount_display.errors %}
+    <div class="mt-1 text-sm text-danger-600" role="alert">
+        {% for error in form.amount_display.errors %}
+        <p>{{ error }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+<div class="flex justify-end space-x-4">
+    <a href="{% url 'transaction_list' %}" class="btn-secondary" hx-boost="false">
+        Cancel
+    </a>
+    <button type="submit" class="btn-primary relative">
+        <span class="htmx-indicator-button">Save</span>
+        <span class="absolute right-2 top-1/2 -translate-y-1/2">
+            {% include 'partials/spinner.html' with size='h-5 w-5' color='text-white' %}
+        </span>
+    </button>
+</div>
+

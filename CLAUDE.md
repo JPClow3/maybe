@@ -5,15 +5,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Common Development Commands
 
 ### Development Server
-- `cd maybe_django && python manage.py runserver` - Start Django development server
-- `cd maybe_django && python manage.py shell` - Open Django shell
-- `cd maybe_django && python manage.py shell_plus` - Open Django shell with auto-imports (if django-extensions installed)
+- `python manage.py runserver` - Start Django development server
+- `python manage.py shell` - Open Django shell
+- `python manage.py shell_plus` - Open Django shell with auto-imports (if django-extensions installed)
 
 ### Testing
-- `cd maybe_django && python manage.py test` - Run all tests
-- `cd maybe_django && python manage.py test finance` - Run tests for finance app
-- `cd maybe_django && python manage.py test finance.tests.AccountTestCase.test_account_creation` - Run specific test
-- `cd maybe_django && python manage.py test --verbosity=2` - Run tests with verbose output
+- `python manage.py test` - Run all tests
+- `python manage.py test finance` - Run tests for finance app
+- `python manage.py test finance.tests.AccountTestCase.test_account_creation` - Run specific test
+- `python manage.py test --verbosity=2` - Run tests with verbose output
 
 ### Linting & Formatting
 - `npm run lint` - Check JavaScript/TypeScript code with Biome
@@ -23,30 +23,30 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm run style:fix` - Fix code style issues
 
 ### CSS Build
-- `npm run css:build` - Build Tailwind CSS from `maybe_django/static/css/input.css` to `maybe_django/static/css/main.css`
+- `npm run css:build` - Build Tailwind CSS from `static/css/input.css` to `static/css/main.css`
 - `npm run css:watch` - Watch for changes and rebuild CSS automatically
 
 ### Database
-- `cd maybe_django && python manage.py makemigrations` - Create new migration files
-- `cd maybe_django && python manage.py migrate` - Apply pending migrations
-- `cd maybe_django && python manage.py migrate finance zero` - Rollback all migrations for finance app
-- `cd maybe_django && python manage.py showmigrations` - Show migration status
-- `cd maybe_django && python manage.py sqlmigrate finance 0001` - Show SQL for a migration
+- `python manage.py makemigrations` - Create new migration files
+- `python manage.py migrate` - Apply pending migrations
+- `python manage.py migrate finance zero` - Rollback all migrations for finance app
+- `python manage.py showmigrations` - Show migration status
+- `python manage.py sqlmigrate finance 0001` - Show SQL for a migration
 
 ### Background Tasks (Celery)
-- `cd maybe_django && celery -A maybe_django worker -l info` - Start Celery worker
-- `cd maybe_django && celery -A maybe_django beat -l info` - Start Celery beat scheduler
+- `celery -A maybe_django worker -l info` - Start Celery worker
+- `celery -A maybe_django beat -l info` - Start Celery beat scheduler
 
 ### Setup
-- `cd maybe_django && pip install -r requirements.txt` - Install Python dependencies
-- `cd maybe_django && python manage.py createsuperuser` - Create admin user
+- `pip install -r requirements.txt` - Install Python dependencies
+- `python manage.py createsuperuser` - Create admin user
 
 ## Pre-Pull Request CI Workflow
 
 ALWAYS run these commands before opening a pull request:
 
 1. **Tests** (Required):
-   - `cd maybe_django && python manage.py test` - Run all tests (always required)
+   - `python manage.py test` - Run all tests (always required)
 
 2. **Linting** (Required):
    - `npm run lint` - JavaScript/TypeScript linting
@@ -117,8 +117,8 @@ Celery handles asynchronous tasks:
 - **HTMX**: Server-side rendering with HTMX for reactive UI without heavy JavaScript
 - **Django Components**: Reusable UI components using django-components
 - **Tailwind CSS v3.4+**: Styling with custom design system built via PostCSS
-  - Design system defined in `maybe_django/static/css/input.css` with component classes
-  - Compiled to `maybe_django/static/css/main.css` using `npm run css:build`
+  - Design system defined in `static/css/input.css` with component classes
+  - Compiled to `static/css/main.css` using `npm run css:build`
   - Always use functional tokens and component classes (`btn-primary`, `card`, `form-input`, etc.) when available
   - Prefer semantic HTML elements over JS components
   - Build CSS with: `npm run css:build` or watch with: `npm run css:watch`
@@ -136,7 +136,7 @@ Celery handles asynchronous tasks:
 
 ### Testing Philosophy
 - Comprehensive test coverage using Django's built-in unittest framework
-- Test models in `maybe_django/*/tests.py` files
+- Test models in `*/tests.py` files
 - Keep tests minimal and focused on critical business logic
 - Only test important code paths that significantly increase confidence
 
@@ -162,7 +162,7 @@ Celery handles asynchronous tasks:
 ### Convention 2: Fat Models, Skinny Views
 - Business logic in model methods and utility classes
 - Views should be thin controllers that delegate to models/services
-- Organize complex logic into service classes in `maybe_django/*/services/` directories
+- Organize complex logic into service classes in `*/services/` directories
 - Models should answer questions about themselves: `account.get_balance_series()` not `AccountService.get_balance_series(account)`
 
 ### Convention 3: HTMX-First Frontend
@@ -176,7 +176,7 @@ Celery handles asynchronous tasks:
 - **Query params for state** over localStorage/sessions when possible
 - **Server-side formatting** for currencies, numbers, dates
 - Use django-components for reusable UI components
-- Use design system component classes (`btn-primary`, `card`, `form-input`, etc.) from `maybe_django/static/css/input.css`
+- Use design system component classes (`btn-primary`, `card`, `form-input`, etc.) from `static/css/input.css`
 
 ### Convention 4: Optimize for Simplicity
 - Prioritize good domain design over performance

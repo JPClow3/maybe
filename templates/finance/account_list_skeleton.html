@@ -1,0 +1,12 @@
+{# Account list skeleton loading state #}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 skeleton-fade-in" role="list" aria-label="Accounts list loading">
+    {% for i in "123456"|make_list %}
+    <article class="card p-5" role="listitem">
+        <div class="h-6 skeleton-shimmer rounded w-32 mb-2"></div>
+        <div class="h-4 skeleton-shimmer rounded w-24 mb-3"></div>
+        <div class="h-8 skeleton-shimmer rounded w-28 mb-2"></div>
+        <div class="h-4 skeleton-shimmer rounded w-24"></div>
+    </article>
+    {% endfor %}
+</div>
+

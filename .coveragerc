@@ -1,0 +1,34 @@
+[run]
+source = maybe_django
+omit = 
+    */tests.py
+    */tests_*.py
+    */test_*.py
+    */migrations/*
+    */venv/*
+    */env/*
+    */__pycache__/*
+    manage.py
+    */settings/*
+    */wsgi.py
+    */asgi.py
+    */celery.py
+
+[report]
+precision = 2
+show_missing = True
+skip_covered = False
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    raise AssertionError
+    raise NotImplementedError
+    if __name__ == .__main__.:
+    if TYPE_CHECKING:
+    @abstractmethod
+    class .*\bProtocol\):
+    @(abc\.)?abstractmethod
+
+[html]
+directory = htmlcov
+

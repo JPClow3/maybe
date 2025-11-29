@@ -1,9 +1,9 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    './maybe_django/templates/**/*.html',
-    './maybe_django/**/templates/**/*.html',
-    './maybe_django/**/*.py',
+    './templates/**/*.html',
+    './**/templates/**/*.html',
+    './**/*.py',
   ],
   theme: {
     extend: {

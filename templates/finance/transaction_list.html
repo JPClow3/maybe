@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load money_filters %}
+
+{% block title %}Transactions - Maybe Finance{% endblock %}
+
+{% block content %}
+<div class="px-4 py-6 sm:px-0">
+    <div class="flex justify-between items-center mb-4">
+        <h1 class="text-2xl font-bold">Transactions</h1>
+        <a href="{% url 'transaction_new' %}" class="btn-primary">
+            New Transaction
+        </a>
+    </div>
+    
+    {# Transaction table - loaded via HTMX with skeleton initial state #}
+    <div 
+        hx-get="{% url 'transaction_list_data' %}"
+        hx-trigger="load"
+        hx-swap="outerHTML"
+    >
+        {% include 'finance/transaction_list_skeleton.html' %}
+    </div>
+</div>
+{% endblock %}
+

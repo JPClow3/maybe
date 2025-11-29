@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - Maybe Finance{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto mt-8">
+    <h1 class="text-2xl font-bold mb-4">Login</h1>
+    {% if form.errors %}
+    <div class="mb-4 p-4 rounded-md bg-danger-50 border border-danger-200 text-danger-800">
+        <p class="text-sm font-medium">Your username and password didn't match. Please try again.</p>
+    </div>
+    {% endif %}
+    <form method="post" class="space-y-4">
+        {% csrf_token %}
+        <div>
+            <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                {{ form.username.label }}
+            </label>
+            <input type="text" name="{{ form.username.name }}" id="{{ form.username.id_for_label }}" 
+                   value="{{ form.username.value|default:'' }}" required
+                   class="form-input w-full">
+            {% if form.username.errors %}
+            <p class="mt-1 text-sm text-danger-600">{{ form.username.errors.0 }}</p>
+            {% endif %}
+        </div>
+        <div>
+            <label for="{{ form.password.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                {{ form.password.label }}
+            </label>
+            <input type="password" name="{{ form.password.name }}" id="{{ form.password.id_for_label }}" 
+                   required class="form-input w-full">
+            {% if form.password.errors %}
+            <p class="mt-1 text-sm text-danger-600">{{ form.password.errors.0 }}</p>
+            {% endif %}
+        </div>
+        <div class="flex items-center justify-between">
+            <div class="flex items-center">
+                <input type="checkbox" name="remember_me" id="remember_me" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                <label for="remember_me" class="ml-2 block text-sm text-gray-700">
+                    Remember me
+                </label>
+            </div>
+        </div>
+        <button type="submit" class="btn-primary w-full relative">
+            <span class="htmx-indicator-button">Login</span>
+            <span class="absolute right-2 top-1/2 -translate-y-1/2">
+                {% include 'partials/spinner.html' with size='h-5 w-5' color='text-white' %}
+            </span>
+        </button>
+    </form>
+    <div class="mt-4 text-center">
+        <p class="text-sm text-gray-600">
+            Don't have an account? 
+            <a href="{% url 'register' %}" class="text-primary-600 hover:text-primary-700 font-medium">
+                Register here
+            </a>
+        </p>
+    </div>
+</div>
+{% endblock %}
+

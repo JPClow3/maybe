@@ -1,0 +1,40 @@
+{% include 'partials/form_errors.html' %}
+
+{% for field in form %}
+<div>
+    <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">
+        {{ field.label }}
+        {% if field.field.required %}<span class="text-danger-600" aria-label="required">*</span>{% endif %}
+    </label>
+    <div class="relative">
+        {{ field }}
+        {# Real-time validation indicator will be inserted here via HTMX #}
+        <div id="{{ field.id_for_label }}_validation" class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"></div>
+    </div>
+    {% if field.help_text %}
+    <p class="mt-1 text-sm text-gray-500" id="{{ field.id_for_label }}_help">{{ field.help_text }}</p>
+    {% endif %}
+    {% if field.errors %}
+    <div class="mt-1 text-sm text-danger-600" role="alert" id="{{ field.id_for_label }}_error">
+        {% for error in field.errors %}
+        <p>{{ error }}</p>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="mt-1 text-sm text-danger-600" role="alert" id="{{ field.id_for_label }}_error" style="display: none;"></div>
+    {% endif %}
+</div>
+{% endfor %}
+
+<div class="flex justify-end space-x-4">
+    <a href="{% url 'account_list' %}" class="btn-secondary" hx-boost="false">
+        Cancel
+    </a>
+    <button type="submit" class="btn-primary relative">
+        <span class="htmx-indicator-button">Save</span>
+        <span class="absolute right-2 top-1/2 -translate-y-1/2">
+            {% include 'partials/spinner.html' with size='h-5 w-5' color='text-white' %}
+        </span>
+    </button>
+</div>
+
