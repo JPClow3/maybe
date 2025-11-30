@@ -82,6 +82,7 @@
 <dialog
     x-data="{ open: false }"
     @open-transaction-modal.window="open = true; $refs.dialog.showModal()"
+    @close-dialog.window="open = false; $refs.dialog.close()"
     @click.away="if ($event.target === $refs.dialog) { open = false; $refs.dialog.close() }"
     x-ref="dialog"
     class="rounded-lg shadow-xl max-w-md w-full p-0 backdrop:bg-black/50"
@@ -108,20 +109,16 @@
                 </svg>
             </button>
         </div>
-        <div class="space-y-4">
-            <a 
-                href="{% url 'transaction_new' %}"
-                class="block w-full btn-primary text-center"
-                hx-boost="false"
-            >
-                Adicionar Transação
-            </a>
-            <button
-                @click="open = false; $refs.dialog.close()"
-                class="block w-full btn-secondary text-center"
-            >
-                Cancelar
-            </button>
+        <div 
+            hx-get="{% url 'transaction_quick_form' %}"
+            hx-trigger="load"
+            hx-swap="innerHTML"
+            class="space-y-4"
+        >
+            {# Loading state #}
+            <div class="flex items-center justify-center py-8">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+            </div>
         </div>
     </div>
 </dialog>

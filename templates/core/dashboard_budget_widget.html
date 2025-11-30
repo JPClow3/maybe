@@ -1,0 +1,59 @@
+{# Budget widget for dashboard - shows current month budget status #}
+{% load money_filters %}
+
+{% if current_budget and current_budget.budgeted_spending %}
+<div class="card mb-8">
+    <div class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Orçamento do Mês</h2>
+        <a href="{% url 'budget_detail' current_budget.pk %}" class="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300" hx-boost="true" hx-target="#main-content" hx-select="#main-content" hx-swap="innerHTML">
+            Ver detalhes →
+        </a>
+    </div>
+    
+    <div class="space-y-4">
+        {# Overall progress #}
+        <div>
+            <div class="flex justify-between text-sm mb-2">
+                <span class="text-gray-700 dark:text-gray-300">Gasto do mês</span>
+                <span class="font-semibold text-gray-900 dark:text-gray-100">
+                    {{ current_budget.actual_spending|real_br }} / {{ current_budget.budgeted_spending|real_br }}
+                </span>
+            </div>
+            {% with percent=current_budget.actual_spending|div:current_budget.budgeted_spending|mul:100|floatformat:0 %}
+            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                <div 
+                    class="h-3 rounded-full transition-all {% if percent|add:0 > 100 %}bg-danger-600{% elif percent|add:0 > 80 %}bg-warning-500{% else %}bg-success-600{% endif %}"
+                    style="width: {% if percent|add:0 > 100 %}100{% else %}{{ percent }}{% endif %}%"
+                ></div>
+            </div>
+            <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">{{ percent }}% utilizado</p>
+            {% endwith %}
+        </div>
+        
+        {# Available to spend #}
+        <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+            <div class="flex justify-between items-center">
+                <div>
+                    <p class="text-sm text-gray-700 dark:text-gray-300">Disponível para gastar</p>
+                    <p class="text-2xl font-bold {% if current_budget.available_to_spend < 0 %}text-danger-600{% else %}text-success-600{% endif %} balance-display mt-1">
+                        {{ current_budget.available_to_spend|real_br }}
+                    </p>
+                </div>
+                <a href="{% url 'budget_available_to_spend' %}" class="btn-secondary text-sm" hx-boost="true" hx-target="#main-content" hx-select="#main-content" hx-swap="innerHTML">
+                    Quanto posso gastar?
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% elif not current_budget %}
+<div class="card mb-8">
+    <div class="text-center py-6">
+        <p class="text-sm text-gray-700 dark:text-gray-300 mb-4">Crie um orçamento para acompanhar seus gastos mensais</p>
+        <a href="{% url 'budget_create' %}" class="btn-primary inline-block" hx-boost="true" hx-target="#main-content" hx-select="#main-content" hx-swap="innerHTML">
+            Criar Orçamento
+        </a>
+    </div>
+</div>
+{% endif %}
+

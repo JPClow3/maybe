@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load money_filters %}
+
+{% block title %}Orçamentos - Maybe Finance{% endblock %}
+
+{% block content %}
+<div class="px-4 py-6 sm:px-0">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-3xl font-bold bg-gradient-to-r from-primary-600 via-primary-500 to-primary-400 dark:from-primary-400 dark:via-primary-300 dark:to-primary-200 bg-clip-text text-transparent">Orçamentos</h1>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Gerencie seus orçamentos mensais</p>
+        </div>
+        <a href="{% url 'budget_create' %}" class="btn-primary">
+            Novo Orçamento
+        </a>
+    </div>
+    
+    {% if budgets %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {% for budget in budgets %}
+        <a href="{% url 'budget_detail' budget.pk %}" class="card card-lift block" hx-boost="true" hx-target="#main-content" hx-select="#main-content" hx-swap="innerHTML">
+            <div class="flex justify-between items-start mb-2">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    {{ budget.start_date|date:"F Y" }}
+                </h3>
+                <span class="text-xs text-gray-500 dark:text-gray-400">
+                    {{ budget.start_date|date:"d/m" }} - {{ budget.end_date|date:"d/m" }}
+                </span>
+            </div>
+            
+            {% if budget.budgeted_spending %}
+            <div class="mt-4">
+                <div class="flex justify-between text-sm mb-1">
+                    <span class="text-gray-700 dark:text-gray-300">Orçado</span>
+                    <span class="font-semibold text-gray-900 dark:text-gray-100">{{ budget.budgeted_spending|real_br }}</span>
+                </div>
+                <div class="flex justify-between text-sm mb-2">
+                    <span class="text-gray-700 dark:text-gray-300">Gasto</span>
+                    <span class="font-semibold {% if budget.actual_spending > budget.budgeted_spending %}text-danger-600{% else %}text-gray-900 dark:text-gray-100{% endif %}">
+                        {{ budget.actual_spending|real_br }}
+                    </span>
+                </div>
+                
+                {# Progress bar #}
+                {% with percent=budget.actual_spending|div:budget.budgeted_spending|mul:100|floatformat:0 %}
+                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-2">
+                    <div 
+                        class="h-2 rounded-full transition-all {% if percent|add:0 > 100 %}bg-danger-600{% elif percent|add:0 > 80 %}bg-warning-500{% else %}bg-success-600{% endif %}"
+                        style="width: {% if percent|add:0 > 100 %}100{% else %}{{ percent }}{% endif %}%"
+                    ></div>
+                </div>
+                <div class="text-xs text-gray-600 dark:text-gray-400">
+                    {{ percent }}% utilizado
+                </div>
+                {% endwith %}
+            </div>
+            {% else %}
+            <p class="text-sm text-gray-700 dark:text-gray-300 mt-4">Orçamento não configurado</p>
+            {% endif %}
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="card">
+        {% url 'budget_create' as budget_create_url %}
+        {% include 'partials/_empty.html' with title="Nenhum orçamento encontrado" description="Crie seu primeiro orçamento para começar a controlar seus gastos mensais." button_text="Criar Orçamento" button_url=budget_create_url %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+

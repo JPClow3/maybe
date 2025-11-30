@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Excluir Transação - Maybe Finance{% endblock %}
+
+{% block content %}
+<div class="px-4 py-6 sm:px-0">
+    <div class="max-w-2xl mx-auto">
+        <div class="card">
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">Excluir Transação</h1>
+            <p class="text-gray-600 dark:text-gray-400 mb-6">
+                Tem certeza que deseja excluir a transação <strong>{{ transaction.name }}</strong>?
+            </p>
+            <form method="post" class="space-y-4">
+                {% csrf_token %}
+                <div class="flex space-x-4">
+                    <button type="submit" class="btn-danger">
+                        Sim, excluir
+                    </button>
+                    <a href="{% url 'transaction_detail' transaction.pk %}" class="btn-secondary">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

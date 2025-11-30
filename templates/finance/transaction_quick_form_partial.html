@@ -1,0 +1,107 @@
+{# Quick transaction form for mobile - minimal fields for 5-second entry #}
+{% load money_filters %}
+
+<form 
+    method="post" 
+    action="{% url 'transaction_new' %}"
+    hx-post="{% url 'transaction_new' %}"
+    hx-target="body"
+    hx-swap="none"
+    class="space-y-4"
+    @htmx:afterRequest="if (event.detail.successful) { $dispatch('close-dialog'); }"
+>
+    {% csrf_token %}
+    
+    {# Quick amount input - Brazilian format, large and centered #}
+    <div>
+        <label for="quick_amount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Valor <span class="text-danger-600">*</span>
+        </label>
+        <div x-data="moneyInput('')">
+            <input 
+                type="text" 
+                name="amount_display" 
+                id="quick_amount"
+                x-ref="input"
+                class="form-input tabular-nums tracking-tight font-mono text-2xl text-center font-bold"
+                placeholder="R$ 0,00"
+                autocomplete="off"
+                required
+                autofocus
+            />
+            <input type="hidden" name="amount" x-ref="hiddenInput" />
+        </div>
+    </div>
+    
+    {# Quick name input with autocomplete from recent transactions #}
+    <div>
+        <label for="quick_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Nome <span class="text-danger-600">*</span>
+        </label>
+        <input 
+            type="text" 
+            name="name" 
+            id="quick_name"
+            class="form-input text-lg"
+            placeholder="Ex: Café na padaria"
+            required
+            list="transaction_names"
+        />
+        <datalist id="transaction_names">
+            {% for name in recent_names %}
+            <option value="{{ name }}">{{ name }}</option>
+            {% endfor %}
+        </datalist>
+    </div>
+    
+    {# Quick category select - large touch-friendly buttons #}
+    <div>
+        <label for="quick_category" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Categoria
+        </label>
+        <select 
+            name="category" 
+            id="quick_category"
+            class="form-select text-base min-h-[52px]"
+        >
+            <option value="">Sem categoria</option>
+            {% for category in categories %}
+            <option value="{{ category.id }}">{{ category.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    
+    {# Hidden fields with smart defaults #}
+    <input type="hidden" name="account" value="{{ default_account.id|default:'' }}" />
+    <input type="hidden" name="date" value="{% now 'Y-m-d' %}" />
+    <input type="hidden" name="currency" value="BRL" />
+    
+    <div class="flex space-x-3 pt-2">
+        <button
+            type="button"
+            @click="$dispatch('close-dialog')"
+            class="flex-1 btn-secondary min-h-[52px]"
+        >
+            Cancelar
+        </button>
+        <button
+            type="submit"
+            class="flex-1 btn-primary min-h-[52px] text-lg font-semibold"
+        >
+            Salvar
+        </button>
+    </div>
+</form>
+
+{# Alternative: Full form link #}
+<div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+    <a 
+        href="{% url 'transaction_new' %}"
+        class="block w-full text-center text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
+        hx-boost="true"
+        @click="$dispatch('close-dialog')"
+    >
+        Formulário completo →
+    </a>
+</div>
+

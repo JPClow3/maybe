@@ -3,6 +3,9 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 from django.db.models import Sum, Count
+from django.http import HttpResponse, Http404
+from django.conf import settings
+from pathlib import Path
 from finance.models import Account, Transaction
 from core.forms import CustomUserCreationForm
 
@@ -71,6 +74,17 @@ def dashboard(request):
     if last_month_expenses > 0:
         spending_change = ((this_month_expenses - last_month_expenses) / last_month_expenses) * 100
     
+    # Get current month budget if exists
+    from finance.models import Budget
+    current_month_start = today.replace(day=1)
+    try:
+        current_budget = Budget.objects.get(
+            user=request.user,
+            start_date=current_month_start
+        )
+    except Budget.DoesNotExist:
+        current_budget = None
+    
     context = {
         'free_cash': free_cash,
         'current_bill': current_bill,
@@ -78,6 +92,7 @@ def dashboard(request):
         'total_balance': total_balance,
         'spending_change': spending_change,
         'recent_transactions': recent_transactions,
+        'current_budget': current_budget,
     }
     
     return render(request, 'core/dashboard.html', context)
@@ -120,4 +135,41 @@ def handler500(request):
 
 def handler403(request, exception):
     return render(request, 'errors/403.html', status=403)
+
+def serve_public_file(request, filename):
+    """
+    Serve files from the public directory (site.webmanifest, browserconfig.xml, etc.)
+    """
+    # Security: only allow specific files to be served
+    allowed_files = {
+        'site.webmanifest': 'application/manifest+json',
+        'browserconfig.xml': 'application/xml',
+        'robots.txt': 'text/plain',
+    }
+    
+    if filename not in allowed_files:
+        raise Http404("File not found")
+    
+    # Get the public directory path
+    public_dir = Path(settings.BASE_DIR) / 'public'
+    file_path = public_dir / filename
+    
+    if not file_path.exists() or not file_path.is_file():
+        raise Http404("File not found")
+    
+    # Read file content
+    try:
+        with open(file_path, 'rb') as f:
+            content = f.read()
+    except IOError:
+        raise Http404("File not found")
+    
+    # Create response with appropriate content type
+    response = HttpResponse(content, content_type=allowed_files[filename])
+    
+    # Add cache headers for immutable files (1 year)
+    if filename in ('site.webmanifest', 'browserconfig.xml'):
+        response['Cache-Control'] = 'public, max-age=31536000, immutable'
+    
+    return response
 

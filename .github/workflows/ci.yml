@@ -4,54 +4,6 @@ on:
   workflow_call:
 
 jobs:
-  scan_ruby:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: .ruby-version
-          bundler-cache: true
-
-      - name: Scan for security vulnerabilities in Ruby dependencies
-        run: bin/brakeman --no-pager
-
-  scan_js:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: .ruby-version
-          bundler-cache: true
-
-      - name: Scan for security vulnerabilities in JavaScript dependencies
-        run: bin/importmap audit
-
-  lint:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: .ruby-version
-          bundler-cache: true
-
-      - name: Lint code for consistent style
-        run: bin/rubocop -f github
-
   lint_js:
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -74,60 +26,188 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
 
     env:
-      PLAID_CLIENT_ID: foo
-      PLAID_SECRET: bar
-      DATABASE_URL: postgres://postgres:postgres@localhost:5432
-      REDIS_URL: redis://localhost:6379
-      RAILS_ENV: test
+      SECRET_KEY: django-insecure-test-key-for-ci
+      DEBUG: "False"
+      ALLOWED_HOSTS: localhost,127.0.0.1
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_NAME: maybe_django_test
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      CELERY_BROKER_URL: redis://localhost:6379/0
+      CELERY_RESULT_BACKEND: redis://localhost:6379/0
 
     services:
       postgres:
-        image: postgres
+        image: postgres:15
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: maybe_django_test
         ports:
           - 5432:5432
-        options: --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=3
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
       redis:
-        image: redis
+        image: redis:7
         ports:
           - 6379:6379
-        options: --health-cmd="redis-cli ping" --health-interval=10s --health-timeout=5s --health-retries=3
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
-      - name: Install packages
-        run: sudo apt-get update && sudo apt-get install --no-install-recommends -y google-chrome-stable curl libvips postgresql-client libpq-dev
-
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          ruby-version: .ruby-version
-          bundler-cache: true
+          python-version: '3.11'
 
-      - name: DB setup and smoke test
+      - name: Install dependencies
         run: |
-          bin/rails db:create
-          bin/rails db:schema:load
-          bin/rails db:seed
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-      - name: Unit and integration tests
-        run: bin/rails test
+      - name: Build CSS
+        run: |
+          npm install
+          npm run css:build
 
-      - name: System tests
-        run: DISABLE_PARALLELIZATION=true bin/rails test:system
+      - name: Run migrations
+        run: python manage.py migrate
 
-      - name: Keep screenshots from failed system tests
-        uses: actions/upload-artifact@v4
-        if: failure()
+      - name: Run tests
+        run: python manage.py test
+
+  lighthouse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [test]
+
+    env:
+      SECRET_KEY: django-insecure-test-key-for-ci
+      DEBUG: "False"
+      ALLOWED_HOSTS: localhost,127.0.0.1
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_NAME: maybe_django_test
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      CELERY_BROKER_URL: redis://localhost:6379/0
+      CELERY_RESULT_BACKEND: redis://localhost:6379/0
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: maybe_django_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          name: screenshots
-          path: ${{ github.workspace }}/tmp/screenshots
-          if-no-files-found: ignore
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install Node dependencies
+        run: npm install
+
+      - name: Build CSS
+        run: npm run css:build
+
+      - name: Run migrations
+        run: python manage.py migrate
+
+      - name: Create test user
+        run: |
+          python manage.py shell << EOF
+from django.contrib.auth import get_user_model
+User = get_user_model()
+if not User.objects.filter(username='lighthouse_test').exists():
+    User.objects.create_user(
+        username='lighthouse_test',
+        email='lighthouse@test.com',
+        password='testpass123'
+    )
+EOF
+
+      - name: Start Django server
+        run: |
+          python manage.py runserver 0.0.0.0:8000 > /tmp/django-server.log 2>&1 &
+          echo $! > /tmp/django-server.pid
+          sleep 3
+
+      - name: Wait for server to be ready
+        run: |
+          for i in {1..30}; do
+            if curl -f http://localhost:8000/login/ > /dev/null 2>&1; then
+              echo "Server is ready"
+              exit 0
+            fi
+            echo "Waiting for server... ($i/30)"
+            sleep 1
+          done
+          echo "Server failed to start"
+          cat /tmp/django-server.log
+          exit 1
+
+      - name: Run Lighthouse CI
+        run: npm run lighthouse:ci
+
+      - name: Stop Django server
+        if: always()
+        run: |
+          if [ -f /tmp/django-server.pid ]; then
+            kill $(cat /tmp/django-server.pid) || true
+          fi
+
+      - name: Upload Lighthouse reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse-reports
+          path: .lighthouseci/
+          retention-days: 7

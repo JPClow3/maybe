@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load money_filters %}
+
+{% block title %}Status Atualização B3 - Maybe Finance{% endblock %}
+
+{% block content %}
+<div class="px-4 py-6 sm:px-0">
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold bg-gradient-to-r from-primary-600 via-primary-500 to-primary-400 dark:from-primary-400 dark:via-primary-300 dark:to-primary-200 bg-clip-text text-transparent">
+            Status Atualização B3
+        </h1>
+        <p class="text-sm text-gray-700 dark:text-gray-300 mt-1">Monitoramento da atualização automática de preços</p>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div class="card">
+            <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Última Atualização</h3>
+            {% if latest_price %}
+            <p class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                {{ latest_price.date|date:"d/m/Y H:i" }}
+            </p>
+            <p class="text-sm text-gray-700 dark:text-gray-300 mt-1">
+                {{ latest_price.security.ticker }} - {{ latest_price.price|real_br }}
+            </p>
+            {% else %}
+            <p class="text-gray-700 dark:text-gray-300">Nenhuma atualização encontrada</p>
+            {% endif %}
+        </div>
+        
+        <div class="card">
+            <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Atualizações Hoje</h3>
+            <p class="text-2xl font-bold text-gray-900 dark:text-gray-100 balance-display">
+                {{ securities_updated_today }} / {{ total_br_securities }}
+            </p>
+            <div class="mt-2">
+                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                    <div 
+                        class="h-2 rounded-full bg-success-600 transition-all"
+                        style="width: {{ update_percentage }}%"
+                    ></div>
+                </div>
+                <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">{{ update_percentage|floatformat:1 }}% atualizado</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Informações</h3>
+        <div class="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+            <p>• As atualizações são executadas automaticamente às <strong>18h BRT</strong> (após o fechamento da B3)</p>
+            <p>• O sistema tenta atualizar novamente em caso de falha (até 3 tentativas)</p>
+            <p>• Preços são atualizados diariamente para todos os ativos brasileiros cadastrados</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

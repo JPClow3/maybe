@@ -68,3 +68,24 @@ def real_br_plain(value, currency='BRL'):
     except (ValueError, TypeError):
         return str(value)
 
+
+@register.filter(name='div')
+def div(value, arg):
+    """Divide the value by the argument"""
+    try:
+        if value is None or arg is None:
+            return 0
+        return float(value) / float(arg)
+    except (ValueError, TypeError, ZeroDivisionError):
+        return 0
+
+
+@register.filter(name='mul')
+def mul(value, arg):
+    """Multiply the value by the argument"""
+    try:
+        if value is None or arg is None:
+            return 0
+        return float(value) * float(arg)
+    except (ValueError, TypeError):
+        return 0

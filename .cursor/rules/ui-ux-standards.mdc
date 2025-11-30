@@ -1,0 +1,272 @@
+---
+description: UI/UX standardization guide - defines consistent patterns for all templates
+globs: templates/**/*.html
+alwaysApply: true
+---
+
+# UI/UX Standards for Maybe Finance
+
+This document defines the standard patterns that MUST be used consistently across all templates.
+
+## Page Headers
+
+**Standard Pattern:**
+```django
+<div class="flex justify-between items-center mb-6">
+    <div>
+        <h1 class="text-3xl font-bold bg-gradient-to-r from-primary-600 via-primary-500 to-primary-400 dark:from-primary-400 dark:via-primary-300 dark:to-primary-200 bg-clip-text text-transparent">Page Title</h1>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Page description or subtitle</p>
+    </div>
+    {% if action_button_url %}
+    <a href="{% url 'action_button_url' %}" class="btn-primary">
+        Action Button Text
+    </a>
+    {% endif %}
+</div>
+```
+
+**Rules:**
+- ALWAYS use the gradient text style for h1
+- ALWAYS include a subtitle/description with `text-gray-600 dark:text-gray-400`
+- Action buttons go on the right side
+- Use `mb-6` for spacing below header
+
+## Form Pages
+
+**Standard Pattern:**
+```django
+<div class="px-4 py-6 sm:px-0">
+    <div class="max-w-2xl mx-auto">
+        <a href="{% url 'back_url' %}" class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 mb-4 inline-block">← Back to List</a>
+        <div class="mb-6">
+            <h1 class="text-3xl font-bold bg-gradient-to-r from-primary-600 via-primary-500 to-primary-400 dark:from-primary-400 dark:via-primary-300 dark:to-primary-200 bg-clip-text text-transparent">{{ title }}</h1>
+        </div>
+        
+        <div class="card">
+            <form method="post" class="space-y-6" hx-post="..." hx-target="#form-content" hx-swap="innerHTML">
+                {% csrf_token %}
+                <div id="form-content">
+                    {% include 'app/form_partial.html' %}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+```
+
+**Rules:**
+- Forms MUST be in `max-w-2xl mx-auto` container
+- ALWAYS include a back link with consistent styling
+- Form content goes in a `card`
+- Use `space-y-6` for form spacing
+
+## Form Buttons
+
+**Standard Pattern:**
+```django
+<div class="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+    <a href="{% url 'cancel_url' %}" class="btn-secondary" hx-boost="false">Cancel</a>
+    <button type="submit" class="btn-primary relative">
+        <span class="htmx-indicator-button">Save</span>
+        <span class="htmx-indicator absolute right-2 top-1/2 -translate-y-1/2">
+            {% include 'partials/spinner.html' with size='h-5 w-5' color='text-white' %}
+        </span>
+    </button>
+</div>
+```
+
+**Rules:**
+- Buttons are right-aligned with `flex justify-end gap-3`
+- Cancel button uses `btn-secondary`
+- Submit button uses `btn-primary` with HTMX indicator
+- Buttons have a border-top separator
+- Use `pt-4` for padding
+
+## Tables
+
+**Standard Pattern:**
+```django
+<div class="card">
+    {% if items %}
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead class="bg-gray-50 dark:bg-gray-800">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">Column</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                <tr class="table-row-hover">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">Content</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+        {% url 'create_url' as create_url %}
+        {% include 'partials/_empty.html' with title="No items found" description="Description text" button_text="Create First Item" button_url=create_url %}
+    {% endif %}
+</div>
+```
+
+**Rules:**
+- Tables MUST be wrapped in a `card`
+- Table headers use `bg-gray-50 dark:bg-gray-800`
+- Header text: `text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider`
+- Body rows use `table-row-hover` class
+- Body text: `text-sm text-gray-900 dark:text-gray-100`
+- Empty states MUST use `_empty.html` partial
+
+## Empty States
+
+**Standard Pattern:**
+```django
+{% url 'create_url' as create_url %}
+{% include 'partials/_empty.html' with title="No items found" description="Helpful description" button_text="Create First Item" button_url=create_url %}
+```
+
+**Rules:**
+- ALWAYS use the `_empty.html` partial
+- Provide meaningful title and description
+- Include a primary action button
+- Empty state goes inside a `card` when part of a list view
+
+## Search Forms
+
+**Standard Pattern:**
+```django
+<div class="card-primary mb-4">
+    <form method="get" hx-get="{% url 'search_url' %}" hx-target="#main-content" hx-swap="innerHTML" hx-push-url="true" hx-indicator="#search-loading" class="flex gap-4">
+        <input type="text" name="search" value="{{ search_query }}" placeholder="Search..." class="form-input flex-1" aria-label="Search">
+        <button type="submit" class="btn-primary relative">
+            <span class="htmx-indicator-button">Search</span>
+            <span id="search-loading" class="htmx-indicator absolute right-2 top-1/2 -translate-y-1/2">
+                {% include 'partials/spinner.html' with size='h-5 w-5' color='text-white' %}
+            </span>
+        </button>
+        {% if search_query %}
+        <a href="{% url 'clear_url' %}" class="btn-secondary" hx-boost="true" hx-target="#main-content" hx-select="#main-content" hx-swap="innerHTML">Clear</a>
+        {% endif %}
+    </form>
+</div>
+```
+
+**Rules:**
+- Search forms use `card-primary` (not regular `card`)
+- Use `flex gap-4` layout
+- Input uses `form-input flex-1`
+- Include HTMX loading indicator
+- Clear button only shows when there's a search query
+
+## Card Usage
+
+**When to use each card variant:**
+
+- `card` - Default for content containers, lists, forms
+- `card-primary` - For search forms, highlighted sections
+- `card-success` - For success/positive information (rare)
+- `card-lift` - For clickable/interactive cards (adds hover lift effect)
+
+**Rules:**
+- Most content uses `card`
+- Search forms use `card-primary`
+- Clickable cards (like budget cards) use `card card-lift`
+
+## List Views
+
+**Standard Pattern:**
+```django
+<div class="px-4 py-6 sm:px-0">
+    {# Header with title and action button #}
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-3xl font-bold bg-gradient-to-r from-primary-600 via-primary-500 to-primary-400 dark:from-primary-400 dark:via-primary-300 dark:to-primary-200 bg-clip-text text-transparent">List Title</h1>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">List description</p>
+        </div>
+        <a href="{% url 'create_url' %}" class="btn-primary">New Item</a>
+    </div>
+    
+    {# Content area with HTMX loading #}
+    <div id="list-content" hx-get="{% url 'list_data_url' %}" hx-trigger="load" hx-swap="innerHTML" hx-indicator="#list-loading" class="relative">
+        {% if show_skeleton %}
+            {% include 'app/list_skeleton.html' %}
+        {% else %}
+            {% include 'app/list_data.html' %}
+        {% endif %}
+        <div id="list-loading" class="htmx-indicator absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-lg">
+            {% include 'partials/spinner.html' with size='h-8 w-8' color='text-primary-600' %}
+        </div>
+    </div>
+</div>
+```
+
+## Detail Pages
+
+**Standard Pattern:**
+```django
+<div class="px-4 py-6 sm:px-0">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-3xl font-bold bg-gradient-to-r from-primary-600 via-primary-500 to-primary-400 dark:from-primary-400 dark:via-primary-300 dark:to-primary-200 bg-clip-text text-transparent">Item Name</h1>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Additional context</p>
+        </div>
+        <a href="{% url 'edit_url' item.pk %}" class="btn-primary">Edit</a>
+    </div>
+    
+    <section class="card mb-6" aria-labelledby="details-heading">
+        <h2 id="details-heading" class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Details</h2>
+        {# Content #}
+    </section>
+</div>
+```
+
+## Color Usage
+
+**Text Colors:**
+- Primary text: `text-gray-900 dark:text-gray-100`
+- Secondary text: `text-gray-600 dark:text-gray-400`
+- Muted text: `text-gray-500 dark:text-gray-500`
+- Links: `text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300`
+
+**Money/Financial:**
+- Positive/Income: `text-emerald-600 dark:text-emerald-400`
+- Negative/Expense: `text-zinc-900 dark:text-zinc-100` (or `text-rose-600` for debt)
+- Use `balance-display` class for monetary values
+
+## Spacing
+
+**Standard Spacing:**
+- Page container: `px-4 py-6 sm:px-0`
+- Section spacing: `mb-6` (between major sections)
+- Card spacing: `mb-4` or `mb-6` (between cards)
+- Form spacing: `space-y-6` (within forms)
+- Button groups: `gap-3` or `gap-4`
+
+## Responsive Design
+
+**Breakpoints:**
+- Mobile: Default (no prefix)
+- Tablet: `sm:` (640px+)
+- Desktop: `md:` (768px+)
+- Large: `lg:` (1024px+)
+
+**Rules:**
+- Mobile-first approach
+- Use responsive utilities for layout changes
+- Test on mobile, tablet, and desktop
+
+## Accessibility
+
+**Required:**
+- All interactive elements have `aria-label` or visible text
+- Form inputs have `aria-label` or associated `<label>`
+- Tables have `role="table"` and `aria-label`
+- Loading states use `htmx-indicator` class
+- Focus states are visible (handled by design system)
+
+## Dark Mode
+
+**Rules:**
+- ALWAYS provide dark mode variants using `dark:` prefix
+- Test both light and dark modes
+- Use semantic color tokens (e.g., `text-gray-900 dark:text-gray-100`)

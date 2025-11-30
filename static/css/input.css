@@ -111,9 +111,12 @@
 /* Custom design tokens - Dark mode preparation */
 @layer base {
   :root {
-    /* Primary colors */
-    --color-primary: #18181b; /* Zinc 900 */
-    --color-primary-hover: #27272a; /* Zinc 800 */
+    /* Primary colors - Updated to Purple/Violet */
+    --color-primary: #7c3aed; /* Violet 600 */
+    --color-primary-hover: #6d28d9; /* Violet 700 */
+    --color-primary-light: #a78bfa; /* Violet 400 */
+    --color-primary-dark: #5b21b6; /* Violet 800 */
+    --color-primary-soft: #ede9fe; /* Violet 50 */
     
     /* Surface colors */
     --color-surface: #ffffff;
@@ -133,6 +136,11 @@
     --color-bg-container: #ffffff;
     --color-bg-surface: #f9fafb;
     --color-border: #e5e7eb;
+    
+    /* Purple gradient colors for depth */
+    --gradient-purple-start: #7c3aed;
+    --gradient-purple-end: #a78bfa;
+    --gradient-purple-subtle: linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(167, 139, 250, 0.05) 100%);
   }
   
   /* Dark mode variables */
@@ -158,9 +166,14 @@
 
 /* Custom component styles */
 @layer components {
-  /* Buttons - Brazilian minimalism with micro-interactions */
+  /* Buttons - Brazilian minimalism with micro-interactions - Purple primary */
   .btn-primary {
-    @apply bg-primary text-white px-4 py-2 rounded-lg min-h-[44px] active:scale-95 transition-all duration-200 ease-in-out hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary disabled:active:scale-100;
+    @apply bg-primary-600 text-white px-4 py-2 rounded-lg min-h-[44px] active:scale-95 transition-all duration-200 ease-in-out hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary-600 disabled:active:scale-100;
+    box-shadow: 0 1px 3px 0 rgba(124, 58, 237, 0.2);
+  }
+  
+  .btn-primary:hover {
+    box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.3);
   }
   
   .btn-secondary {
@@ -236,23 +249,34 @@
     --tw-ring-color: theme('colors.danger.500');
   }
   
-  /* Cards - Subtle depth with rounded-xl and enhanced hover effects */
+  /* Cards - Subtle depth with rounded-xl and enhanced hover effects - Purple accents */
   .card {
-    @apply bg-white border border-gray-100 rounded-xl shadow-sm p-5 transition-all duration-300 ease-in-out;
+    @apply bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm p-5 transition-all duration-300 ease-in-out;
+    background: linear-gradient(to bottom, #ffffff 0%, rgba(237, 233, 254, 0.3) 100%);
+  }
+  
+  .dark .card {
+    background: linear-gradient(to bottom, rgba(24, 24, 27, 1) 0%, rgba(30, 27, 75, 0.3) 100%);
   }
   
   .card:hover {
-    @apply shadow-md border-gray-200;
+    @apply shadow-md border-gray-300 dark:border-gray-600;
     transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(124, 58, 237, 0.1), 0 4px 6px -2px rgba(124, 58, 237, 0.05);
   }
   
-  /* Card variants with colored accents */
+  /* Card variants with colored accents - Purple primary */
   .card-primary {
-    @apply bg-white border-l-4 border-primary-600 shadow-sm p-5 transition-all duration-300 ease-in-out;
+    @apply bg-white dark:bg-gray-800 border-l-4 border-primary-600 shadow-purple-sm p-5 transition-all duration-300 ease-in-out;
+    background: linear-gradient(to bottom, #ffffff 0%, rgba(237, 233, 254, 0.4) 100%);
+  }
+  
+  .dark .card-primary {
+    background: linear-gradient(to bottom, rgba(24, 24, 27, 1) 0%, rgba(30, 27, 75, 0.4) 100%);
   }
   
   .card-primary:hover {
-    @apply shadow-md border-primary-700;
+    @apply shadow-purple-md border-primary-700;
     transform: translateY(-2px);
   }
   
@@ -267,6 +291,29 @@
   
   .text-primary {
     @apply text-primary-600;
+  }
+  
+  /* Purple gradient utilities for depth */
+  .gradient-purple-subtle {
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.08) 0%, rgba(167, 139, 250, 0.04) 100%);
+  }
+  
+  .gradient-purple-border {
+    border-image: linear-gradient(135deg, rgba(124, 58, 237, 0.3), rgba(167, 139, 250, 0.2)) 1;
+  }
+  
+  /* Purple accent shadows */
+  .shadow-purple-sm {
+    box-shadow: 0 1px 2px 0 rgba(124, 58, 237, 0.15);
+  }
+  
+  .shadow-purple-md {
+    box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.2), 0 2px 4px -1px rgba(124, 58, 237, 0.1);
+  }
+  
+  /* Purple hover effects */
+  .hover-purple-glow:hover {
+    box-shadow: 0 0 12px rgba(124, 58, 237, 0.25);
   }
   
   .text-success {
@@ -404,36 +451,54 @@
   }
   
   /* Glass Panel - Main glass card */
+  /* Mobile: Higher opacity and reduced blur for readability in bright sunlight */
   .glass-panel {
-    background: rgba(255, 255, 255, 0.7);
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(0, 0, 0, 0.12);
     border-radius: 1rem;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04), inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
     transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
   }
   
-  @supports (backdrop-filter: blur(12px)) {
+  /* Reduce blur on mobile for better readability */
+  @media (max-width: 768px) {
     .glass-panel {
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(2px) !important;
+      -webkit-backdrop-filter: blur(2px) !important;
+    }
+  }
+  
+  @supports (backdrop-filter: blur(12px)) {
+    @media (min-width: 769px) {
+      .glass-panel {
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      }
     }
   }
   
   /* Fallback for no backdrop-filter support */
   .no-backdrop-filter .glass-panel {
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255, 0.97);
     backdrop-filter: none;
   }
   
   /* Dark mode glass panel */
   .dark .glass-panel {
-    background: rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2), inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
   }
   
+  @media (max-width: 768px) {
+    .dark .glass-panel {
+      background: rgba(0, 0, 0, 0.96);
+    }
+  }
+  
   .no-backdrop-filter .dark .glass-panel {
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.9);
   }
   
   /* Glass panel hover - NO blur increase (performance) */
@@ -446,32 +511,42 @@
     box-shadow: 0 25px 30px -5px rgba(0, 0, 0, 0.4), 0 15px 15px -5px rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
   }
   
-  /* Glass Mobile - 95% opacity, minimal blur */
+  /* Glass Mobile - 98%+ opacity for maximum readability in bright sunlight */
   .glass-mobile {
-    background: rgba(255, 255, 255, 0.95);
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.98);
+    border: 1px solid rgba(0, 0, 0, 0.15);
     border-radius: 1rem;
   }
   
-  @supports (backdrop-filter: blur(4px)) {
+  /* Disable backdrop-filter on mobile for better performance and readability */
+  @media (max-width: 768px) {
     .glass-mobile {
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+  }
+  
+  @supports (backdrop-filter: blur(2px)) {
+    @media (min-width: 769px) {
+      .glass-mobile {
+        backdrop-filter: blur(2px);
+        -webkit-backdrop-filter: blur(2px);
+      }
     }
   }
   
   .no-backdrop-filter .glass-mobile {
-    background: rgba(255, 255, 255, 0.98);
+    background: rgba(255, 255, 255, 0.99);
     backdrop-filter: none;
   }
   
   .dark .glass-mobile {
-    background: rgba(0, 0, 0, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.98);
+    border: 1px solid rgba(255, 255, 255, 0.15);
   }
   
   .no-backdrop-filter .dark .glass-mobile {
-    background: rgba(0, 0, 0, 0.98);
+    background: rgba(0, 0, 0, 0.99);
   }
   
   /* Header Glass - Translucent header with backdrop-blur */
@@ -552,6 +627,42 @@
     .card {
       @apply glass-mobile;
     }
+  }
+  
+  /* High contrast mode for critical monetary values */
+  /* Ensures WCAG AAA contrast (7:1) for financial data readability */
+  .money-high-contrast {
+    color: #000000 !important;
+    font-weight: 700 !important;
+    text-shadow: none !important;
+  }
+  
+  .dark .money-high-contrast {
+    color: #ffffff !important;
+  }
+  
+  /* High contrast for balance displays - critical for readability in sunlight */
+  .balance-display {
+    @apply font-mono tabular-nums tracking-tight;
+    color: #000000;
+    font-weight: 700;
+    text-shadow: none;
+    /* WCAG AAA: 7:1 contrast ratio */
+  }
+  
+  .dark .balance-display {
+    color: #ffffff;
+  }
+  
+  /* Ensure monetary values in cards have sufficient contrast */
+  .card .text-3xl.font-bold.tabular-nums,
+  .card .text-2xl.font-bold.tabular-nums {
+    color: #111827 !important; /* Gray 900 - high contrast */
+  }
+  
+  .dark .card .text-3xl.font-bold.tabular-nums,
+  .dark .card .text-2xl.font-bold.tabular-nums {
+    color: #fafafa !important; /* Gray 50 - high contrast */
   }
   
   /* ============================================================================

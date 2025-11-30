@@ -17,20 +17,34 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Semantic color tokens for Brazilian minimalism
+        // Semantic color tokens - Purple/Violet primary for depth
         primary: {
-          DEFAULT: '#18181b', // Zinc 900
-          hover: '#27272a', // Zinc 800
-          50: '#fafafa',
-          100: '#f4f4f5',
-          200: '#e4e4e7',
-          300: '#d4d4d8',
-          400: '#a1a1aa',
-          500: '#71717a',
-          600: '#52525b',
-          700: '#3f3f46',
-          800: '#27272a',
-          900: '#18181b',
+          DEFAULT: '#7c3aed', // Violet 600
+          hover: '#6d28d9', // Violet 700
+          light: '#a78bfa', // Violet 400
+          dark: '#5b21b6', // Violet 800
+          50: '#ede9fe', // Violet 50
+          100: '#ddd6fe', // Violet 100
+          200: '#c4b5fd', // Violet 200
+          300: '#a78bfa', // Violet 300
+          400: '#8b5cf6', // Violet 400
+          500: '#7c3aed', // Violet 500
+          600: '#7c3aed', // Violet 600 (primary)
+          700: '#6d28d9', // Violet 700
+          800: '#5b21b6', // Violet 800
+          900: '#4c1d95', // Violet 900
+        },
+        violet: {
+          50: '#ede9fe',
+          100: '#ddd6fe',
+          200: '#c4b5fd',
+          300: '#a78bfa',
+          400: '#8b5cf6',
+          500: '#7c3aed',
+          600: '#7c3aed',
+          700: '#6d28d9',
+          800: '#5b21b6',
+          900: '#4c1d95',
         },
         surface: {
           DEFAULT: '#ffffff',
@@ -99,11 +113,12 @@ module.exports = {
             borderSecondary: 'rgba(0, 0, 0, 0.08)',
           },
         },
-        // Ambient orb colors (subtle, not neon)
+        // Ambient orb colors (subtle, not neon) - Added purple
         orb: {
           emerald: 'rgba(16, 185, 129, 0.15)',
           indigo: 'rgba(99, 102, 241, 0.15)',
           rose: 'rgba(244, 63, 94, 0.15)',
+          violet: 'rgba(124, 58, 237, 0.15)',
         },
       },
       boxShadow: {
@@ -113,6 +128,8 @@ module.exports = {
         'glow-emerald': '0 0 12px rgba(16, 185, 129, 0.2)',
         'glow-indigo': '0 0 12px rgba(99, 102, 241, 0.2)',
         'glow-rose': '0 0 12px rgba(244, 63, 94, 0.2)',
+        'glow-violet': '0 0 12px rgba(124, 58, 237, 0.2)',
+        'glow-violet-strong': '0 0 16px rgba(124, 58, 237, 0.3)',
       },
       backgroundImage: {
         // Mesh gradient utilities

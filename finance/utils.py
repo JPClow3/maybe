@@ -2,6 +2,7 @@
 Utility functions for finance views
 """
 import json
+from decimal import Decimal, InvalidOperation
 from django.http import HttpResponse
 
 
@@ -49,4 +50,42 @@ def add_toast_trigger(response, message, toast_type='success'):
         'message': message,
         'type': toast_type
     })
+
+
+def parse_brazilian_currency(value):
+    """
+    Parse Brazilian currency format (R$ 1.234,56) to Decimal.
+    
+    Args:
+        value: String containing Brazilian currency format (e.g., "R$ 1.234,56" or "1.234,56")
+    
+    Returns:
+        Decimal: Parsed currency value
+    
+    Raises:
+        ValueError: If value cannot be parsed
+        InvalidOperation: If value results in invalid decimal operation
+    
+    Example:
+        >>> parse_brazilian_currency("R$ 1.234,56")
+        Decimal('1234.56')
+        >>> parse_brazilian_currency("1.234,56")
+        Decimal('1234.56')
+    """
+    if not value:
+        raise ValueError("Empty value cannot be parsed")
+    
+    # Remove currency symbol and whitespace
+    amount_str = str(value).replace('R$', '').strip()
+    
+    # Remove thousand separators (dots) first
+    amount_str = amount_str.replace('.', '')
+    
+    # Replace comma with dot for decimal separator
+    amount_str = amount_str.replace(',', '.')
+    
+    try:
+        return Decimal(amount_str)
+    except (ValueError, InvalidOperation) as e:
+        raise ValueError(f"Invalid currency format: {value}") from e
 

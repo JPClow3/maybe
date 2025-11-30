@@ -1,3 +1,4 @@
+import logging
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -6,7 +7,9 @@ from django.db import IntegrityError, DatabaseError
 from django.http import HttpResponse
 from decimal import Decimal, InvalidOperation
 from .models import Account, Transaction, Category
-from .utils import add_toast_trigger
+from .utils import add_toast_trigger, parse_brazilian_currency
+
+logger = logging.getLogger(__name__)
 
 @login_required
 def account_list(request):
@@ -69,8 +72,9 @@ def account_validate_field(request):
         return HttpResponse('', status=400)
     
     # Create a minimal form instance to validate the field
+    # For uniqueness validation, we need user context
     form_data = {field_name: field_value}
-    form = AccountForm(form_data)
+    form = AccountForm(form_data, user=request.user)
     
     # Validate only the specific field
     if field_name in form.fields:
@@ -87,8 +91,10 @@ def account_validate_field(request):
                 return render(request, 'partials/field_success.html', {
                     'field_id': field.id_for_label
                 })
-        except Exception:
-            # If validation fails for any reason, return empty response
+        except Exception as e:
+            # Log validation errors for debugging
+            logger.exception("Error validating account field '%s' with value '%s': %s", field_name, field_value, e)
+            # Return empty response to avoid exposing internal errors
             return HttpResponse('', status=400)
     
     return HttpResponse('', status=400)
@@ -99,7 +105,7 @@ def account_new(request):
     is_htmx = request.headers.get('HX-Request') == 'true'
     
     if request.method == 'POST':
-        form = AccountForm(request.POST)
+        form = AccountForm(request.POST, user=request.user)
         if form.is_valid():
             try:
                 account = form.save(commit=False)
@@ -110,7 +116,7 @@ def account_new(request):
                     response['HX-Trigger'] = 'accountListChanged'
                     add_toast_trigger(response, f'Conta "{account.name}" criada com sucesso!', 'success')
                     return response
-                messages.success(request, f'Account "{account.name}" created successfully.')
+                messages.success(request, f'Conta "{account.name}" criada com sucesso!')
                 return redirect('account_detail', pk=account.pk)
             except IntegrityError:
                 form.add_error('name', 'Já existe uma conta com este nome. Por favor, escolha outro nome.')
@@ -118,6 +124,7 @@ def account_new(request):
                     return render(request, 'finance/account_form_partial.html', {'form': form})
                 messages.error(request, 'Já existe uma conta com este nome. Por favor, escolha outro nome.')
             except DatabaseError as e:
+                logger.error("Database error saving account: %s", e, exc_info=True)
                 form.add_error(None, 'Ocorreu um erro ao salvar a conta. Por favor, tente novamente.')
                 if is_htmx:
                     return render(request, 'finance/account_form_partial.html', {'form': form})
@@ -127,7 +134,7 @@ def account_new(request):
             if is_htmx:
                 return render(request, 'finance/account_form_partial.html', {'form': form})
     else:
-        form = AccountForm()
+        form = AccountForm(user=request.user)
     
     if is_htmx:
         return render(request, 'finance/account_form_partial.html', {'form': form})
@@ -155,6 +162,29 @@ def transaction_list_data(request):
     return render(request, 'finance/transaction_list_table_partial.html', context)
 
 @login_required
+def transaction_quick_form(request):
+    """HTMX endpoint that returns quick transaction form for mobile"""
+    from .models import Account
+    
+    # Get recent transaction names for autocomplete (last 20 unique names)
+    recent_names = Transaction.objects.filter(
+        account__user=request.user
+    ).values_list('name', flat=True).distinct()[:20]
+    
+    # Get categories
+    categories = Category.objects.filter(user=request.user).order_by('name')
+    
+    # Get default account (first active account)
+    default_account = Account.objects.filter(user=request.user, status='active').first()
+    
+    context = {
+        'recent_names': recent_names,
+        'categories': categories,
+        'default_account': default_account,
+    }
+    return render(request, 'finance/transaction_quick_form_partial.html', context)
+
+@login_required
 def transaction_detail(request, pk):
     transaction = get_object_or_404(Transaction, pk=pk, account__user=request.user)
     return render(request, 'finance/transaction_detail.html', {'transaction': transaction})
@@ -175,7 +205,7 @@ def transaction_new(request):
                     response['HX-Trigger'] = 'transactionListChanged'
                     add_toast_trigger(response, f'Transação "{transaction.name}" criada com sucesso!', 'success')
                     return response
-                messages.success(request, f'Transaction "{transaction.name}" created successfully.')
+                messages.success(request, f'Transação "{transaction.name}" criada com sucesso!')
                 return redirect('transaction_detail', pk=transaction.pk)
             except IntegrityError:
                 form.add_error(None, 'Ocorreu um erro ao salvar a transação. Verifique os dados e tente novamente.')
@@ -183,6 +213,7 @@ def transaction_new(request):
                     return render(request, 'finance/transaction_form_partial.html', {'form': form})
                 messages.error(request, 'Ocorreu um erro ao salvar a transação. Verifique os dados e tente novamente.')
             except DatabaseError as e:
+                logger.error("Database error saving transaction: %s", e, exc_info=True)
                 form.add_error(None, 'Ocorreu um erro ao salvar a transação. Por favor, tente novamente.')
                 if is_htmx:
                     return render(request, 'finance/transaction_form_partial.html', {'form': form})
@@ -191,6 +222,7 @@ def transaction_new(request):
             # Form validation failed - return form with errors
             if is_htmx:
                 return render(request, 'finance/transaction_form_partial.html', {'form': form})
+            # Non-HTMX: fall through to render form with errors at the end
     else:
         form = TransactionForm(user=request.user)
     
@@ -205,7 +237,7 @@ def account_edit(request, pk):
     is_htmx = request.headers.get('HX-Request') == 'true'
     
     if request.method == 'POST':
-        form = AccountForm(request.POST, instance=account)
+        form = AccountForm(request.POST, instance=account, user=request.user)
         if form.is_valid():
             try:
                 account = form.save()
@@ -214,7 +246,7 @@ def account_edit(request, pk):
                     response['HX-Trigger'] = 'accountListChanged'
                     add_toast_trigger(response, f'Conta "{account.name}" atualizada com sucesso!', 'success')
                     return response
-                messages.success(request, f'Account "{account.name}" updated successfully.')
+                messages.success(request, f'Conta "{account.name}" atualizada com sucesso!')
                 return redirect('account_detail', pk=account.pk)
             except IntegrityError:
                 form.add_error('name', 'Já existe uma conta com este nome. Por favor, escolha outro nome.')
@@ -222,6 +254,7 @@ def account_edit(request, pk):
                     return render(request, 'finance/account_form_partial.html', {'form': form})
                 messages.error(request, 'Ocorreu um erro ao salvar a conta. Verifique os dados e tente novamente.')
             except DatabaseError as e:
+                logger.error("Database error saving account: %s", e, exc_info=True)
                 form.add_error(None, 'Ocorreu um erro ao salvar a conta. Por favor, tente novamente.')
                 if is_htmx:
                     return render(request, 'finance/account_form_partial.html', {'form': form})
@@ -231,7 +264,7 @@ def account_edit(request, pk):
             if is_htmx:
                 return render(request, 'finance/account_form_partial.html', {'form': form})
     else:
-        form = AccountForm(instance=account)
+        form = AccountForm(instance=account, user=request.user)
     
     if is_htmx:
         return render(request, 'finance/account_form_partial.html', {'form': form})
@@ -251,11 +284,11 @@ def account_edit_inline(request, pk):
             try:
                 account.name = name
                 account.save()
-                messages.success(request, f'Account name updated to "{account.name}".')
+                messages.success(request, f'Nome da conta atualizado para "{account.name}".')
                 # Return the display version
                 return render(request, 'finance/account_name_display.html', {'account': account})
             except (IntegrityError, DatabaseError):
-                messages.error(request, 'An error occurred while saving. Please try again.')
+                messages.error(request, 'Ocorreu um erro ao salvar. Por favor, tente novamente.')
         # On error, return edit form
         return render(request, 'finance/account_name_edit_inline.html', {'account': account})
     else:
@@ -278,7 +311,7 @@ def transaction_edit(request, pk):
                     response['HX-Trigger'] = 'transactionListChanged'
                     add_toast_trigger(response, f'Transação "{transaction.name}" atualizada com sucesso!', 'success')
                     return response
-                messages.success(request, f'Transaction "{transaction.name}" updated successfully.')
+                messages.success(request, f'Transação "{transaction.name}" atualizada com sucesso!')
                 return redirect('transaction_detail', pk=transaction.pk)
             except IntegrityError:
                 form.add_error(None, 'Ocorreu um erro ao salvar a transação. Verifique os dados e tente novamente.')
@@ -286,6 +319,7 @@ def transaction_edit(request, pk):
                     return render(request, 'finance/transaction_form_partial.html', {'form': form})
                 messages.error(request, 'Ocorreu um erro ao salvar a transação. Verifique os dados e tente novamente.')
             except DatabaseError as e:
+                logger.error("Database error saving transaction: %s", e, exc_info=True)
                 form.add_error(None, 'Ocorreu um erro ao salvar a transação. Por favor, tente novamente.')
                 if is_htmx:
                     return render(request, 'finance/transaction_form_partial.html', {'form': form})
@@ -342,6 +376,59 @@ def transaction_update_category(request, pk):
     })
 
 @login_required
+def transaction_delete(request, pk):
+    """Delete a transaction"""
+    transaction = get_object_or_404(Transaction, pk=pk, account__user=request.user)
+    is_htmx = request.headers.get('HX-Request') == 'true'
+    
+    if request.method == 'POST':
+        transaction_name = transaction.name
+        transaction.delete()
+        
+        if is_htmx:
+            # Return empty response to remove the row
+            return HttpResponse('')
+        messages.success(request, f'Transação "{transaction_name}" excluída com sucesso!')
+        return redirect('transaction_list')
+    
+    # GET request - show confirmation (for non-HTMX)
+    return render(request, 'finance/transaction_confirm_delete.html', {'transaction': transaction})
+
+@login_required
+def transaction_duplicate(request, pk):
+    """Duplicate a transaction"""
+    original = get_object_or_404(Transaction, pk=pk, account__user=request.user)
+    is_htmx = request.headers.get('HX-Request') == 'true'
+    
+    if request.method == 'POST':
+        # Create a copy of the transaction
+        duplicate = Transaction.objects.create(
+            account=original.account,
+            date=original.date,
+            amount=original.amount,
+            currency=original.currency,
+            name=f"{original.name} (cópia)",
+            notes=original.notes,
+            category=original.category,
+            merchant=original.merchant,
+            kind=original.kind,
+        )
+        
+        if is_htmx:
+            response = HttpResponse(status=204)
+            response['HX-Trigger'] = 'transactionListChanged'
+            add_toast_trigger(response, f'Transação duplicada com sucesso!', 'success')
+            return response
+        messages.success(request, 'Transação duplicada com sucesso!')
+        return redirect('transaction_detail', pk=duplicate.pk)
+    
+    # GET request - redirect to edit with pre-filled form
+    from .forms import TransactionForm
+    form = TransactionForm(instance=original, user=request.user)
+    form.initial['name'] = f"{original.name} (cópia)"
+    return render(request, 'finance/transaction_form.html', {'form': form, 'title': 'Duplicar Transação'})
+
+@login_required
 def transaction_update_amount(request, pk):
     """Update transaction amount inline via HTMX"""
     transaction = get_object_or_404(Transaction, pk=pk, account__user=request.user)
@@ -353,9 +440,8 @@ def transaction_update_amount(request, pk):
     if request.method == 'POST':
         amount_str = request.POST.get('amount', '').strip()
         try:
-            # Convert Brazilian format to decimal
-            amount_str = amount_str.replace('R$', '').strip().replace('.', '').replace(',', '.')
-            amount = Decimal(amount_str)
+            # Convert Brazilian format to decimal using shared utility
+            amount = parse_brazilian_currency(amount_str)
             transaction.amount = amount
             transaction.save()
             

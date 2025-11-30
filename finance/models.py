@@ -141,7 +141,7 @@ class Transaction(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='transactions')
     date = models.DateField()
-    amount = models.DecimalField(max_digits=19, decimal_places=4, validators=[MinValueValidator(Decimal('0'))])
+    amount = models.DecimalField(max_digits=19, decimal_places=4)
     currency = models.CharField(max_length=3, default='BRL')
     name = models.CharField(max_length=255)
     notes = models.TextField(blank=True)
@@ -438,6 +438,7 @@ class RuleCondition(models.Model):
     OPERATOR_CHOICES = [
         ('like', 'Contains'),
         ('=', 'Equal to'),
+        ('regex', 'Matches pattern (regex)'),
         ('>', 'Greater than'),
         ('>=', 'Greater or equal to'),
         ('<', 'Less than'),

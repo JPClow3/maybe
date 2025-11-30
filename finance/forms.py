@@ -1,7 +1,29 @@
 from django import forms
 from .models import Account, Transaction, Category
+from .utils import parse_brazilian_currency
 
 class AccountForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+    
+    def clean_name(self):
+        """Validate that account name is unique per user"""
+        name = self.cleaned_data.get('name')
+        if not name or not self.user:
+            return name
+        
+        # Check if another account with same name exists for this user
+        existing = Account.objects.filter(user=self.user, name=name)
+        # If editing, exclude current instance
+        if self.instance and self.instance.pk:
+            existing = existing.exclude(pk=self.instance.pk)
+        
+        if existing.exists():
+            raise forms.ValidationError('Já existe uma conta com este nome. Por favor, escolha outro nome.')
+        
+        return name
+    
     class Meta:
         model = Account
         fields = ['name', 'accountable_type', 'currency', 'status']
@@ -54,15 +76,9 @@ class TransactionForm(forms.ModelForm):
                 return self.cleaned_data['amount']
             raise forms.ValidationError('Amount is required.')
         
-        # Remove R$ prefix and whitespace
-        value = value.replace('R$', '').strip()
-        # Remove thousands separator (dot) and replace comma with dot
-        value = value.replace('.', '').replace(',', '.')
-        
         try:
-            from decimal import Decimal, InvalidOperation
-            return Decimal(value)
-        except (ValueError, TypeError, InvalidOperation):
+            return parse_brazilian_currency(value)
+        except (ValueError, TypeError):
             raise forms.ValidationError('Please enter a valid amount.')
     
     def clean(self):

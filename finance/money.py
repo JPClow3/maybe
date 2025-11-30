@@ -220,8 +220,13 @@ class Money:
     
     def __truediv__(self, other):
         if isinstance(other, Money):
+            if other.amount == 0:
+                raise ZeroDivisionError("Cannot divide Money by zero Money")
             return self.amount / other.amount
-        return Money(self.amount / Decimal(str(other)), self.currency, store=self.store)
+        other_decimal = Decimal(str(other))
+        if other_decimal == 0:
+            raise ZeroDivisionError("Cannot divide Money by zero")
+        return Money(self.amount / other_decimal, self.currency, store=self.store)
     
     def __neg__(self):
         return Money(-self.amount, self.currency, store=self.store)

@@ -17,6 +17,16 @@ class TransactionNameFilter(ConditionFilter):
             return queryset.filter(name__icontains=value)
         elif operator == "=":
             return queryset.filter(name__iexact=value)
+        elif operator == "regex":
+            # Use PostgreSQL regex matching (case-insensitive)
+            import re
+            try:
+                # Validate regex pattern
+                re.compile(value)
+                return queryset.filter(name__iregex=value)
+            except re.error:
+                # Invalid regex, fall back to contains
+                return queryset.filter(name__icontains=value)
         else:
             raise ValueError(f"Unsupported operator: {operator}")
 

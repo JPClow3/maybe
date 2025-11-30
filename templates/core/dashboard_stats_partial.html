@@ -2,7 +2,9 @@
 {% load money_filters %}
 
 {# Main financial cards #}
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+<section>
+    <h2 class="sr-only">Visão Geral Financeira</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
     {# Caixa Livre (Free Cash) #}
     <div class="card card-lift bg-gradient-to-br from-success-50 to-success-100 dark:from-success-900/20 dark:to-success-800/20 border border-success-200 dark:border-success-800">
         <div class="flex items-center justify-between mb-2">
@@ -11,7 +13,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
         </div>
-        <p class="text-3xl font-bold text-success-900 dark:text-success-100 tabular-nums tracking-tight font-mono text-glow">{{ free_cash|real_br }}</p>
+        <p class="text-3xl font-bold text-success-900 dark:text-success-100 tabular-nums tracking-tight font-mono balance-display">{{ free_cash|real_br }}</p>
         <p class="text-xs text-success-700 dark:text-success-300 mt-1">Saldo em contas correntes</p>
     </div>
     
@@ -23,20 +25,21 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
             </svg>
         </div>
-        <p class="text-3xl font-bold text-danger-900 dark:text-danger-100 tabular-nums tracking-tight font-mono">{{ current_bill|real_br }}</p>
+        <p class="text-3xl font-bold text-danger-900 dark:text-danger-100 tabular-nums tracking-tight font-mono balance-display">{{ current_bill|real_br }}</p>
         <p class="text-xs text-danger-700 dark:text-danger-300 mt-1">Soma das faturas abertas</p>
     </div>
     
-    {# Investimentos (Investments) #}
-    <div class="card card-lift bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20 border border-primary-200 dark:border-primary-800">
+    {# Investimentos (Investments) - Purple gradient for depth #}
+    <div class="card card-lift bg-gradient-to-br from-violet-50 via-primary-50 to-violet-100 dark:from-primary-900/30 dark:via-primary-800/20 dark:to-primary-900/30 border border-primary-300 dark:border-primary-700 shadow-purple-sm hover-purple-glow">
         <div class="flex items-center justify-between mb-2">
             <h3 class="text-sm font-medium text-primary-800 dark:text-primary-300">Investimentos</h3>
             <svg class="h-5 w-5 text-primary-600 dark:text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
             </svg>
         </div>
-        <p class="text-3xl font-bold text-primary-900 dark:text-primary-100 tabular-nums tracking-tight font-mono">{{ investments|real_br }}</p>
+        <p class="text-3xl font-bold text-primary-900 dark:text-primary-100 tabular-nums tracking-tight font-mono balance-display">{{ investments|real_br }}</p>
         <p class="text-xs text-primary-700 dark:text-primary-300 mt-1">Valor total investido</p>
     </div>
-</div>
+    </div>
+</section>
 
