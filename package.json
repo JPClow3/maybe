@@ -18,6 +18,7 @@
 		"format": "biome format --write",
 		"css:build": "tailwindcss -i static/css/input.css -o static/css/main.css --minify",
 		"css:watch": "tailwindcss -i static/css/input.css -o static/css/main.css --watch",
+		"postinstall": "npm run css:build",
 		"lighthouse:ci": "lhci autorun",
 		"lighthouse:audit": "lhci autorun --collect.url=http://localhost:8000"
 	},

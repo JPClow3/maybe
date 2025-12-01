@@ -26,7 +26,7 @@ module.exports = {
         electricIndigo: '#6366f1', // Primary Brand (indigo-500)
         deepViolet: '#7c3aed', // Secondary gradient stop (violet-600)
         neonFuchsia: '#ec4899', // Accent (fuchsia-500)
-        cyberCyan: '#22d3ee', // Accent (cyan-400) - Luma spec
+        cyberCyan: '#06b6d4', // Accent (cyan-500) - Luma spec
         
         // Primary color system - Electric Indigo as primary brand
         primary: {
@@ -62,11 +62,11 @@ module.exports = {
         
         // Glass surface colors - Luma Design System
         glass: {
-          base: 'rgba(18, 18, 18, 0.6)', // Standard panels/cards - Luma spec
-          highlight: 'rgba(255, 255, 255, 0.03)', // Hover states, active items - Luma spec
+          base: 'rgba(18, 18, 18, 0.4)', // Standard panels/cards - Luma spec
+          highlight: 'rgba(255, 255, 255, 0.05)', // Hover states, active items - Luma spec
           // Dark mode
           dark: {
-            primary: 'rgba(18, 18, 18, 0.6)', // Luma spec
+            primary: 'rgba(18, 18, 18, 0.4)', // Luma spec
             secondary: 'rgba(18, 18, 18, 0.3)',
             header: 'rgba(18, 18, 18, 0.5)',
             mobile: 'rgba(18, 18, 18, 0.95)',
@@ -87,20 +87,22 @@ module.exports = {
         // Semantic Data (The HUD) - Luma Design System
         // These are used strictly for financial data
         emerald: {
-          400: '#34d399', // Asset / Gain - Luma spec
+          400: '#34d399',
+          500: '#10b981', // Asset / Gain - Luma spec
         },
         rose: {
-          400: '#f43f5e', // Liability / Loss - Luma spec (rose-500)
+          400: '#f43f5e', // Liability / Loss - Luma spec
           500: '#f43f5e', // Luma spec
         },
         cyan: {
-          400: '#22d3ee', // Crypto / Volatile - Luma spec
+          400: '#22d3ee',
+          500: '#06b6d4', // Cyber Cyan - Luma spec
         },
         amber: {
           400: '#fbbf24', // Warning - Luma spec
         },
         orange: {
-          400: '#f97316', // Legacy / Fallback
+          400: '#f97316', // Crypto / Volatile - Luma spec
         },
         slate: {
           400: '#94a3b8', // Neutral / Info
@@ -112,9 +114,10 @@ module.exports = {
           subtle: '#f9fafb', // Gray 50
         },
         money: {
-          income: '#34d399', // Emerald 400 - Luma spec
-          expense: '#f43f5e', // Rose 500 - Luma spec
-          debt: '#f43f5e', // Rose 500 - Luma spec
+          income: '#10b981', // Emerald 500 - Asset/Gain - Luma spec
+          expense: '#f43f5e', // Rose 400 - Liability/Loss - Luma spec
+          debt: '#f43f5e', // Rose 400 - Luma spec
+          crypto: '#f97316', // Orange 400 - Crypto/Volatile - Luma spec
         },
         secondary: {
           50: '#f9fafb',
@@ -154,12 +157,13 @@ module.exports = {
         },
         // Ambient orb colors (subtle, not neon) - Luma Design System
         orb: {
-          emerald: 'rgba(52, 211, 153, 0.15)', // Updated to Luma emerald-400
+          emerald: 'rgba(16, 185, 129, 0.15)', // Luma emerald-500
           indigo: 'rgba(99, 102, 241, 0.15)',
           rose: 'rgba(244, 63, 94, 0.15)',
           violet: 'rgba(124, 58, 237, 0.15)',
           fuchsia: 'rgba(236, 72, 153, 0.15)',
-          cyan: 'rgba(34, 211, 238, 0.15)', // Updated to Luma cyan-400
+          cyan: 'rgba(6, 182, 212, 0.15)', // Luma cyan-500 (Cyber Cyan)
+          orange: 'rgba(249, 115, 22, 0.15)', // Luma orange-400 (Crypto/Volatile)
         },
       },
       boxShadow: {
@@ -169,16 +173,17 @@ module.exports = {
         // Legacy shadows (for backward compatibility)
         'float': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
         'highlight': 'inset 0 1px 0 0 rgba(255, 255, 255, 0.1)',
-        'glow-emerald': '0 0 12px rgba(52, 211, 153, 0.2)', // Updated to Luma emerald-400
+        'glow-emerald': '0 0 12px rgba(16, 185, 129, 0.2)', // Luma emerald-500 (Asset/Gain)
         'glow-indigo': '0 0 12px rgba(99, 102, 241, 0.2)',
         'glow-rose': '0 0 12px rgba(244, 63, 94, 0.2)',
         'glow-violet': '0 0 20px rgba(124, 58, 237, 0.3)', // Secondary Brand glow - Luma spec
         'glow-violet-strong': '0 0 16px rgba(124, 58, 237, 0.3)',
-        'glow-cyan': '0 0 15px rgba(34, 211, 238, 0.4)', // Crypto/Volatile glow - Luma spec
+        'glow-cyan': '0 0 15px rgba(6, 182, 212, 0.4)', // Cyber Cyan glow - Luma spec
+        'glow-orange': '0 0 15px rgba(249, 115, 22, 0.4)', // Crypto/Volatile glow - Luma spec
       },
       backgroundImage: {
         // Mesh gradient utilities
-        'mesh-emerald': 'radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.1) 0px, transparent 50%), radial-gradient(at 100% 0%, rgba(99, 102, 241, 0.1) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(244, 63, 94, 0.1) 0px, transparent 50%), radial-gradient(at 0% 100%, rgba(16, 185, 129, 0.1) 0px, transparent 50%)',
+        'mesh-emerald': 'radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.1) 0px, transparent 50%), radial-gradient(at 100% 0%, rgba(99, 102, 241, 0.1) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(244, 63, 94, 0.1) 0px, transparent 50%), radial-gradient(at 0% 100%, rgba(16, 185, 129, 0.1) 0px, transparent 50%)', // Luma emerald-500
       },
       spacing: {
         '18': '4.5rem',

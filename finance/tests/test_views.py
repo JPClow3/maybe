@@ -76,7 +76,10 @@ class AccountViewsTestCase(FinanceViewsTestCase):
         response = self.client.get(reverse('account_detail', args=[self.account.pk]))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Test Account')
-        self.assertContains(response, 'R$')
+        # Check HTMX endpoint for actual data (includes currency formatting)
+        data_response = self.client.get(reverse('account_detail_data', args=[self.account.pk]))
+        self.assertEqual(data_response.status_code, 200)
+        self.assertContains(data_response, 'R$')
     
     def test_account_new_get(self):
         """Test GET request to new account form"""

@@ -84,7 +84,7 @@ def dashboard(request):
     ).aggregate(Sum('amount'))['amount__sum'] or Decimal('0')
     
     # Get recent transactions for display
-    recent_transactions = transactions.order_by('-date', '-created_at')[:10]
+    recent_transactions = transactions.select_related('account', 'category').order_by('-date', '-created_at')[:10]
     
     # Calculate spending comparison (this month vs last month) - simplified
     if first_day_this_month.month == 1:

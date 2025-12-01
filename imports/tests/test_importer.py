@@ -96,21 +96,13 @@ NEWFILEUID:NONE
     
     def test_process_csv_import(self):
         """Test processing CSV import"""
-        csv_content = 'data,valor,descricao\n2024-01-15,100.00,Transaction Test'.encode('utf-8')
+        # Use correct column names that the parser expects
+        csv_content = 'date,amount,name\n2024-01-15,100.00,Transaction Test'.encode('utf-8')
         import_obj = Import.objects.create(
             user=self.user,
             account=self.account,
             type='csv',
             file=SimpleUploadedFile("test.csv", csv_content),
-            currency='BRL'
-        )
-        
-        # Create ImportRow manually for CSV (since CSV parser might need different setup)
-        ImportRow.objects.create(
-            import_obj=import_obj,
-            date=date(2024, 1, 15),
-            amount=Decimal('100.00'),
-            name='Transaction Test',
             currency='BRL'
         )
         

@@ -78,7 +78,7 @@ def account_detail(request, pk):
         return render(request, 'finance/account_detail_skeleton.html')
     
     account = get_object_or_404(Account, pk=pk, user=request.user)
-    transactions = Transaction.objects.filter(account=account).order_by('-date', '-created_at')[:20]
+    transactions = Transaction.objects.filter(account=account).select_related('category').order_by('-date', '-created_at')[:20]
     context = {
         'account': account,
         'transactions': transactions,
@@ -90,7 +90,7 @@ def account_detail(request, pk):
 def account_detail_data(request, pk):
     """HTMX endpoint that returns only the account detail content"""
     account = get_object_or_404(Account, pk=pk, user=request.user)
-    transactions = Transaction.objects.filter(account=account).order_by('-date', '-created_at')[:20]
+    transactions = Transaction.objects.filter(account=account).select_related('category').order_by('-date', '-created_at')[:20]
     context = {
         'account': account,
         'transactions': transactions,
@@ -191,7 +191,7 @@ def transaction_list_data(request):
     """HTMX endpoint that returns only the transaction list table"""
     from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
     
-    transactions = Transaction.objects.filter(account__user=request.user).order_by('-date', '-created_at')
+    transactions = Transaction.objects.filter(account__user=request.user).select_related('account', 'category').order_by('-date', '-created_at')
     categories = Category.objects.filter(user=request.user)
     
     # Pagination

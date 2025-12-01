@@ -94,11 +94,13 @@ class ImportRow(models.Model):
     
     def calculate_duplicate_hash(self):
         """Calculate hash for duplicate detection"""
-        if not self.date or not self.amount or not self.name:
+        if not self.date or self.amount is None or not self.name:
             return None
         
         # Hash: date + amount + name (lowercase, stripped)
-        hash_string = f"{self.date}|{self.amount}|{self.name.lower().strip()}"
+        # Normalize amount to remove trailing zeros for consistent hashing
+        amount_str = str(self.amount).rstrip('0').rstrip('.') if self.amount else '0'
+        hash_string = f"{self.date}|{amount_str}|{self.name.lower().strip()}"
         return hashlib.sha256(hash_string.encode()).hexdigest()
     
     def save(self, *args, **kwargs):

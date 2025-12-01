@@ -68,8 +68,10 @@ class DuplicateDetector:
         hashes = set()
         for txn in transactions:
             # Calculate hash same way as ImportRow
-            if txn.date and txn.amount and txn.name:
-                hash_string = f"{txn.date}|{txn.amount}|{txn.name.lower().strip()}"
+            if txn.date and txn.amount is not None and txn.name:
+                # Normalize amount to match ImportRow format (remove trailing zeros)
+                amount_str = str(txn.amount).rstrip('0').rstrip('.') if txn.amount else '0'
+                hash_string = f"{txn.date}|{amount_str}|{txn.name.lower().strip()}"
                 hash_value = hashlib.sha256(hash_string.encode()).hexdigest()
                 hashes.add(hash_value)
         

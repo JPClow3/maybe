@@ -14,25 +14,25 @@
    - Singularity: #000000 (deepest layer, body background)
    - Deep Space: #050505 (primary app canvas)
    - Matter: #121212 (solid cards, fallback/modal)
-   - Glass Base: rgba(18, 18, 18, 0.6) (standard panels/cards - Luma spec)
-   - Glass Highlight: rgba(255, 255, 255, 0.03) (hover states - Luma spec)
+   - Glass Base: rgba(18, 18, 18, 0.4) (standard panels/cards - Luma spec)
+   - Glass Highlight: rgba(255, 255, 255, 0.05) (hover states, active items - Luma spec)
    
    Glass Panel Specifications (Luma Design System):
-   - Background: rgba(18, 18, 18, 0.6) with backdrop-filter: blur(24px)
+   - Background: rgba(18, 18, 18, 0.4) with backdrop-filter: blur(24px)
    - Border: 1px solid rgba(255, 255, 255, 0.05)
    - Shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.36)
-   - Hover: rgba(255, 255, 255, 0.03) with spotlight effect
+   - Hover: rgba(255, 255, 255, 0.05) with spotlight effect
    
    Bioluminescence (Brand & Accents):
    - Electric Indigo: #6366f1 (Primary Brand - CTAs, Active Nav, Asset Glows)
    - Deep Violet: #7c3aed (Secondary gradient stop)
    - Neon Fuchsia: #ec4899 (Accent - "Ask AI" sparks, investment highlights)
-   - Cyber Cyan: #22d3ee (Accent - Technology, Crypto, Future projections - Luma spec)
+   - Cyber Cyan: #06b6d4 (Accent - Technology, Crypto, Future projections - Luma spec)
    
    Semantic Data (The HUD):
-   - Asset/Gain: #34d399 (emerald-400) with text-shadow: 0 0 10px rgba(52,211,153,0.5) - Luma spec
-   - Debt/Loss: #f43f5e (rose-500) with text-shadow: 0 0 10px rgba(244,63,94,0.5) - Luma spec
-   - Crypto/Volatile: #22d3ee (cyan-400) with shadow: 0 0 15px rgba(34,211,238,0.4) - Luma spec
+   - Asset/Gain: #10b981 (emerald-500) with text-shadow: 0 0 10px rgba(16,185,129,0.5) - Luma spec
+   - Debt/Loss: #f43f5e (rose-400) with text-shadow: 0 0 10px rgba(244,63,94,0.5) - Luma spec
+   - Crypto/Volatile: #f97316 (orange-400) with shadow: 0 0 15px rgba(249,115,22,0.4) - Luma spec
    - Warning: #fbbf24 (amber-400) - Luma spec
    - Neutral/Info: #94a3b8 (slate-400)
    
@@ -133,7 +133,7 @@
     /* Deep Violet for secondary gradients */
     --color-violet: #7c3aed; /* Deep Violet */
     --color-fuchsia: #ec4899; /* Neon Fuchsia */
-    --color-cyan: #22d3ee; /* Cyber Cyan - Luma spec */
+    --color-cyan: #06b6d4; /* Cyber Cyan - Luma spec (cyan-500) */
     --color-amber: #fbbf24; /* Amber 400 - Luma spec: Warning */
     
     /* Surface colors (light mode fallback) */
@@ -141,10 +141,10 @@
     --color-surface-subtle: #f9fafb; /* Gray 50 */
     
     /* Money semantic colors - Luma Design System */
-    --color-money-income: #34d399; /* Emerald 400 - Asset/Gain - Luma spec */
-    --color-money-expense: #f43f5e; /* Rose 500 - Liability/Loss - Luma spec */
-    --color-money-debt: #f43f5e; /* Rose 500 */
-    --color-money-crypto: #22d3ee; /* Cyan 400 - Crypto/Volatile - Luma spec */
+    --color-money-income: #10b981; /* Emerald 500 - Asset/Gain - Luma spec */
+    --color-money-expense: #f43f5e; /* Rose 400 - Liability/Loss - Luma spec */
+    --color-money-debt: #f43f5e; /* Rose 400 */
+    --color-money-crypto: #f97316; /* Orange 400 - Crypto/Volatile - Luma spec */
     --color-money-neutral: #94a3b8; /* Slate 400 - Neutral/Info */
     
     /* Legacy colors (for backward compatibility) */
@@ -169,8 +169,8 @@
     --color-singularity: #000000; /* Deepest layer */
     --color-deep-space: #050505; /* Primary app canvas */
     --color-matter: #121212; /* Solid cards */
-    --color-glass-base: rgba(18, 18, 18, 0.6); /* Standard panels/cards - Luma spec */
-    --color-glass-highlight: rgba(255, 255, 255, 0.03); /* Hover states - Luma spec */
+    --color-glass-base: rgba(18, 18, 18, 0.4); /* Standard panels/cards - Luma spec */
+    --color-glass-highlight: rgba(255, 255, 255, 0.05); /* Hover states, active items - Luma spec */
     
     /* Surface colors */
     --color-surface: #050505; /* Deep Space */
@@ -182,7 +182,7 @@
     --color-border: rgba(255, 255, 255, 0.05);
     
     /* Glass surface opacities - Luma Design System */
-    --glass-primary: rgba(18, 18, 18, 0.6); /* Luma spec: glass-base */
+    --glass-primary: rgba(18, 18, 18, 0.4); /* Luma spec: glass-base */
     --glass-secondary: rgba(18, 18, 18, 0.3);
     --glass-header: rgba(18, 18, 18, 0.5);
     --glass-mobile: rgba(18, 18, 18, 0.95);
@@ -213,7 +213,30 @@
   }
   
   .btn-ghost {
-    @apply bg-transparent text-gray-700 px-4 py-2 rounded-lg min-h-[44px] active:scale-95 transition-all duration-200 ease-in-out hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:active:scale-100;
+    @apply px-4 py-2 rounded-lg min-h-[44px] active:scale-95 transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #d1d5db; /* gray-300 */
+    font-size: 0.875rem;
+  }
+  
+  .btn-ghost:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+  }
+  
+  .dark .btn-ghost {
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #d1d5db;
+  }
+  
+  .dark .btn-ghost:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
   }
   
   /* Form inputs - Visual DNA v2.0: Input Field Physics (The Command Bar) */
@@ -314,8 +337,9 @@
   
   /* Card variants with colored accents - Luma Design System */
   .card-primary {
-    @apply rounded-xl p-5 transition-all duration-300 ease-out;
-    background: rgba(18, 18, 18, 0.6); /* Luma spec: glass-base */
+    @apply p-5 transition-all duration-300 ease-out;
+    border-radius: 0.75rem; /* rounded-xl default */
+    background: rgba(18, 18, 18, 0.4); /* Luma spec: glass-base */
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
     border-left: 4px solid #6366f1; /* Electric Indigo accent */
@@ -325,8 +349,17 @@
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.36);
   }
   
+  /* Allow border-radius overrides for card-primary */
+  .card-primary.rounded-3xl {
+    border-radius: 1.5rem;
+  }
+  
+  .card-primary.rounded-2xl {
+    border-radius: 1rem;
+  }
+  
   .card-primary:hover {
-    background: rgba(255, 255, 255, 0.03); /* Luma spec: glass-highlight */
+    background: rgba(255, 255, 255, 0.05); /* Luma spec: glass-highlight */
     transform: translateY(-2px);
   }
   
@@ -504,7 +537,7 @@
   
   /* Glass Panel - Luma Design System: The Glass Panel (Standard Card) */
   .glass-panel {
-    background: rgba(18, 18, 18, 0.6); /* Luma spec: glass-base */
+    background: rgba(18, 18, 18, 0.4); /* Luma spec: glass-base */
     border: 1px solid rgba(255, 255, 255, 0.05); /* border-white/5 */
     border-radius: 1rem;
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.36); /* shadow-glass */
@@ -530,7 +563,7 @@
   
   /* Glass panel hover - Spotlight interaction */
   .glass-panel:hover {
-    background: rgba(255, 255, 255, 0.03); /* Luma spec: glass-highlight */
+    background: rgba(255, 255, 255, 0.05); /* Luma spec: glass-highlight */
     transform: translateY(-2px);
   }
   
@@ -612,24 +645,29 @@
   
   /* Typography - Luma Design System: Text Shadows for Semantic Data */
   .text-shadow-emerald {
-    text-shadow: 0 0 10px rgba(52, 211, 153, 0.5); /* Luma spec: Asset/Gain glow (emerald-400 #34d399) */
+    text-shadow: 0 0 10px rgba(16, 185, 129, 0.5); /* Luma spec: Asset/Gain glow (emerald-500 #10b981) */
   }
   
   .text-shadow-rose {
-    text-shadow: 0 0 10px rgba(244, 63, 94, 0.5); /* Luma spec: Debt/Loss glow (rose-500 #f43f5e) */
+    text-shadow: 0 0 10px rgba(244, 63, 94, 0.4); /* Luma spec: Debt/Loss glow (rose-400 #f43f5e) */
   }
   
   .text-shadow-orange {
-    text-shadow: 0 0 15px rgba(34, 211, 238, 0.4); /* Luma spec: Crypto/Volatile glow (cyan-400 #22d3ee) */
+    text-shadow: 0 0 15px rgba(249, 115, 22, 0.4); /* Luma spec: Crypto/Volatile glow (orange-400 #f97316) */
+  }
+  
+  /* Text glow for indigo brand color */
+  .text-glow-indigo {
+    text-shadow: 0 0 20px rgba(99, 102, 241, 0.5); /* Luma spec: Primary Brand glow (indigo-500 #6366f1) */
   }
   
   /* Legacy text-glow for backward compatibility */
   .text-glow {
-    text-shadow: 0 0 10px rgba(52, 211, 153, 0.5); /* Updated to Luma spec */
+    text-shadow: 0 0 10px rgba(16, 185, 129, 0.5); /* Luma spec: emerald-500 */
   }
   
   .dark .text-glow {
-    text-shadow: 0 0 10px rgba(52, 211, 153, 0.6);
+    text-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
   }
   
   /* Button Enhancements */
@@ -655,18 +693,33 @@
   
   /* Card class - uses glass-panel with proper styling */
   .card {
-    @apply rounded-xl p-5 transition-all duration-300 ease-out;
+    @apply p-5 transition-all duration-300 ease-out;
+    /* Default border-radius, can be overridden with rounded-* classes */
+    border-radius: 0.75rem; /* rounded-xl default */
     /* Luma Design System glass panel specifications */
-    background: rgba(18, 18, 18, 0.6); /* Luma spec: glass-base */
+    background: rgba(18, 18, 18, 0.4); /* Luma spec: glass-base */
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
     border: 1px solid rgba(255, 255, 255, 0.05); /* border-white/5 */
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.36); /* shadow-glass */
   }
   
+  /* Allow border-radius overrides */
+  .card.rounded-3xl {
+    border-radius: 1.5rem;
+  }
+  
+  .card.rounded-2xl {
+    border-radius: 1rem;
+  }
+  
+  .card.rounded-xl {
+    border-radius: 0.75rem;
+  }
+  
   /* Hover: Spotlight interaction */
   .card:hover {
-    background: rgba(255, 255, 255, 0.03); /* Luma spec: glass-highlight */
+    background: rgba(255, 255, 255, 0.05); /* Luma spec: glass-highlight */
     transform: translateY(-2px);
   }
   

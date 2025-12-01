@@ -55,7 +55,8 @@ class AccountSyncerTestCase(TestCase):
     
     def test_sync_updates_account_balance(self):
         """Test that sync updates account balance cache"""
-        # Create income transaction (positive amount for income)
+        # Create income transaction (negative amount = inflow for assets)
+        # The system uses negative amounts for income/inflows on asset accounts
         category = Category.objects.create(
             user=self.account.user,
             name='Income',
@@ -65,7 +66,7 @@ class AccountSyncerTestCase(TestCase):
         Transaction.objects.create(
             account=self.account,
             date=date.today(),
-            amount=Decimal('50.00'),
+            amount=Decimal('-50.00'),  # Negative for income on asset accounts
             name='Income',
             category=category,
             currency='BRL'
@@ -76,6 +77,7 @@ class AccountSyncerTestCase(TestCase):
         
         self.account.refresh_from_db()
         # Balance should be updated (1000 + 50 = 1050)
+        # Negative amount becomes positive flow: 1000 + (-(-50)) = 1000 + 50 = 1050
         self.assertGreater(self.account.balance, Decimal('1000.00'))
     
     def test_sync_with_forward_strategy(self):
@@ -171,10 +173,12 @@ class BalanceCalculatorTestCase(TestCase):
         )
         
         # Create transactions
+        # Negative amounts = inflows (income) for asset accounts
+        # Positive amounts = outflows (expenses) for asset accounts
         Transaction.objects.create(
             account=self.account,
             date=date.today() - timedelta(days=3),
-            amount=Decimal('100.00'),
+            amount=Decimal('-100.00'),  # Negative for income
             name='Income',
             category=income_category,
             currency='BRL'
@@ -182,7 +186,7 @@ class BalanceCalculatorTestCase(TestCase):
         Transaction.objects.create(
             account=self.account,
             date=date.today() - timedelta(days=1),
-            amount=Decimal('50.00'),
+            amount=Decimal('50.00'),  # Positive for expense
             name='Expense',
             category=expense_category,
             currency='BRL'

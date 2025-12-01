@@ -7,13 +7,13 @@
 {# Update Summary Cards with hx-swap-oob #}
 <div id="account-summary-cards" class="grid grid-cols-1 md:grid-cols-3 gap-6" hx-swap-oob="true">
     {# Total Assets Card #}
-    <div class="card relative overflow-hidden group">
+    <div class="card rounded-2xl relative overflow-hidden group">
         <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity duration-500">
             {% include 'partials/account_summary_icon.html' with icon_type='assets' %}
         </div>
         <div class="relative z-10">
             <p class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-2">Total Assets</p>
-            <p class="text-3xl font-bold text-white font-mono tracking-tight">
+            <p class="text-3xl font-bold text-white font-mono tracking-tight text-glow">
                 {{ total_assets|real_br_plain }}
             </p>
             <div class="h-1 w-full bg-white/5 mt-4 rounded-full overflow-hidden">
@@ -25,7 +25,7 @@
     </div>
     
     {# Total Liabilities Card #}
-    <div class="card relative overflow-hidden group">
+    <div class="card rounded-2xl relative overflow-hidden group">
         <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity duration-500">
             {% include 'partials/account_summary_icon.html' with icon_type='liabilities' %}
         </div>
@@ -43,7 +43,7 @@
     </div>
 
     {# Net Worth Card #}
-    <div class="card relative overflow-hidden group border-indigo-500/30 bg-gradient-to-br from-indigo-500/10 to-transparent">
+    <div class="card rounded-2xl relative overflow-hidden group border-indigo-500/30 bg-gradient-to-br from-indigo-500/10 to-transparent">
         <div class="absolute -inset-1 bg-gradient-to-r from-indigo-500/20 to-fuchsia-500/20 blur-2xl opacity-50 group-hover:opacity-70 transition-opacity"></div>
         <div class="relative z-10">
             <p class="text-xs font-semibold text-indigo-400 uppercase tracking-widest mb-2">Net Worth</p>
@@ -63,7 +63,7 @@
 </div>
 
 {# Account List Table - This is what gets swapped in #}
-<div class="card overflow-hidden min-h-[500px]">
+<div class="card rounded-2xl overflow-hidden min-h-[500px]">
     {% if accounts %}
         {# Table Header #}
         <div class="grid grid-cols-12 gap-4 px-6 py-3 border-b border-white/5 text-[10px] font-bold text-gray-500 uppercase tracking-widest bg-black/20">
@@ -87,7 +87,7 @@
                         {% include 'partials/account_type_icon.html' %}
                     </div>
                     <div>
-                        <div class="font-medium text-gray-200 group-hover:text-indigo-400 transition-colors">{{ account.name }}</div>
+                        <div class="font-medium text-white group-hover:text-indigo-400 transition-colors">{{ account.name }}</div>
                         <div class="text-xs text-gray-500 md:hidden font-mono mt-0.5">
                             {% if account.classification == 'liability' and account.balance < 0 %}-{% endif %}{{ account.balance|real_br_plain }}
                         </div>
@@ -97,9 +97,17 @@
                 {# Institution Column #}
                 <div class="col-span-3 hidden md:flex items-center gap-2">
                     {% if account.accountable_data.institution %}
-                        <div class="w-5 h-5 rounded-full bg-indigo-900/50 flex items-center justify-center text-[10px] text-indigo-200 font-bold">
-                            {{ account.accountable_data.institution|first|upper }}
-                        </div>
+                        {% with first_char=account.accountable_data.institution|first|upper %}
+                        {% if first_char == 'V' %}
+                        <div class="w-5 h-5 rounded-full bg-red-900/50 flex items-center justify-center text-[10px] text-red-200 font-bold">{{ first_char }}</div>
+                        {% elif first_char == 'C' %}
+                        <div class="w-5 h-5 rounded-full bg-blue-900/50 flex items-center justify-center text-[10px] text-blue-200 font-bold">{{ first_char }}</div>
+                        {% elif first_char == 'A' %}
+                        <div class="w-5 h-5 rounded-full bg-cyan-900/50 flex items-center justify-center text-[10px] text-cyan-200 font-bold">{{ first_char }}</div>
+                        {% else %}
+                        <div class="w-5 h-5 rounded-full bg-indigo-900/50 flex items-center justify-center text-[10px] text-indigo-200 font-bold">{{ first_char }}</div>
+                        {% endif %}
+                        {% endwith %}
                         <span class="text-sm text-gray-400">{{ account.accountable_data.institution }}</span>
                     {% else %}
                         <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -131,7 +131,9 @@ class BaseBalanceCalculator:
         opening = self.get_opening_anchor()
         if opening:
             return opening.amount
-        return Decimal('0')
+        # If no valuation, use account's balance as initial balance
+        # This handles accounts created with an initial balance
+        return self.account.balance or Decimal('0')
     
     def get_opening_anchor_date(self) -> date:
         """Get opening anchor date"""
@@ -144,7 +146,11 @@ class BaseBalanceCalculator:
         if oldest_txn:
             return oldest_txn.date - timedelta(days=1)
         
-        return timezone.now().date() - timedelta(days=730)  # 2 years ago
+        # If no transactions, use account creation date or today - 1 day
+        if hasattr(self.account, 'created_at') and self.account.created_at:
+            return self.account.created_at.date() - timedelta(days=1)
+        
+        return timezone.now().date() - timedelta(days=1)
 
 
 class ForwardBalanceCalculator(BaseBalanceCalculator):

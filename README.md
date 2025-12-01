@@ -133,13 +133,23 @@ python manage.py migrate
 python manage.py createsuperuser
 ```
 
-### 7. Build CSS (Required Before First Run)
+### 7. Build CSS (Automatic)
 
 The LUMA design system is compiled from `static/css/input.css`:
 
 ```bash
-npm install
-npm run css:build
+npm install  # Automatically builds CSS via postinstall script
+```
+
+CSS is automatically built:
+- **After `npm install`** (via `postinstall` script)
+- **Before git commits** (via pre-commit hook when `input.css` changes)
+- **In CI/CD** (automatically runs in GitHub Actions)
+
+For development, use the watch mode to auto-rebuild on changes:
+
+```bash
+npm run css:watch
 ```
 
 ### 8. Run Development Server
@@ -199,8 +209,16 @@ python manage.py migrate
 When modifying the LUMA design system:
 
 1. Edit `static/css/input.css`
-2. Run `npm run css:build` to compile
+2. CSS is automatically built:
+   - **During development**: Use `npm run css:watch` to auto-rebuild on changes
+   - **Before commits**: Pre-commit hook ensures CSS is built if `input.css` changed
+   - **After install**: `postinstall` script builds CSS automatically
 3. Never edit `static/css/main.css` directly (it's generated)
+
+**Manual build** (if needed):
+```bash
+npm run css:build
+```
 
 ### Design System Guidelines
 

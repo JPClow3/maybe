@@ -201,6 +201,8 @@ class DuplicateDetectorTestCase(TestCase):
             name='Existing Transaction',
             currency='BRL'
         )
+        # Refresh to ensure duplicate_hash is calculated
+        row.refresh_from_db()
         
         detector = DuplicateDetector(self.user, self.account)
         duplicates = detector.detect_duplicates([row])
