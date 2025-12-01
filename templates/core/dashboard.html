@@ -2,125 +2,227 @@
 {% load static %}
 {% load money_filters %}
 
-{% block title %}Dashboard - Maybe Finance{% endblock %}
+{% block title %}Dashboard - Luma{% endblock %}
 
 {% block content %}
-<div class="px-4 py-6 sm:px-0">
-    <div class="mb-6">
-        <h1 class="text-3xl font-bold bg-gradient-to-r from-primary-600 via-primary-500 to-primary-400 dark:from-primary-400 dark:via-primary-300 dark:to-primary-200 bg-clip-text text-transparent">Dashboard</h1>
-        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Overview of your finances</p>
-    </div>
+<div class="px-8 pb-12 max-w-7xl mx-auto w-full space-y-8 animate-fade-in-up">
     
-    {# Main financial cards - loaded via HTMX with skeleton initial state #}
-    <div 
-        hx-get="{% url 'dashboard_stats' %}"
-        hx-trigger="load"
-        hx-swap="outerHTML"
-    >
-        {% include 'core/dashboard_skeleton.html' %}
-    </div>
-    
-    {# Budget widget #}
-    {% include 'core/dashboard_budget_widget.html' %}
-    
-    {# Spending comparison #}
-    {% if spending_change %}
-    <div class="card mb-8 card-lift">
-        <div class="flex items-center justify-between">
-            <div>
-                <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Gastos este mês</h3>
-                <p class="text-2xl font-bold text-gray-900 dark:text-gray-100 tabular-nums tracking-tight font-mono">
-                    {% if spending_change > 0 %}
-                        <span class="text-rose-600 dark:text-rose-400">+{{ spending_change|floatformat:1 }}%</span>
-                    {% else %}
-                        <span class="text-emerald-600 dark:text-emerald-400">{{ spending_change|floatformat:1 }}%</span>
-                    {% endif %}
-                    <span class="text-sm text-gray-600 dark:text-gray-400 font-normal">vs mês passado</span>
-                </p>
-            </div>
-        </div>
-    </div>
-    {% endif %}
-    
-    {# Recent transactions #}
-    <div class="card">
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Transações Recentes</h2>
-            <a href="{% url 'transaction_list' %}" class="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300">Ver todas →</a>
-        </div>
-        {% if recent_transactions %}
-        <div class="space-y-2">
-            {% for transaction in recent_transactions|slice:":10" %}
-            <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-gray-800 last:border-0 hover:bg-gradient-to-r hover:from-primary-50/50 dark:hover:from-primary-900/20 hover:to-transparent transition-all duration-200 rounded-lg px-2 -mx-2 cursor-pointer group">
-                <div class="flex-1 min-w-0">
-                    <a href="{% url 'transaction_detail' transaction.pk %}" class="font-medium text-gray-900 dark:text-gray-100 hover:text-primary-600 dark:hover:text-primary-400 block truncate transition-colors">
-                        {{ transaction.name }}
-                    </a>
-                    <p class="text-sm text-gray-600 dark:text-gray-400">{{ transaction.account.name }} • {{ transaction.date|date:"d/m/Y" }}</p>
+    {# Hero Stats Grid #}
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {# Net Worth Card (2/3 width) #}
+        <div class="card rounded-3xl p-8 lg:col-span-2 relative overflow-hidden group">
+            {# Header #}
+            <div class="flex justify-between items-start relative z-10 mb-2">
+                <div>
+                    <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-1">Net Worth</h2>
+                    <div class="flex items-baseline gap-4">
+                        <span class="text-5xl font-bold text-white tracking-tight font-mono">
+                            {{ current_net_worth|real_br }}
+                        </span>
+                        {% if net_worth_change_pct %}
+                        <span class="flex items-center text-sm font-medium {% if net_worth_change_pct >= 0 %}text-emerald-400{% else %}text-rose-400{% endif %} bg-{% if net_worth_change_pct >= 0 %}emerald{% else %}rose{% endif %}-500/10 px-2 py-1 rounded-full border border-{% if net_worth_change_pct >= 0 %}emerald{% else %}rose{% endif %}-500/20">
+                            <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                {% if net_worth_change_pct >= 0 %}
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                {% else %}
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 17l5-5m0 0l-5-5m5 5H6" />
+                                {% endif %}
+                            </svg>
+                            {{ net_worth_change_pct|floatformat:1 }}%
+                        </span>
+                        {% endif %}
+                    </div>
                 </div>
-                <div class="ml-4 text-right">
-                    <p class="text-lg font-semibold {% if transaction.amount < 0 %}text-emerald-600 dark:text-emerald-400{% else %}text-zinc-900 dark:text-zinc-100{% endif %} tabular-nums tracking-tight font-mono">
-                        {{ transaction.amount|real_br }}
-                    </p>
-                    {% if transaction.category %}
-                    <p class="text-xs text-gray-600 dark:text-gray-400">{{ transaction.category.name }}</p>
-                    {% endif %}
-                </div>
+                <select 
+                    class="bg-black/20 text-xs text-gray-400 border border-white/10 rounded-lg px-3 py-1.5 hover:text-white outline-none cursor-pointer backdrop-blur-md"
+                    onchange="window.location.href='{% url 'dashboard' %}?period=' + this.value">
+                    <option value="1Y" {% if period == '1Y' %}selected{% endif %}>1Y</option>
+                    <option value="YTD" {% if period == 'YTD' %}selected{% endif %}>YTD</option>
+                    <option value="ALL" {% if period == 'ALL' %}selected{% endif %}>ALL</option>
+                </select>
             </div>
-            {% endfor %}
-        </div>
-        {% else %}
-        <div class="text-center py-12 px-4">
-            <div class="max-w-md mx-auto">
-                <svg class="mx-auto h-16 w-16 text-primary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            
+            {# Chart Container #}
+            <div class="h-64 w-full relative mt-4 overflow-hidden">
+                {% if chart_path %}
+                <svg viewBox="0 0 100 40" class="w-full h-full overflow-visible preserve-3d">
+                    <defs>
+                        <linearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#6366f1" stop-opacity="0.2"/>
+                            <stop offset="100%" stop-color="#6366f1" stop-opacity="0"/>
+                        </linearGradient>
+                        <filter id="glow">
+                            <feGaussianBlur stdDeviation="1" result="coloredBlur"/>
+                            <feMerge>
+                                <feMergeNode in="coloredBlur"/>
+                                <feMergeNode in="SourceGraphic"/>
+                            </feMerge>
+                        </filter>
+                    </defs>
+                    {# Fill area #}
+                    <path d="{{ chart_path }} L 100,40 L 0,40 Z" fill="url(#chartFill)" stroke="none" />
+                    {# Line #}
+                    <path d="{{ chart_path }}" fill="none" stroke="#818cf8" stroke-width="0.5" filter="url(#glow)" />
                 </svg>
-                <h3 class="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">Comece a controlar suas finanças</h3>
-                <p class="mt-2 text-sm text-gray-800 dark:text-gray-200">
-                    Importe seu extrato bancário ou adicione transações manualmente para começar a acompanhar seus gastos e receitas.
-                </p>
+                {% else %}
+                <div class="h-full flex items-center justify-center text-gray-500 text-sm">
+                    No chart data available
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        {# Secondary Stats Column #}
+        <div class="space-y-6">
+            {# Cash Flow Widget #}
+            <div class="card rounded-3xl p-6 relative overflow-hidden">
+                <div class="absolute -right-6 -top-6 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl"></div>
+                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-6">Monthly Flow</h3>
                 
-                {# Benefits list #}
-                <div class="mt-6 text-left bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-2 shadow-purple-sm">
-                    <div class="flex items-start">
-                        <svg class="h-5 w-5 text-primary-600 dark:text-primary-400 mt-0.5 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span class="text-sm text-gray-900 dark:text-gray-100 font-medium">Importe extratos OFX do seu banco (Nubank, Itaú, Bradesco, etc.)</span>
+                <div class="space-y-6">
+                    <div>
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="text-gray-400">Income</span>
+                            <span class="text-emerald-400 font-mono tracking-tight">+{{ monthly_income|real_br }}</span>
+                        </div>
+                        <div class="w-full bg-white/5 rounded-full h-1 overflow-hidden">
+                            {% if monthly_income > 0 %}
+                            {% with total=monthly_income|add:monthly_spending %}
+                            {% widthratio monthly_income total 100 as income_pct %}
+                            <div class="bg-emerald-500 h-full rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]" style="width: {{ income_pct }}%"></div>
+                            {% endwith %}
+                            {% endif %}
+                        </div>
                     </div>
-                    <div class="flex items-start">
-                        <svg class="h-5 w-5 text-primary-600 dark:text-primary-400 mt-0.5 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span class="text-sm text-gray-900 dark:text-gray-100 font-medium">Categorização automática inteligente</span>
+                    
+                    <div>
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="text-gray-400">Spending</span>
+                            <span class="text-rose-400 font-mono tracking-tight">-{{ monthly_spending|real_br }}</span>
+                        </div>
+                        <div class="w-full bg-white/5 rounded-full h-1 overflow-hidden">
+                            {% if monthly_income > 0 %}
+                            {% with total=monthly_income|add:monthly_spending %}
+                            {% widthratio monthly_spending total 100 as spending_pct %}
+                            <div class="bg-rose-500 h-full rounded-full shadow-[0_0_10px_rgba(244,63,94,0.5)]" style="width: {{ spending_pct }}%"></div>
+                            {% endwith %}
+                            {% endif %}
+                        </div>
                     </div>
-                    <div class="flex items-start">
-                        <svg class="h-5 w-5 text-primary-600 dark:text-primary-400 mt-0.5 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span class="text-sm text-gray-900 dark:text-gray-100 font-medium">Acompanhe seus gastos e receitas em tempo real</span>
+                </div>
+            </div>
+            
+            {# AI Insight Pill #}
+            {% if spending_change %}
+            <div class="card rounded-2xl p-5 border-l-2 border-l-fuchsia-500 bg-gradient-to-r from-fuchsia-900/10 to-transparent flex items-start gap-4">
+                <div class="mt-1 p-2 bg-fuchsia-500/10 rounded-lg">
+                    <svg class="w-4 h-4 text-fuchsia-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
+                    </svg>
+                </div>
+                <div>
+                    <h4 class="text-sm font-medium text-white mb-1">Unusual Activity</h4>
+                    <p class="text-xs text-gray-400 leading-relaxed">
+                        Your spending is <span class="text-white font-medium">{{ spending_change|abs|floatformat:0 }}% {% if spending_change > 0 %}higher{% else %}lower{% endif %}</span> than last month.
+                    </p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+    
+    {# Bottom Content Grid #}
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        {# Transactions List #}
+        <div class="card rounded-3xl p-6 min-h-[400px]">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-medium text-white">Recent Transactions</h3>
+                <a href="{% url 'transaction_list' %}" class="text-xs font-medium text-indigo-400 hover:text-indigo-300 transition-colors">View All</a>
+            </div>
+            {% if recent_transactions %}
+            <div class="space-y-2">
+                {% for transaction in recent_transactions|slice:":10" %}
+                <div class="group flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-all cursor-pointer border border-transparent hover:border-white/5">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-lg border border-white/5 group-hover:border-white/10 group-hover:shadow-[0_0_20px_rgba(99,102,241,0.3)] transition-all">
+                            {% if transaction.category and transaction.category.lucide_icon %}
+                            📊
+                            {% else %}
+                            💳
+                            {% endif %}
+                        </div>
+                        <div>
+                            <div class="text-sm font-medium text-white group-hover:text-indigo-200 transition-colors">{{ transaction.name|truncatechars:30 }}</div>
+                            <div class="text-xs text-gray-500 font-mono">{{ transaction.date|date:"M d, Y" }}</div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm font-mono text-white">{{ transaction.amount|real_br }}</div>
+                        {% if transaction.category %}
+                        <div class="text-[10px] text-gray-600 bg-white/5 px-2 py-0.5 rounded">{{ transaction.category.name|truncatechars:15 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            {% url 'transaction_list' as transaction_list_url %}
+            {% include 'partials/_empty.html' with title="No transactions found" description="Start tracking your finances by adding a transaction" button_text="Add Transaction" button_url=transaction_list_url %}
+            {% endif %}
+        </div>
+        
+        {# Asset Allocation Donut #}
+        <div class="card rounded-3xl p-6">
+            <h3 class="text-lg font-medium text-white mb-6">Allocation</h3>
+            
+            <div class="flex items-center justify-center gap-10 h-[250px] flex-col lg:flex-row">
+                {# CSS Donut #}
+                <div class="relative w-48 h-48">
+                    <svg viewBox="0 0 100 100" class="w-full h-full transform -rotate-90">
+                        <circle cx="50" cy="50" r="40" stroke="#121212" stroke-width="8" fill="none" />
+                        {% if asset_allocation.Stocks.percentage > 0 %}
+                        <circle cx="50" cy="50" r="40" stroke="#6366f1" stroke-width="8" fill="none" stroke-dasharray="{{ asset_allocation.Stocks.dash|floatformat:1 }} 251.2" class="drop-shadow-[0_0_10px_#6366f1]" />
+                        {% endif %}
+                        {% if asset_allocation.Crypto.percentage > 0 %}
+                        <circle cx="50" cy="50" r="40" stroke="#d946ef" stroke-width="8" fill="none" stroke-dasharray="{{ asset_allocation.Crypto.dash|floatformat:1 }} 251.2" stroke-dashoffset="{{ asset_allocation.Crypto.offset|floatformat:1 }}" />
+                        {% endif %}
+                        {% if asset_allocation.Cash.percentage > 0 %}
+                        <circle cx="50" cy="50" r="40" stroke="#10b981" stroke-width="8" fill="none" stroke-dasharray="{{ asset_allocation.Cash.dash|floatformat:1 }} 251.2" stroke-dashoffset="{{ asset_allocation.Cash.offset|floatformat:1 }}" />
+                        {% endif %}
+                    </svg>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                        <span class="text-2xl font-bold text-white font-mono">{{ asset_allocation.Stocks.percentage|add:asset_allocation.Crypto.percentage|add:asset_allocation.Cash.percentage|floatformat:0 }}%</span>
+                        <span class="text-[10px] text-gray-500 uppercase tracking-widest">Total</span>
                     </div>
                 </div>
                 
-                {# Action buttons #}
-                <div class="mt-8 space-y-3">
-                    <a href="{% url 'import_new' %}" class="block w-full btn-primary">
-                        <svg class="inline-block h-5 w-5 mr-2 -ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                        </svg>
-                        Importar Extrato Nubank/Banco
-                    </a>
-                    <a href="{% url 'transaction_new' %}" class="block w-full btn-secondary">
-                        <svg class="inline-block h-5 w-5 mr-2 -ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                        </svg>
-                        Adicionar Transação Manual
-                    </a>
+                {# Legend #}
+                <div class="space-y-4">
+                    <div class="flex items-center gap-3 group cursor-pointer">
+                        <div class="w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_10px_#6366f1]"></div>
+                        <div>
+                            <div class="text-sm font-medium text-gray-300 group-hover:text-white">Stocks</div>
+                            <div class="text-xs text-gray-500 font-mono">{{ asset_allocation.Stocks.percentage|floatformat:0 }}%</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 group cursor-pointer">
+                        <div class="w-2 h-2 rounded-full bg-fuchsia-500 shadow-[0_0_10px_#d946ef]"></div>
+                        <div>
+                            <div class="text-sm font-medium text-gray-300 group-hover:text-white">Crypto</div>
+                            <div class="text-xs text-gray-500 font-mono">{{ asset_allocation.Crypto.percentage|floatformat:0 }}%</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 group cursor-pointer">
+                        <div class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_#10b981]"></div>
+                        <div>
+                            <div class="text-sm font-medium text-gray-300 group-hover:text-white">Cash</div>
+                            <div class="text-xs text-gray-500 font-mono">{{ asset_allocation.Cash.percentage|floatformat:0 }}%</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        {% endif %}
-    </div>
+    </section>
 </div>
 {% endblock %}
-

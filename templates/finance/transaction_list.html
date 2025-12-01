@@ -4,11 +4,11 @@
 {% block title %}Transactions - Maybe Finance{% endblock %}
 
 {% block content %}
-<div class="px-4 py-6 sm:px-0">
-    <div class="flex justify-between items-center mb-6">
+<div class="px-4 md:px-8 pb-12 w-full space-y-8 animate-fade-in-up">
+    <div class="flex justify-between items-center">
         <div>
-            <h1 class="text-3xl font-bold bg-gradient-to-r from-primary-600 via-primary-500 to-primary-400 dark:from-primary-400 dark:via-primary-300 dark:to-primary-200 bg-clip-text text-transparent">Transactions</h1>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Manage your financial transactions</p>
+            <h1 class="text-3xl font-bold tracking-tight bg-gradient-to-r from-indigo-500 via-violet-600 to-indigo-500 bg-clip-text text-transparent">Transactions</h1>
+            <p class="text-sm text-slate-400 mt-1">Manage your financial transactions</p>
         </div>
         <a href="{% url 'transaction_new' %}" class="btn-primary">
             New Transaction
@@ -20,6 +20,7 @@
         hx-get="{% url 'transaction_list_data' %}"
         hx-trigger="load"
         hx-swap="outerHTML"
+        hx-push-url="true"
     >
         {% include 'finance/transaction_list_skeleton.html' %}
     </div>

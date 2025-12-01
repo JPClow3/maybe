@@ -28,9 +28,15 @@ class AccountSyncer:
         materializer = BalanceMaterializer(self.account, strategy=strategy)
         materializer.materialize_balances()
     
-    def sync_later(self):
-        """Schedule sync for later (async) - placeholder for Celery task"""
-        # In production, this would enqueue a Celery task
-        # For now, just sync immediately
-        self.sync()
+    def sync_later(self, strategy: str = None):
+        """
+        Schedule sync for later (async) via Celery task
+        
+        Args:
+            strategy: 'forward' or 'reverse' (optional, defaults to None for auto-detection)
+        """
+        from finance.tasks import sync_account_balance
+        
+        # Enqueue async task
+        sync_account_balance.delay(self.account.id, strategy=strategy)
 

@@ -17,23 +17,36 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Semantic color tokens - Purple/Violet primary for depth
+        // The Void (Backgrounds) - Luma Design System
+        singularity: '#000000', // The deepest layer (body background)
+        deepSpace: '#050505', // The primary app canvas
+        matter: '#121212', // Solid cards (fallback/modal)
+        
+        // Bioluminescence (Brand & Accents) - Luma Design System
+        electricIndigo: '#6366f1', // Primary Brand (indigo-500)
+        deepViolet: '#7c3aed', // Secondary gradient stop (violet-600)
+        neonFuchsia: '#ec4899', // Accent (fuchsia-500)
+        cyberCyan: '#22d3ee', // Accent (cyan-400) - Luma spec
+        
+        // Primary color system - Electric Indigo as primary brand
         primary: {
-          DEFAULT: '#7c3aed', // Violet 600
-          hover: '#6d28d9', // Violet 700
-          light: '#a78bfa', // Violet 400
-          dark: '#5b21b6', // Violet 800
-          50: '#ede9fe', // Violet 50
-          100: '#ddd6fe', // Violet 100
-          200: '#c4b5fd', // Violet 200
-          300: '#a78bfa', // Violet 300
-          400: '#8b5cf6', // Violet 400
-          500: '#7c3aed', // Violet 500
-          600: '#7c3aed', // Violet 600 (primary)
-          700: '#6d28d9', // Violet 700
-          800: '#5b21b6', // Violet 800
-          900: '#4c1d95', // Violet 900
+          DEFAULT: '#6366f1', // Electric Indigo
+          hover: '#4f46e5', // indigo-600
+          light: '#818cf8', // indigo-400
+          dark: '#4f46e5', // indigo-600
+          50: '#eef2ff',
+          100: '#e0e7ff',
+          200: '#c7d2fe',
+          300: '#a5b4fc',
+          400: '#818cf8',
+          500: '#6366f1', // Electric Indigo (primary)
+          600: '#4f46e5',
+          700: '#4338ca',
+          800: '#3730a3',
+          900: '#312e81',
         },
+        
+        // Violet for secondary gradients
         violet: {
           50: '#ede9fe',
           100: '#ddd6fe',
@@ -41,21 +54,68 @@ module.exports = {
           300: '#a78bfa',
           400: '#8b5cf6',
           500: '#7c3aed',
-          600: '#7c3aed',
+          600: '#7c3aed', // Deep Violet
           700: '#6d28d9',
           800: '#5b21b6',
           900: '#4c1d95',
         },
+        
+        // Glass surface colors - Luma Design System
+        glass: {
+          base: 'rgba(18, 18, 18, 0.6)', // Standard panels/cards - Luma spec
+          highlight: 'rgba(255, 255, 255, 0.03)', // Hover states, active items - Luma spec
+          // Dark mode
+          dark: {
+            primary: 'rgba(18, 18, 18, 0.6)', // Luma spec
+            secondary: 'rgba(18, 18, 18, 0.3)',
+            header: 'rgba(18, 18, 18, 0.5)',
+            mobile: 'rgba(18, 18, 18, 0.95)',
+            border: 'rgba(255, 255, 255, 0.05)',
+            borderSecondary: 'rgba(255, 255, 255, 0.03)',
+            borderHeader: 'rgba(255, 255, 255, 0.08)',
+          },
+          // Light mode (fallback)
+          light: {
+            primary: 'rgba(255, 255, 255, 0.7)',
+            secondary: 'rgba(255, 255, 255, 0.6)',
+            mobile: 'rgba(255, 255, 255, 0.95)',
+            border: 'rgba(0, 0, 0, 0.1)',
+            borderSecondary: 'rgba(0, 0, 0, 0.08)',
+          },
+        },
+        
+        // Semantic Data (The HUD) - Luma Design System
+        // These are used strictly for financial data
+        emerald: {
+          400: '#34d399', // Asset / Gain - Luma spec
+        },
+        rose: {
+          400: '#f43f5e', // Liability / Loss - Luma spec (rose-500)
+          500: '#f43f5e', // Luma spec
+        },
+        cyan: {
+          400: '#22d3ee', // Crypto / Volatile - Luma spec
+        },
+        amber: {
+          400: '#fbbf24', // Warning - Luma spec
+        },
+        orange: {
+          400: '#f97316', // Legacy / Fallback
+        },
+        slate: {
+          400: '#94a3b8', // Neutral / Info
+        },
+        
+        // Legacy colors (for backward compatibility)
         surface: {
           DEFAULT: '#ffffff',
           subtle: '#f9fafb', // Gray 50
         },
         money: {
-          income: '#059669', // Emerald 600
-          expense: '#18181b', // Zinc 900 (gray instead of red)
-          debt: '#e11d48', // Rose 600 (only for critical alerts)
+          income: '#34d399', // Emerald 400 - Luma spec
+          expense: '#f43f5e', // Rose 500 - Luma spec
+          debt: '#f43f5e', // Rose 500 - Luma spec
         },
-        // Keep existing color scales for backward compatibility
         secondary: {
           50: '#f9fafb',
           100: '#f3f4f6',
@@ -92,44 +152,29 @@ module.exports = {
           800: '#991b1b',
           900: '#7f1d1d',
         },
-        // Glass surface colors (from Phase 0)
-        glass: {
-          // Dark mode
-          dark: {
-            primary: 'rgba(0, 0, 0, 0.4)',
-            secondary: 'rgba(0, 0, 0, 0.3)',
-            header: 'rgba(0, 0, 0, 0.5)',
-            mobile: 'rgba(0, 0, 0, 0.95)',
-            border: 'rgba(255, 255, 255, 0.1)',
-            borderSecondary: 'rgba(255, 255, 255, 0.08)',
-            borderHeader: 'rgba(255, 255, 255, 0.12)',
-          },
-          // Light mode
-          light: {
-            primary: 'rgba(255, 255, 255, 0.7)',
-            secondary: 'rgba(255, 255, 255, 0.6)',
-            mobile: 'rgba(255, 255, 255, 0.95)',
-            border: 'rgba(0, 0, 0, 0.1)',
-            borderSecondary: 'rgba(0, 0, 0, 0.08)',
-          },
-        },
-        // Ambient orb colors (subtle, not neon) - Added purple
+        // Ambient orb colors (subtle, not neon) - Luma Design System
         orb: {
-          emerald: 'rgba(16, 185, 129, 0.15)',
+          emerald: 'rgba(52, 211, 153, 0.15)', // Updated to Luma emerald-400
           indigo: 'rgba(99, 102, 241, 0.15)',
           rose: 'rgba(244, 63, 94, 0.15)',
           violet: 'rgba(124, 58, 237, 0.15)',
+          fuchsia: 'rgba(236, 72, 153, 0.15)',
+          cyan: 'rgba(34, 211, 238, 0.15)', // Updated to Luma cyan-400
         },
       },
       boxShadow: {
-        // Custom shadows for glass effect
+        // Luma Design System shadows
+        'glow': '0 0 20px rgba(99, 102, 241, 0.3)', // Primary Brand glow - Luma spec
+        'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.36)', // Glass panel shadow
+        // Legacy shadows (for backward compatibility)
         'float': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
         'highlight': 'inset 0 1px 0 0 rgba(255, 255, 255, 0.1)',
-        'glow-emerald': '0 0 12px rgba(16, 185, 129, 0.2)',
+        'glow-emerald': '0 0 12px rgba(52, 211, 153, 0.2)', // Updated to Luma emerald-400
         'glow-indigo': '0 0 12px rgba(99, 102, 241, 0.2)',
         'glow-rose': '0 0 12px rgba(244, 63, 94, 0.2)',
-        'glow-violet': '0 0 12px rgba(124, 58, 237, 0.2)',
+        'glow-violet': '0 0 20px rgba(124, 58, 237, 0.3)', // Secondary Brand glow - Luma spec
         'glow-violet-strong': '0 0 16px rgba(124, 58, 237, 0.3)',
+        'glow-cyan': '0 0 15px rgba(34, 211, 238, 0.4)', // Crypto/Volatile glow - Luma spec
       },
       backgroundImage: {
         // Mesh gradient utilities
@@ -140,11 +185,26 @@ module.exports = {
         '88': '22rem',
       },
       fontFamily: {
-        sans: ['Geist Sans', 'system-ui', 'sans-serif'],
-        mono: ['Geist Mono', 'monospace'],
+        sans: ['Inter', 'Geist Sans', 'system-ui', 'sans-serif'], // Interface font
+        mono: ['JetBrains Mono', 'Geist Mono', 'monospace'], // Data font
+      },
+      animation: {
+        'blob': 'blob 7s infinite',
+        'fade-in-up': 'fadeInUp 0.6s ease-out forwards',
+      },
+      keyframes: {
+        blob: {
+          '0%': { transform: 'translate(0px, 0px) scale(1)' },
+          '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+          '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+          '100%': { transform: 'translate(0px, 0px) scale(1)' },
+        },
+        fadeInUp: {
+          '0%': { opacity: '0', transform: 'translateY(20px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
       },
     },
   },
   plugins: [],
 }
-

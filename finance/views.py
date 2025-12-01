@@ -21,9 +21,26 @@ def account_list(request):
     
     # For initial page load, show skeleton and load content via HTMX
     accounts = Account.objects.filter(user=request.user, status='active').order_by('name')
+    
+    # Calculate summary statistics
+    asset_accounts = accounts.filter(
+        accountable_type__in=['depository', 'investment', 'crypto', 'property', 'vehicle', 'other_asset']
+    )
+    liability_accounts = accounts.filter(
+        accountable_type__in=['credit_card', 'loan', 'other_liability']
+    )
+    
+    total_assets = asset_accounts.aggregate(Sum('balance'))['balance__sum'] or Decimal('0')
+    total_liabilities = abs(liability_accounts.aggregate(Sum('balance'))['balance__sum'] or Decimal('0'))
+    net_worth = total_assets - total_liabilities
+    
     context = {
         'accounts': accounts,
         'show_skeleton': not is_htmx,  # Show skeleton on initial load, not on HTMX requests
+        'total_assets': total_assets,
+        'total_liabilities': total_liabilities,
+        'net_worth': net_worth,
+        'account_count': accounts.count(),
     }
     return render(request, 'finance/account_list.html', context)
 
@@ -31,7 +48,26 @@ def account_list(request):
 def account_list_data(request):
     """HTMX endpoint that returns only the account list content"""
     accounts = Account.objects.filter(user=request.user, status='active').order_by('name')
-    return render(request, 'finance/account_list_data.html', {'accounts': accounts})
+    
+    # Calculate summary statistics
+    asset_accounts = accounts.filter(
+        accountable_type__in=['depository', 'investment', 'crypto', 'property', 'vehicle', 'other_asset']
+    )
+    liability_accounts = accounts.filter(
+        accountable_type__in=['credit_card', 'loan', 'other_liability']
+    )
+    
+    total_assets = asset_accounts.aggregate(Sum('balance'))['balance__sum'] or Decimal('0')
+    total_liabilities = abs(liability_accounts.aggregate(Sum('balance'))['balance__sum'] or Decimal('0'))
+    net_worth = total_assets - total_liabilities
+    
+    return render(request, 'finance/account_list_data.html', {
+        'accounts': accounts,
+        'total_assets': total_assets,
+        'total_liabilities': total_liabilities,
+        'net_worth': net_worth,
+        'account_count': accounts.count(),
+    })
 
 @login_required
 def account_detail(request, pk):
@@ -153,10 +189,26 @@ def transaction_list(request):
 @login_required
 def transaction_list_data(request):
     """HTMX endpoint that returns only the transaction list table"""
+    from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+    
     transactions = Transaction.objects.filter(account__user=request.user).order_by('-date', '-created_at')
     categories = Category.objects.filter(user=request.user)
+    
+    # Pagination
+    paginator = Paginator(transactions, 50)  # 50 items per page
+    page = request.GET.get('page', 1)
+    
+    try:
+        page_obj = paginator.page(page)
+    except PageNotAnInteger:
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+    
     context = {
-        'transactions': transactions,
+        'transactions': page_obj,
+        'page_obj': page_obj,
+        'paginator': paginator,
         'categories': categories,
     }
     return render(request, 'finance/transaction_list_table_partial.html', context)

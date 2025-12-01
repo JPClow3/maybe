@@ -2,7 +2,7 @@
 {% load money_filters %}
 
 {% if transactions %}
-<div class="card">
+<div id="transaction-list-container" class="card">
     <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700" role="table" aria-label="Transactions list">
             <thead class="bg-gray-50 dark:bg-gray-800">
@@ -80,6 +80,63 @@
             </tbody>
         </table>
     </div>
+    
+    {# Pagination Controls #}
+    {% if page_obj.has_other_pages %}
+    <div class="px-6 py-4 border-t border-white/5 flex items-center justify-between">
+        <div class="text-sm text-slate-400 font-mono">
+            Showing {{ page_obj.start_index }}–{{ page_obj.end_index }} of {{ paginator.count }} transactions
+        </div>
+        <div class="flex items-center gap-2">
+            {% if page_obj.has_previous %}
+            <a 
+                href="?page={{ page_obj.previous_page_number }}" 
+                class="btn-secondary text-sm py-2 px-4"
+                hx-get="{% url 'transaction_list_data' %}?page={{ page_obj.previous_page_number }}"
+                hx-target="#transaction-list-container"
+                hx-swap="outerHTML"
+                hx-push-url="true"
+            >
+                Previous
+            </a>
+            {% else %}
+            <span class="btn-secondary text-sm py-2 px-4 opacity-50 cursor-not-allowed">Previous</span>
+            {% endif %}
+            
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <span class="bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 text-sm py-2 px-4 rounded-lg font-medium">{{ num }}</span>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <a 
+                    href="?page={{ num }}" 
+                    class="btn-ghost text-sm py-2 px-4"
+                    hx-get="{% url 'transaction_list_data' %}?page={{ num }}"
+                    hx-target="#transaction-list-container"
+                    hx-swap="outerHTML"
+                    hx-push-url="true"
+                >
+                    {{ num }}
+                </a>
+                {% endif %}
+            {% endfor %}
+            
+            {% if page_obj.has_next %}
+            <a 
+                href="?page={{ page_obj.next_page_number }}" 
+                class="btn-secondary text-sm py-2 px-4"
+                hx-get="{% url 'transaction_list_data' %}?page={{ page_obj.next_page_number }}"
+                hx-target="#transaction-list-container"
+                hx-swap="outerHTML"
+                hx-push-url="true"
+            >
+                Next
+            </a>
+            {% else %}
+            <span class="btn-secondary text-sm py-2 px-4 opacity-50 cursor-not-allowed">Next</span>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
 </div>
 {% else %}
 <div class="card">

@@ -1,8 +1,10 @@
 """
-Template filters for Brazilian money formatting
+Template filters for Brazilian money formatting and time formatting
 """
 from decimal import Decimal
+from datetime import datetime, timedelta
 from django import template
+from django.utils import timezone
 from django.utils.safestring import mark_safe
 from ..money import Money, Currency
 
@@ -89,3 +91,46 @@ def mul(value, arg):
         return float(value) * float(arg)
     except (ValueError, TypeError):
         return 0
+
+
+@register.filter(name='time_ago')
+def time_ago(value):
+    """
+    Format a datetime as relative time (e.g., "2m ago", "1h ago", "yesterday")
+    
+    Usage:
+        {{ account.updated_at|time_ago }}
+    """
+    if value is None:
+        return "never"
+    
+    try:
+        now = timezone.now()
+        if isinstance(value, datetime):
+            if timezone.is_aware(value):
+                diff = now - value
+            else:
+                diff = now - timezone.make_aware(value)
+        else:
+            return str(value)
+        
+        seconds = int(diff.total_seconds())
+        
+        if seconds < 60:
+            return "just now"
+        elif seconds < 3600:
+            minutes = seconds // 60
+            return f"{minutes}m ago"
+        elif seconds < 86400:
+            hours = seconds // 3600
+            return f"{hours}h ago"
+        elif seconds < 172800:  # 2 days
+            return "yesterday"
+        elif seconds < 604800:  # 7 days
+            days = seconds // 86400
+            return f"{days}d ago"
+        else:
+            # For older dates, just show the date
+            return value.strftime("%b %d")
+    except (ValueError, TypeError, AttributeError):
+        return "unknown"

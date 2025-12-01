@@ -1,12 +1,12 @@
 ---
-description: UI/UX standardization guide - defines consistent patterns for all templates
+description: UI/UX standardization guide - defines consistent patterns for all templates (Visual DNA v2.0)
 globs: templates/**/*.html
 alwaysApply: true
 ---
 
-# UI/UX Standards for Maybe Finance
+# UI/UX Standards for Maybe Finance (Visual DNA v2.0)
 
-This document defines the standard patterns that MUST be used consistently across all templates.
+This document defines the standard patterns that MUST be used consistently across all templates. This system is **dark-mode first** with "Ethereal Dark Mode" aesthetic.
 
 ## Page Headers
 
@@ -14,8 +14,8 @@ This document defines the standard patterns that MUST be used consistently acros
 ```django
 <div class="flex justify-between items-center mb-6">
     <div>
-        <h1 class="text-3xl font-bold bg-gradient-to-r from-primary-600 via-primary-500 to-primary-400 dark:from-primary-400 dark:via-primary-300 dark:to-primary-200 bg-clip-text text-transparent">Page Title</h1>
-        <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Page description or subtitle</p>
+        <h1 class="text-3xl font-bold tracking-tight bg-gradient-to-r from-indigo-500 via-violet-600 to-indigo-500 bg-clip-text text-transparent">Page Title</h1>
+        <p class="text-sm text-slate-400 mt-1">Page description or subtitle</p>
     </div>
     {% if action_button_url %}
     <a href="{% url 'action_button_url' %}" class="btn-primary">
@@ -26,10 +26,11 @@ This document defines the standard patterns that MUST be used consistently acros
 ```
 
 **Rules:**
-- ALWAYS use the gradient text style for h1
-- ALWAYS include a subtitle/description with `text-gray-600 dark:text-gray-400`
+- ALWAYS use the gradient text style for h1 (Indigo to Violet gradient)
+- ALWAYS include a subtitle/description with `text-slate-400`
 - Action buttons go on the right side
 - Use `mb-6` for spacing below header
+- Headings use `tracking-tight` for dense, cohesive feel
 
 ## Form Pages
 
@@ -37,9 +38,9 @@ This document defines the standard patterns that MUST be used consistently acros
 ```django
 <div class="px-4 py-6 sm:px-0">
     <div class="max-w-2xl mx-auto">
-        <a href="{% url 'back_url' %}" class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 mb-4 inline-block">← Back to List</a>
+        <a href="{% url 'back_url' %}" class="text-indigo-400 hover:text-indigo-300 mb-4 inline-block">← Back to List</a>
         <div class="mb-6">
-            <h1 class="text-3xl font-bold bg-gradient-to-r from-primary-600 via-primary-500 to-primary-400 dark:from-primary-400 dark:via-primary-300 dark:to-primary-200 bg-clip-text text-transparent">{{ title }}</h1>
+            <h1 class="text-3xl font-bold tracking-tight bg-gradient-to-r from-indigo-500 via-violet-600 to-indigo-500 bg-clip-text text-transparent">{{ title }}</h1>
         </div>
         
         <div class="card">
@@ -56,15 +57,15 @@ This document defines the standard patterns that MUST be used consistently acros
 
 **Rules:**
 - Forms MUST be in `max-w-2xl mx-auto` container
-- ALWAYS include a back link with consistent styling
-- Form content goes in a `card`
+- ALWAYS include a back link with consistent styling (`text-indigo-400`)
+- Form content goes in a `card` (glass panel)
 - Use `space-y-6` for form spacing
 
 ## Form Buttons
 
 **Standard Pattern:**
 ```django
-<div class="flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+<div class="flex justify-end gap-3 pt-4 border-t border-white/5">
     <a href="{% url 'cancel_url' %}" class="btn-secondary" hx-boost="false">Cancel</a>
     <button type="submit" class="btn-primary relative">
         <span class="htmx-indicator-button">Save</span>
@@ -79,7 +80,7 @@ This document defines the standard patterns that MUST be used consistently acros
 - Buttons are right-aligned with `flex justify-end gap-3`
 - Cancel button uses `btn-secondary`
 - Submit button uses `btn-primary` with HTMX indicator
-- Buttons have a border-top separator
+- Buttons have a border-top separator (`border-white/5`)
 - Use `pt-4` for padding
 
 ## Tables
@@ -89,15 +90,15 @@ This document defines the standard patterns that MUST be used consistently acros
 <div class="card">
     {% if items %}
     <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead class="bg-gray-50 dark:bg-gray-800">
+        <table class="min-w-full divide-y divide-white/5">
+            <thead class="bg-white/5">
                 <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider">Column</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Column</th>
                 </tr>
             </thead>
-            <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody class="divide-y divide-white/5">
                 <tr class="table-row-hover">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">Content</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-200">Content</td>
                 </tr>
             </tbody>
         </table>
@@ -110,26 +111,64 @@ This document defines the standard patterns that MUST be used consistently acros
 ```
 
 **Rules:**
-- Tables MUST be wrapped in a `card`
-- Table headers use `bg-gray-50 dark:bg-gray-800`
-- Header text: `text-xs font-medium text-gray-700 dark:text-gray-300 uppercase tracking-wider`
+- Tables MUST be wrapped in a `card` (glass panel)
+- Table headers use `bg-white/5`
+- Header text: `text-xs font-medium text-slate-400 uppercase tracking-wider`
 - Body rows use `table-row-hover` class
-- Body text: `text-sm text-gray-900 dark:text-gray-100`
+- Body text: `text-sm text-gray-200` (never pure white, use gray-200 for high contrast)
+- Dividers use `divide-white/5`
 - Empty states MUST use `_empty.html` partial
 
 ## Empty States
 
 **Standard Pattern:**
 ```django
-{% url 'create_url' as create_url %}
-{% include 'partials/_empty.html' with title="No items found" description="Helpful description" button_text="Create First Item" button_url=create_url %}
+<div class="card">
+    <div class="flex flex-col items-center justify-center py-12 text-center">
+        <div class="opacity-20 mb-4">
+            {# Large icon here - use Lucide icons #}
+            <svg class="w-16 h-16 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {# Icon path #}
+            </svg>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-200 mb-2">No items found</h3>
+        <p class="text-sm text-slate-400 mb-6">Helpful description text</p>
+        <a href="{% url 'create_url' %}" class="btn-primary">Add First Item</a>
+    </div>
+</div>
 ```
 
 **Rules:**
-- ALWAYS use the `_empty.html` partial
-- Provide meaningful title and description
-- Include a primary action button
+- ALWAYS use the `_empty.html` partial (or follow this pattern)
+- Use a large, low-opacity (20%) icon in the center (`opacity-20`)
+- Icon should be `w-16 h-16` with `text-slate-400`
+- Provide meaningful title (`text-gray-200`) and description (`text-slate-400`)
+- Include a primary "Add" button that glows (`btn-primary`)
 - Empty state goes inside a `card` when part of a list view
+- Never make empty states feel "broken" - they should feel like a fresh start
+
+## Skeleton Loading
+
+**Standard Pattern:**
+```django
+<div class="card animate-pulse">
+    <div class="space-y-4">
+        <div class="h-4 bg-white/5 rounded w-3/4"></div>
+        <div class="h-4 bg-white/5 rounded w-1/2"></div>
+        <div class="h-20 bg-white/5 rounded"></div>
+    </div>
+</div>
+```
+
+**Rules:**
+- Use `animate-pulse` on the container
+- Use `bg-white/5` for skeleton blocks (never white or bright colors)
+- Skeleton shapes MUST match the exact dimensions of the data they replace
+  - Circle for avatars: `rounded-full`
+  - Thin rectangle for text: `h-4` or `h-5`
+  - Wide rectangle for titles: `w-3/4` or `w-1/2`
+- Never show a white flash or jumping layout
+- Skeleton should fade in smoothly
 
 ## Search Forms
 
@@ -158,19 +197,48 @@ This document defines the standard patterns that MUST be used consistently acros
 - Include HTMX loading indicator
 - Clear button only shows when there's a search query
 
+## Input Field Physics (The Command Bar)
+
+**Standard Pattern:**
+```django
+<input 
+    type="text" 
+    class="form-input" 
+    placeholder="Enter text..."
+    aria-label="Input label"
+/>
+```
+
+**States:**
+- **Rest**: `border-white/10`, `bg-white/5`
+- **Focus**: `border-indigo-500/50`, `bg-black/50`, `shadow-glow`
+- **Typing**: Text should be white (`text-white`), placeholders should be distinct (`text-gray-500`)
+- **Validation Error**: Border turns `border-rose-500/50` and adds `text-shadow-rose` glow to input text itself
+
+**Rules:**
+- All inputs use `form-input` class
+- Focus states must be clearly visible with indigo glow
+- Error states must add text shadow glow, not just border color
+- Placeholders use `text-gray-500` for distinction
+
 ## Card Usage
 
 **When to use each card variant:**
 
-- `card` - Default for content containers, lists, forms
-- `card-primary` - For search forms, highlighted sections
-- `card-success` - For success/positive information (rare)
-- `card-lift` - For clickable/interactive cards (adds hover lift effect)
+- `card` - Default glass panel for content containers, lists, forms
+  - Background: `bg-[#121212]/40` with `backdrop-filter: blur(24px)`
+  - Border: `border border-white/5`
+  - Shadow: `shadow-[0_8px_32px_0_rgba(0,0,0,0.36)]`
+  - Hover: `hover:bg-white/5` with spotlight effect
+- `card-primary` - For search forms, highlighted sections (indigo accent border)
+- `card-success` - For success/positive information (rare, emerald accent)
+- `card-lift` - For clickable/interactive cards (adds hover lift effect with `translateY(-2px)`)
 
 **Rules:**
-- Most content uses `card`
+- Most content uses `card` (standard glass panel)
 - Search forms use `card-primary`
 - Clickable cards (like budget cards) use `card card-lift`
+- All cards are glass panels with backdrop blur
 
 ## List Views
 
@@ -180,8 +248,8 @@ This document defines the standard patterns that MUST be used consistently acros
     {# Header with title and action button #}
     <div class="flex justify-between items-center mb-6">
         <div>
-            <h1 class="text-3xl font-bold bg-gradient-to-r from-primary-600 via-primary-500 to-primary-400 dark:from-primary-400 dark:via-primary-300 dark:to-primary-200 bg-clip-text text-transparent">List Title</h1>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">List description</p>
+            <h1 class="text-3xl font-bold tracking-tight bg-gradient-to-r from-indigo-500 via-violet-600 to-indigo-500 bg-clip-text text-transparent">List Title</h1>
+            <p class="text-sm text-slate-400 mt-1">List description</p>
         </div>
         <a href="{% url 'create_url' %}" class="btn-primary">New Item</a>
     </div>
@@ -193,12 +261,17 @@ This document defines the standard patterns that MUST be used consistently acros
         {% else %}
             {% include 'app/list_data.html' %}
         {% endif %}
-        <div id="list-loading" class="htmx-indicator absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-lg">
-            {% include 'partials/spinner.html' with size='h-8 w-8' color='text-primary-600' %}
+        <div id="list-loading" class="htmx-indicator absolute inset-0 flex items-center justify-center bg-[#050505]/80 backdrop-blur-sm rounded-lg">
+            {% include 'partials/spinner.html' with size='h-8 w-8' color='text-indigo-400' %}
         </div>
     </div>
 </div>
 ```
+
+**Rules:**
+- Use staggered entrance animations for list items (50ms delay per item)
+- Loading overlay uses `bg-[#050505]/80` (deep space with opacity)
+- Spinner uses `text-indigo-400` for brand consistency
 
 ## Detail Pages
 
@@ -207,14 +280,14 @@ This document defines the standard patterns that MUST be used consistently acros
 <div class="px-4 py-6 sm:px-0">
     <div class="flex justify-between items-center mb-6">
         <div>
-            <h1 class="text-3xl font-bold bg-gradient-to-r from-primary-600 via-primary-500 to-primary-400 dark:from-primary-400 dark:via-primary-300 dark:to-primary-200 bg-clip-text text-transparent">Item Name</h1>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Additional context</p>
+            <h1 class="text-3xl font-bold tracking-tight bg-gradient-to-r from-indigo-500 via-violet-600 to-indigo-500 bg-clip-text text-transparent">Item Name</h1>
+            <p class="text-sm text-slate-400 mt-1">Additional context</p>
         </div>
         <a href="{% url 'edit_url' item.pk %}" class="btn-primary">Edit</a>
     </div>
     
     <section class="card mb-6" aria-labelledby="details-heading">
-        <h2 id="details-heading" class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Details</h2>
+        <h2 id="details-heading" class="text-lg font-semibold text-gray-200 mb-4">Details</h2>
         {# Content #}
     </section>
 </div>
@@ -222,25 +295,47 @@ This document defines the standard patterns that MUST be used consistently acros
 
 ## Color Usage
 
-**Text Colors:**
-- Primary text: `text-gray-900 dark:text-gray-100`
-- Secondary text: `text-gray-600 dark:text-gray-400`
-- Muted text: `text-gray-500 dark:text-gray-500`
-- Links: `text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300`
+**Text Colors (Dark Mode First):**
+- Primary text: `text-gray-200` (never pure white, use #e5e5e5 for high contrast)
+- Secondary text: `text-slate-400`
+- Muted text: `text-slate-500`
+- Links: `text-indigo-400 hover:text-indigo-300`
 
-**Money/Financial:**
-- Positive/Income: `text-emerald-600 dark:text-emerald-400`
-- Negative/Expense: `text-zinc-900 dark:text-zinc-100` (or `text-rose-600` for debt)
-- Use `balance-display` class for monetary values
+**Money/Financial (Semantic HUD):**
+- Asset / Gain: `text-emerald-400` with optional `text-shadow-emerald` glow
+- Liability / Loss: `text-rose-400` with optional `text-shadow-rose` glow
+- Crypto / Volatile: `text-orange-400` with optional `shadow-orange-500/20`
+- Neutral / Info: `text-slate-400`
+- Use `font-mono` for all monetary values, percentages, dates
+- Use `balance-display` class for main balance numbers
+
+**Bioluminescent Accents (Gradients/Borders/Glows, not flat blocks):**
+- Primary Brand: `indigo-500` (#6366f1) - CTAs, Active Nav, Asset Glows
+- Secondary Gradient: `violet-600` (#7c3aed) - Gradient stops
+- Accent: `fuchsia-500` (#ec4899) - "Ask AI" sparks, investment highlights
+- Accent: `cyan-500` (#06b6d4) - Technology, Crypto, Future projections
 
 ## Spacing
 
 **Standard Spacing:**
 - Page container: `px-4 py-6 sm:px-0`
 - Section spacing: `mb-6` (between major sections)
-- Card spacing: `mb-4` or `mb-6` (between cards)
+- Card spacing: `mb-4` or `mb-6` (between cards) - we value "Blackspace"
 - Form spacing: `space-y-6` (within forms)
 - Button groups: `gap-3` or `gap-4`
+- Bento grid gap: `gap-6` (24px standard)
+
+## Typography
+
+**Interface Font (Inter/Geist Sans):**
+- Headings: `tracking-tight` or `tracking-tighter`, Bold weights (600/700)
+- Body: Normal tracking, Light/Regular weights (300/400)
+- Color: `text-gray-200` (never pure white)
+
+**Data Font (JetBrains Mono/Geist Mono):**
+- Apply `font-mono` to all currency, percentages, dates, technical labels
+- Use `tracking-tight` for dense, cohesive numbers
+- Ensures vertical alignment for faster scanning
 
 ## Responsive Design
 
@@ -254,6 +349,23 @@ This document defines the standard patterns that MUST be used consistently acros
 - Mobile-first approach
 - Use responsive utilities for layout changes
 - Test on mobile, tablet, and desktop
+- Glass panels may reduce blur on mobile for performance
+
+## Motion & Micro-interactions
+
+**Page Load:**
+- Use `animate-fade-in-up` (TranslateY 20px -> 0px, Opacity 0 -> 1) over 0.6s
+
+**Hover:**
+- Use `transition-all duration-300 ease-out`. Never instant
+- Cards lift with `translateY(-2px)` on hover
+
+**Lists:**
+- Staggered entrance for list items (50ms delay per item)
+
+**HTMX Transitions:**
+- Use crossfade or slide to maintain Single Page App illusion
+- Content should flow, not jump
 
 ## Accessibility
 
@@ -262,11 +374,15 @@ This document defines the standard patterns that MUST be used consistently acros
 - Form inputs have `aria-label` or associated `<label>`
 - Tables have `role="table"` and `aria-label`
 - Loading states use `htmx-indicator` class
-- Focus states are visible (handled by design system)
+- Focus states are visible (handled by design system with indigo glow)
+- High contrast text (`text-gray-200`) for readability
 
-## Dark Mode
+## Dark Mode (Primary State)
 
 **Rules:**
-- ALWAYS provide dark mode variants using `dark:` prefix
-- Test both light and dark modes
-- Use semantic color tokens (e.g., `text-gray-900 dark:text-gray-100`)
+- This system is **dark-mode first** ("Ethereal Dark Mode")
+- All designs assume dark mode as the primary state
+- Background: `bg-[#050505]` (Deep Space) for primary canvas
+- Body background: `bg-black` (Singularity) for deepest layer
+- Use semantic color tokens consistently
+- Glass panels provide depth and context through blur

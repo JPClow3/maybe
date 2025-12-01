@@ -1,26 +1,190 @@
 ---
-description: This file describes Maybe's design system and how views should be styled
-globs: maybe_django/**/*.html,maybe_django/**/*.css,maybe_django/static/**
+description: This file describes Maybe's Visual DNA v2.0 design system - "Ethereal Dark Mode" with bioluminescent accents
+globs: maybe_django/**/*.html,maybe_django/**/*.css,maybe_django/static/**,templates/**/*.html,static/**
 alwaysApply: true
 ---
+
 Use the rules below when:
 
 - You are writing HTML templates
 - You are writing CSS
 - You are writing styles in Django templates
 
+## The Core Philosophy: "Ambient Intelligence"
+
+In 2025, finance is not a spreadsheet; it is a sixth sense. The Maybe interface does not just present data; it emanates it. The aesthetic is defined by **Ethereal Dark Mode**—a visual language that combines deep, restful voids with bioluminescent signals.
+
+### Key Tenets
+
+1. **The Void is the Canvas**: We do not use "grey backgrounds." We use deep, rich darkness (#050505) to allow data to glow.
+2. **Glass, not Plastic**: Surfaces are translucent crystalline structures. They blur the background to provide context, rather than obscuring it with opacity.
+3. **Light as Information**: We use glow and gradients to guide attention. A spotlight effect on a card isn't decoration; it's tactile feedback.
+4. **Data is Beautiful**: Financial figures are treated with the same typographic respect as a Swiss headline.
+5. **Fluidity is Function**: Nothing jumps; everything flows. Transitions are essential, not optional.
+
 ## Rules for AI (mandatory)
 
 The codebase uses TailwindCSS v3.4+ with a custom design system built via PostCSS.
 
-- Always start by referencing the Tailwind configuration (`tailwind.config.js`) and custom CSS files in `maybe_django/static/css/input.css` to see the base primitives, functional tokens, and component tokens we use in the codebase
-- The compiled CSS is generated from `maybe_django/static/css/input.css` to `maybe_django/static/css/main.css` using `npm run css:build`
+- Always start by referencing the Tailwind configuration (`tailwind.config.js`) and custom CSS files in `static/css/input.css` to see the base primitives, functional tokens, and component tokens we use in the codebase
+- The compiled CSS is generated from `static/css/input.css` to `static/css/main.css` using `npm run css:build`
 - Always prefer using functional "tokens" and component classes defined in the design system when possible.
-  - Example 1: use `text-primary-600` or `text-primary` (component class) rather than `text-blue-500`
-  - Example 2: use `card` (component class) rather than `bg-white shadow rounded-lg p-6`
-  - Example 3: use `btn-primary` (component class) rather than `bg-blue-500 text-white px-4 py-2 rounded`
-  - Example 4: use `form-input`, `form-select`, `form-textarea` (component classes) for form fields
-- Design tokens are defined in `maybe_django/static/css/input.css` using Tailwind's `@layer components`
+- Design tokens are defined in `static/css/input.css` using Tailwind's `@layer components`
 - Never create new styles in design system files without explicitly receiving permission to do so
 - Always generate semantic HTML
-- Use design token classes: `text-primary`, `text-success`, `text-danger`, `btn-primary`, `btn-secondary`, `btn-danger`, `card`, `form-input`, etc.
+- **This is a dark-mode first system** - all designs should assume dark mode as the primary state
+
+## Color System
+
+### The Void (Backgrounds)
+
+Our backgrounds are not flat; they are layered to create depth.
+
+| Name | Hex | Usage | Tailwind Class |
+|------|-----|-------|----------------|
+| Singularity | #000000 | The deepest layer (body background) | `bg-black` |
+| Deep Space | #050505 | The primary app canvas | `bg-[#050505]` |
+| Matter | #121212 | Solid cards (fallback/modal) | `bg-[#121212]` |
+| Glass Base | rgba(18, 18, 18, 0.4) | Standard panels/cards | `bg-[#121212]/40` |
+| Glass Highlight | rgba(255, 255, 255, 0.05) | Hover states, active items | `bg-white/5` |
+
+### Bioluminescence (Brand & Accents)
+
+These colors are used for "Orbs," gradients, and primary actions. They are **rarely used as flat blocks of color**; they are used as gradients, borders, or text glows.
+
+| Name | Hex | Tailwind | Usage |
+|------|-----|----------|-------|
+| Electric Indigo | #6366f1 | `indigo-500` | Primary Brand. CTAs, Active Nav, Asset Glows |
+| Deep Violet | #7c3aed | `violet-600` | Secondary gradient stop for Indigo |
+| Neon Fuchsia | #ec4899 | `fuchsia-500` | Accent. "Ask AI" sparks, investment highlights |
+| Cyber Cyan | #06b6d4 | `cyan-500` | Accent. Technology, Crypto, Future projections |
+
+### Semantic Data (The HUD)
+
+Used strictly for financial data.
+
+| Context | Color | Hex | Text Class | Glow Class |
+|---------|-------|-----|------------|------------|
+| Asset / Gain | Emerald | #10b981 | `text-emerald-400` | `text-shadow-emerald` |
+| Liability / Loss | Rose | #f43f5e | `text-rose-400` | `text-shadow-rose` |
+| Crypto / Volatile | Orange | #f97316 | `text-orange-400` | `shadow-orange-500/20` |
+| Neutral / Info | Slate | #94a3b8 | `text-slate-400` | N/A |
+
+## Typography
+
+We use a dual-font system to separate "Interface" from "Data."
+
+### Interface Font: Inter (or Geist Sans)
+
+Used for headings, labels, navigation, and conversational text.
+
+- **Headings**: Tight tracking (`tracking-tight` or `tracking-tighter`). Bold weights (600/700).
+- **Body**: Normal tracking. Light/Regular weights (300/400).
+- **Color**: Never pure white. Use `#e5e5e5` (`text-gray-200`) for high contrast text to reduce eye strain.
+
+### Data Font: JetBrains Mono (or Geist Mono)
+
+Used exclusively for currency, percentages, dates, and technical labels.
+
+- **Rationale**: Monospace fonts ensure numbers align vertically in lists, allowing for faster scanning of deltas.
+- **Styling**: Often paired with `tracking-tight` to make large numbers feel dense and cohesive.
+- **Usage**: Apply `font-mono` class to all monetary values, percentages, and date/time displays.
+
+## Materials & Physics
+
+### The Glass Panel (Standard Card)
+
+The fundamental building block of the UI.
+
+- **Background**: `bg-[#121212]/40` (ultra-low opacity dark)
+- **Blur**: `backdrop-filter: blur(24px)`. High blur creates the "frosted" premium look.
+- **Border**: `border border-white/5` (1px). Extremely subtle definition.
+- **Shadow**: `shadow-[0_8px_32px_0_rgba(0,0,0,0.36)]`. Deep, diffuse shadow to lift it off the void.
+- **Component Class**: Use `card` class for all standard glass panels
+
+### The "Spotlight" Interaction
+
+Interactive cards must feel reactive to the cursor.
+
+- **Hover**: `hover:bg-white/5` (Lighten slightly)
+- **Spotlight**: A radial gradient that follows the mouse cursor reveals the border or adds a sheen.
+
+### Ambient Glow
+
+The background is never static.
+
+- **Composition**: 2-3 large, fixed div elements with `rounded-full`, `blur(100px)`, and `opacity-20`
+- **Motion**: Very slow CSS animations (`animate-blob` or `pulse-slow`) moving the gradient points
+- **Noise**: A static noise SVG overlay (`opacity-20`, `mix-blend-overlay`) adds texture to prevent color banding and adds a "film grain" cinematic quality
+
+## Layout & Grid
+
+### The Shell
+
+- **Sidebar**: Fixed glass rail on the left (Desktop). Bottom glass bar (Mobile)
+- **Command Bar**: Sticky glass header on top. Centralized action point
+- **Content**: Scrollable area beneath the sticky elements
+
+### The Bento Grid
+
+Content is organized into modular rectangular cells (Cards).
+
+- **Gap**: `gap-6` (24px) standard. We value "Blackspace" (whitespace in dark mode)
+- **Hierarchy**: Key metrics (Net Worth) take 2x1 or 2x2 spans. Secondary metrics take 1x1
+
+## Data Visualization
+
+Charts are "Neon on Black."
+
+- **No Backgrounds**: Charts float directly on the glass card surface
+- **Grid Lines**: Removed or extremely subtle (`stroke-white/5`)
+- **The Line**:
+  - Stroke: 2px width
+  - Color: Gradient (Indigo to Violet)
+  - Effect: `drop-shadow(0_0_10px_rgba(99,102,241,0.5))`. The line must glow.
+- **The Fill**: A vertical linear gradient fading from `opacity-20` to `opacity-0` ("The Curtain")
+
+## Iconography
+
+- **Set**: Lucide React (or similar stroke-based vector set)
+- **Weight**: Stroke width 1.5px (Light/Regular)
+- **Size**: Standard `w-4 h-4` (16px) or `w-5 h-5` (20px)
+- **Coloring**: Icons are the primary carrier of semantic color (e.g., Rose credit card icon, Emerald wallet icon)
+
+## Motion & Micro-interactions
+
+Motion is used to explain relationships, not just for decoration.
+
+- **Page Load**: `animate-fade-in-up` (TranslateY 20px -> 0px, Opacity 0 -> 1) over 0.6s
+- **Hover**: `transition-all duration-300 ease-out`. Never instant
+- **Lists**: Staggered entrance for list items (delay 50ms per item)
+- **HTMX Transitions**: When swapping content, use a crossfade or slide to maintain the illusion of a Single Page App
+
+## Component Classes
+
+Always use these component classes instead of raw Tailwind utilities:
+
+- **Buttons**: `btn-primary`, `btn-secondary`, `btn-danger`, `btn-ghost`
+- **Cards**: `card` (standard glass panel), `card-primary`, `card-success`, `card-lift` (hover effect)
+- **Forms**: `form-input`, `form-select`, `form-textarea`
+- **Text**: `text-primary`, `text-success`, `text-danger`
+- **Semantic Data**: `text-emerald-400` (assets/gains), `text-rose-400` (liabilities/losses), `text-orange-400` (crypto), `text-slate-400` (neutral)
+
+## Empty States
+
+- **Philosophy**: An empty state should never feel "broken." It should feel like a fresh start waiting to be populated.
+- **Visual**: Use a large, low-opacity (20%) icon in the center of the glass panel
+- **Action**: Always pair with a primary "Add" button that glows
+
+## Skeleton Loading
+
+- **Philosophy**: Never show a white flash or a jumping layout
+- **Visual**: Use `animate-pulse` on `bg-white/5` rounded blocks
+- **Shape**: The skeleton must match the exact dimensions of the data it is replacing (e.g., a circle for an avatar, a thin rectangle for text)
+
+## Input Field Physics (The Command Bar)
+
+- **Rest**: `border-white/10`, `bg-white/5`
+- **Focus**: `border-indigo-500/50`, `bg-black/50`, `shadow-glow`
+- **Typing**: Text should be white (`text-white`), placeholders should be distinct (`text-gray-500`)
+- **Validation**: Errors should not just turn the border red; they should add a `text-shadow-rose` glow to the input text itself

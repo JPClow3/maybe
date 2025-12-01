@@ -1,30 +1,177 @@
-{# Account list content (loaded via HTMX) #}
+{# Account list content (loaded via HTMX) - Table only, summary cards updated separately #}
 {% load money_filters %}
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 content-fade-in" role="list" aria-label="Accounts list">
-    {% for account in accounts %}
-    <article class="card-primary p-6 hover:shadow-lg transition-all duration-300 cursor-pointer group" role="listitem">
-        <div class="flex items-start justify-between mb-3">
-            <div class="flex-1">
-                <h2 class="text-lg font-bold text-gray-900 group-hover:text-primary-700 transition-colors">{{ account.name }}</h2>
-                <p class="text-sm text-gray-600 mt-1">{{ account.get_accountable_type_display }}</p>
-            </div>
-            <div class="w-2 h-2 rounded-full {% if account.classification == 'asset' %}bg-emerald-500{% else %}bg-rose-500{% endif %} opacity-60 group-hover:opacity-100 transition-opacity"></div>
+
+{# Update account count badge in header #}
+<span id="account-count-badge" class="px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-xs font-mono text-gray-500" hx-swap-oob="true">{{ account_count }}</span>
+
+{# Update Summary Cards with hx-swap-oob #}
+<div id="account-summary-cards" class="grid grid-cols-1 md:grid-cols-3 gap-6" hx-swap-oob="true">
+    {# Total Assets Card #}
+    <div class="card relative overflow-hidden group">
+        <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity duration-500">
+            {% include 'partials/account_summary_icon.html' with icon_type='assets' %}
         </div>
-        <p class="text-3xl font-bold mt-4 tabular-nums tracking-tight font-mono {% if account.balance >= 0 %}text-emerald-700{% else %}text-rose-600{% endif %}">
-            {{ account.balance|real_br }}
-        </p>
-        <a href="{% url 'account_detail' account.pk %}" class="text-primary-600 hover:text-primary-800 mt-4 inline-flex items-center gap-2 font-medium transition-all group-hover:gap-3" hx-boost="true" hx-target="#main-content" hx-select="#main-content" hx-swap="innerHTML">
-            View Details 
-            <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-            </svg>
-        </a>
-    </article>
-    {% empty %}
-    <div class="col-span-full">
-        {% url 'account_new' as account_new_url %}
-        {% include 'partials/_empty.html' with title="No accounts yet" description="Get started by creating your first account to track your finances." button_text="Create Your First Account" button_url=account_new_url %}
+        <div class="relative z-10">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-2">Total Assets</p>
+            <p class="text-3xl font-bold text-white font-mono tracking-tight">
+                {{ total_assets|real_br_plain }}
+            </p>
+            <div class="h-1 w-full bg-white/5 mt-4 rounded-full overflow-hidden">
+                {% if total_assets > 0 %}
+                <div class="h-full bg-indigo-500 w-3/4 shadow-[0_0_10px_#6366f1]"></div>
+                {% endif %}
+            </div>
+        </div>
     </div>
-    {% endfor %}
+    
+    {# Total Liabilities Card #}
+    <div class="card relative overflow-hidden group">
+        <div class="absolute right-0 top-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity duration-500">
+            {% include 'partials/account_summary_icon.html' with icon_type='liabilities' %}
+        </div>
+        <div class="relative z-10">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-2">Total Liabilities</p>
+            <p class="text-3xl font-bold text-white font-mono tracking-tight">
+                {{ total_liabilities|real_br_plain }}
+            </p>
+            <div class="h-1 w-full bg-white/5 mt-4 rounded-full overflow-hidden">
+                {% if total_liabilities > 0 %}
+                <div class="h-full bg-rose-500 w-1/4 shadow-[0_0_10px_#f43f5e]"></div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {# Net Worth Card #}
+    <div class="card relative overflow-hidden group border-indigo-500/30 bg-gradient-to-br from-indigo-500/10 to-transparent">
+        <div class="absolute -inset-1 bg-gradient-to-r from-indigo-500/20 to-fuchsia-500/20 blur-2xl opacity-50 group-hover:opacity-70 transition-opacity"></div>
+        <div class="relative z-10">
+            <p class="text-xs font-semibold text-indigo-400 uppercase tracking-widest mb-2">Net Worth</p>
+            <p class="text-4xl font-bold text-white font-mono tracking-tight {% if net_worth >= 0 %}text-shadow-emerald{% endif %}">
+                {{ net_worth|real_br_plain }}
+            </p>
+            {% if net_worth >= 0 %}
+            <div class="flex items-center gap-2 mt-4 text-xs text-emerald-400">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941"/>
+                </svg>
+                <span>Tracking healthy</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
 </div>
 
+{# Account List Table - This is what gets swapped in #}
+<div class="card overflow-hidden min-h-[500px]">
+    {% if accounts %}
+        {# Table Header #}
+        <div class="grid grid-cols-12 gap-4 px-6 py-3 border-b border-white/5 text-[10px] font-bold text-gray-500 uppercase tracking-widest bg-black/20">
+            <div class="col-span-6 md:col-span-5">Account Name</div>
+            <div class="col-span-3 hidden md:block">Institution</div>
+            <div class="col-span-3 hidden md:block">Type</div>
+            <div class="col-span-6 md:col-span-1 text-right">Balance</div>
+        </div>
+
+        <div class="divide-y divide-white/5">
+            {% for account in accounts %}
+            <a href="{% url 'account_detail' account.pk %}" class="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-white/[0.03] transition-colors group cursor-pointer relative" hx-boost="true" hx-target="#main-content" hx-select="#main-content" hx-swap="innerHTML">
+                {# Account Name Column #}
+                <div class="col-span-6 md:col-span-5 flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/5 group-hover:border-white/20 group-hover:shadow-[0_0_20px_rgba(99,102,241,0.15)] transition-all duration-300
+                        {% if account.accountable_type == 'investment' %}text-fuchsia-500
+                        {% elif account.accountable_type == 'depository' %}text-emerald-400
+                        {% elif account.accountable_type == 'credit_card' %}text-rose-400
+                        {% elif account.accountable_type == 'crypto' %}text-orange-400
+                        {% else %}text-slate-400{% endif %}">
+                        {% include 'partials/account_type_icon.html' %}
+                    </div>
+                    <div>
+                        <div class="font-medium text-gray-200 group-hover:text-indigo-400 transition-colors">{{ account.name }}</div>
+                        <div class="text-xs text-gray-500 md:hidden font-mono mt-0.5">
+                            {% if account.classification == 'liability' and account.balance < 0 %}-{% endif %}{{ account.balance|real_br_plain }}
+                        </div>
+                    </div>
+                </div>
+
+                {# Institution Column #}
+                <div class="col-span-3 hidden md:flex items-center gap-2">
+                    {% if account.accountable_data.institution %}
+                        <div class="w-5 h-5 rounded-full bg-indigo-900/50 flex items-center justify-center text-[10px] text-indigo-200 font-bold">
+                            {{ account.accountable_data.institution|first|upper }}
+                        </div>
+                        <span class="text-sm text-gray-400">{{ account.accountable_data.institution }}</span>
+                    {% else %}
+                        <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/>
+                        </svg>
+                        <span class="text-sm text-gray-400">Manual Account</span>
+                    {% endif %}
+                </div>
+
+                {# Type Column #}
+                <div class="col-span-3 hidden md:block">
+                    {% if account.accountable_type == 'investment' %}
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium tracking-wide uppercase bg-fuchsia-500/10 text-fuchsia-500 border border-fuchsia-500/20">
+                            Investment
+                        </span>
+                    {% elif account.accountable_type == 'depository' %}
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium tracking-wide uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                            Depository
+                        </span>
+                    {% elif account.accountable_type == 'credit_card' %}
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium tracking-wide uppercase bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                            Credit Card
+                        </span>
+                    {% elif account.accountable_type == 'loan' %}
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium tracking-wide uppercase bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                            Loan
+                        </span>
+                    {% elif account.accountable_type == 'crypto' %}
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium tracking-wide uppercase bg-orange-500/10 text-orange-400 border border-orange-500/20">
+                            Crypto
+                        </span>
+                    {% else %}
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium tracking-wide uppercase bg-slate-500/10 text-slate-400 border border-slate-500/20">
+                            {{ account.get_accountable_type_display }}
+                        </span>
+                    {% endif %}
+                </div>
+
+                {# Balance Column #}
+                <div class="col-span-6 md:col-span-1 text-right hidden md:block">
+                    <span class="font-mono font-bold text-sm tracking-tight
+                        {% if account.classification == 'asset' %}
+                            text-white
+                            {% if account.accountable_type == 'depository' %}text-shadow-emerald{% endif %}
+                        {% else %}
+                            text-rose-400 text-shadow-rose
+                        {% endif %}">
+                        {% if account.classification == 'liability' and account.balance < 0 %}-{% endif %}{{ account.balance|real_br_plain }}
+                    </span>
+                    <div class="text-[10px] text-gray-600 mt-0.5">Synced {{ account.updated_at|time_ago }}</div>
+                </div>
+
+                {# Mobile chevron #}
+                <div class="absolute right-4 top-1/2 -translate-y-1/2 md:hidden text-gray-600">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8.25 4.5l7.5 7.5-7.5 7.5"/>
+                    </svg>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        {# Empty State #}
+        <div class="flex flex-col items-center justify-center py-12 text-center">
+            <div class="opacity-20 mb-4">
+                <svg class="w-16 h-16 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m8 9v6m0 0l-3-3m3 3l3-3m0 0v-6m0 6l-3 3m3-3l3 3"/>
+                </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-200 mb-2">No accounts found</h3>
+            <p class="text-sm text-slate-400 mb-6">Get started by creating your first account to track your finances.</p>
+            <a href="{% url 'account_new' %}" class="btn-primary">Add First Account</a>
+        </div>
+    {% endif %}
+</div>

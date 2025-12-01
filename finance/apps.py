@@ -7,4 +7,5 @@ class FinanceConfig(AppConfig):
 
     def ready(self):
         import finance.signals  # noqa
+        import finance.tasks  # noqa
 

@@ -5,9 +5,9 @@
 {% block content %}
 <div class="px-4 py-6 sm:px-0">
     <div class="max-w-2xl mx-auto">
-        <a href="{% url 'import_list' %}" class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 mb-4 inline-block">← Back to Imports</a>
+        <a href="{% url 'import_list' %}" class="text-indigo-400 hover:text-indigo-300 mb-4 inline-block">← Back to Imports</a>
         <div class="mb-6">
-            <h1 class="text-3xl font-bold bg-gradient-to-r from-primary-600 via-primary-500 to-primary-400 dark:from-primary-400 dark:via-primary-300 dark:to-primary-200 bg-clip-text text-transparent">New Import</h1>
+            <h1 class="text-3xl font-bold tracking-tight bg-gradient-to-r from-indigo-500 via-violet-600 to-indigo-500 bg-clip-text text-transparent">New Import</h1>
         </div>
         
         <div class="card">
@@ -18,16 +18,16 @@
                 
                 {% for field in form %}
                 <div>
-                    <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-200">
                         {{ field.label }}
-                        {% if field.field.required %}<span class="text-danger-600" aria-label="required">*</span>{% endif %}
+                        {% if field.field.required %}<span class="text-rose-400" aria-label="required">*</span>{% endif %}
                     </label>
                     {{ field }}
                     {% if field.help_text %}
-                    <p class="mt-1 text-sm text-gray-500" id="{{ field.id_for_label }}_help">{{ field.help_text }}</p>
+                    <p class="mt-1 text-sm text-slate-400" id="{{ field.id_for_label }}_help">{{ field.help_text }}</p>
                     {% endif %}
                     {% if field.errors %}
-                    <div class="mt-1 text-sm text-danger-600" role="alert" id="{{ field.id_for_label }}_error">
+                    <div class="mt-1 text-sm text-rose-400" role="alert" id="{{ field.id_for_label }}_error">
                         {% for error in field.errors %}
                         <p>{{ error }}</p>
                         {% endfor %}

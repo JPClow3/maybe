@@ -6,8 +6,8 @@
 <div class="max-w-md mx-auto mt-8 px-4 sm:px-6 lg:px-8">
     <div class="card">
         <div class="mb-6">
-            <h1 class="text-3xl font-bold bg-gradient-to-r from-primary-600 via-primary-500 to-primary-400 dark:from-primary-400 dark:via-primary-300 dark:to-primary-200 bg-clip-text text-transparent">Create Account</h1>
-            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Sign up to start managing your finances</p>
+            <h1 class="text-3xl font-bold tracking-tight bg-gradient-to-r from-indigo-500 via-violet-600 to-indigo-500 bg-clip-text text-transparent">Create Account</h1>
+            <p class="mt-1 text-sm text-slate-400">Sign up to start managing your finances</p>
         </div>
         
         {% include 'partials/form_errors.html' %}
@@ -16,9 +16,9 @@
             {% csrf_token %}
             
             <div>
-                <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-200 mb-1">
                     {{ form.username.label }}
-                    {% if form.username.field.required %}<span class="text-danger-600" aria-label="required">*</span>{% endif %}
+                    {% if form.username.field.required %}<span class="text-rose-400" aria-label="required">*</span>{% endif %}
                 </label>
                 <input 
                     type="text" 
@@ -31,23 +31,23 @@
                     placeholder="Enter your username"
                 >
                 {% if form.username.errors %}
-                <div class="mt-1 text-sm text-danger-600" role="alert" id="{{ form.username.id_for_label }}_error">
+                <div class="mt-1 text-sm text-rose-400" role="alert" id="{{ form.username.id_for_label }}_error">
                     {% for error in form.username.errors %}
                     <p>{{ error }}</p>
                     {% endfor %}
                 </div>
                 {% endif %}
                 {% if form.username.help_text %}
-                <p class="mt-1 text-sm text-gray-500" id="{{ form.username.id_for_label }}_help">
+                <p class="mt-1 text-sm text-slate-400" id="{{ form.username.id_for_label }}_help">
                     {{ form.username.help_text }}
                 </p>
                 {% endif %}
             </div>
             
             <div>
-                <label for="{{ form.password1.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                <label for="{{ form.password1.id_for_label }}" class="block text-sm font-medium text-gray-200 mb-1">
                     {{ form.password1.label }}
-                    {% if form.password1.field.required %}<span class="text-danger-600" aria-label="required">*</span>{% endif %}
+                    {% if form.password1.field.required %}<span class="text-rose-400" aria-label="required">*</span>{% endif %}
                 </label>
                 <input 
                     type="password" 
@@ -59,23 +59,23 @@
                     placeholder="Enter your password"
                 >
                 {% if form.password1.errors %}
-                <div class="mt-1 text-sm text-danger-600" role="alert" id="{{ form.password1.id_for_label }}_error">
+                <div class="mt-1 text-sm text-rose-400" role="alert" id="{{ form.password1.id_for_label }}_error">
                     {% for error in form.password1.errors %}
                     <p>{{ error }}</p>
                     {% endfor %}
                 </div>
                 {% endif %}
                 {% if form.password1.help_text %}
-                <p class="mt-1 text-sm text-gray-500" id="{{ form.password1.id_for_label }}_help">
+                <p class="mt-1 text-sm text-slate-400" id="{{ form.password1.id_for_label }}_help">
                     {{ form.password1.help_text }}
                 </p>
                 {% endif %}
             </div>
             
             <div>
-                <label for="{{ form.password2.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                <label for="{{ form.password2.id_for_label }}" class="block text-sm font-medium text-gray-200 mb-1">
                     {{ form.password2.label }}
-                    {% if form.password2.field.required %}<span class="text-danger-600" aria-label="required">*</span>{% endif %}
+                    {% if form.password2.field.required %}<span class="text-rose-400" aria-label="required">*</span>{% endif %}
                 </label>
                 <input 
                     type="password" 
@@ -87,14 +87,14 @@
                     placeholder="Confirm your password"
                 >
                 {% if form.password2.errors %}
-                <div class="mt-1 text-sm text-danger-600" role="alert" id="{{ form.password2.id_for_label }}_error">
+                <div class="mt-1 text-sm text-rose-400" role="alert" id="{{ form.password2.id_for_label }}_error">
                     {% for error in form.password2.errors %}
                     <p>{{ error }}</p>
                     {% endfor %}
                 </div>
                 {% endif %}
                 {% if form.password2.help_text %}
-                <p class="mt-1 text-sm text-gray-500" id="{{ form.password2.id_for_label }}_help">
+                <p class="mt-1 text-sm text-slate-400" id="{{ form.password2.id_for_label }}_help">
                     {{ form.password2.help_text }}
                 </p>
                 {% endif %}
@@ -111,9 +111,9 @@
         </form>
         
         <div class="mt-6 text-center">
-            <p class="text-sm text-gray-600">
+            <p class="text-sm text-slate-400">
                 Already have an account? 
-                <a href="{% url 'login' %}" class="text-primary-600 hover:text-primary-700 font-medium">
+                <a href="{% url 'login' %}" class="text-indigo-400 hover:text-indigo-300 font-medium">
                     Sign in here
                 </a>
             </p>

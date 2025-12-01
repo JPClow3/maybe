@@ -4,35 +4,35 @@
 {% block title %}Alocação de Ativos - Maybe Finance{% endblock %}
 
 {% block content %}
-<div class="px-4 py-6 sm:px-0">
-    <div class="mb-6">
-        <h1 class="text-3xl font-bold bg-gradient-to-r from-primary-600 via-primary-500 to-primary-400 dark:from-primary-400 dark:via-primary-300 dark:to-primary-200 bg-clip-text text-transparent">
+<div class="px-4 md:px-8 pb-12 w-full space-y-8 animate-fade-in-up">
+    <div>
+        <h1 class="text-3xl font-bold tracking-tight bg-gradient-to-r from-indigo-500 via-violet-600 to-indigo-500 bg-clip-text text-transparent">
             Alocação de Ativos
         </h1>
-        <p class="text-sm text-gray-700 dark:text-gray-300 mt-1">Distribuição do seu patrimônio investido</p>
+        <p class="text-sm text-slate-400 mt-1">Distribuição do seu patrimônio investido</p>
     </div>
     
     {% if allocation_data %}
     <div class="card mb-6">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Total Investido</h2>
-        <p class="text-3xl font-bold text-primary-900 dark:text-primary-100 balance-display">
+        <h2 class="text-lg font-semibold text-gray-200 mb-4">Total Investido</h2>
+        <p class="text-3xl font-bold text-gray-200 balance-display font-mono">
             {{ total_value|real_br }}
         </p>
     </div>
     
     <div class="card">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Distribuição por Conta</h2>
+        <h2 class="text-lg font-semibold text-gray-200 mb-4">Distribuição por Conta</h2>
         <div class="space-y-4">
             {% for item in allocation_data %}
             {% with percent=item.value|div:total_value|mul:100|floatformat:1 %}
             <div>
                 <div class="flex justify-between items-center mb-2">
-                    <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ item.name }}</span>
-                    <span class="text-sm text-gray-700 dark:text-gray-300">{{ item.value|real_br }} ({{ percent }}%)</span>
+                    <span class="text-sm font-medium text-gray-200">{{ item.name }}</span>
+                    <span class="text-sm text-slate-400 font-mono">{{ item.value|real_br }} ({{ percent }}%)</span>
                 </div>
-                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                <div class="w-full bg-white/5 rounded-full h-2">
                     <div 
-                        class="h-2 rounded-full bg-primary-600 transition-all"
+                        class="h-2 rounded-full bg-indigo-500 transition-all shadow-[0_0_10px_#6366f1]"
                         style="width: {{ percent }}%"
                     ></div>
                 </div>

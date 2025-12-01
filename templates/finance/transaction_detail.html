@@ -6,16 +6,16 @@
 {% block content %}
 <div class="px-4 py-6 sm:px-0">
     <div class="mb-6">
-        <a href="{% url 'transaction_list' %}" class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 mb-4 inline-block">← Back to Transactions</a>
+        <a href="{% url 'transaction_list' %}" class="text-indigo-400 hover:text-indigo-300 mb-4 inline-block">← Back to Transactions</a>
         <div class="flex justify-between items-center">
             <div>
-                <h1 class="text-3xl font-bold bg-gradient-to-r from-primary-600 via-primary-500 to-primary-400 dark:from-primary-400 dark:via-primary-300 dark:to-primary-200 bg-clip-text text-transparent">{{ transaction.name }}</h1>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ transaction.account.name }}</p>
+                <h1 class="text-3xl font-bold tracking-tight bg-gradient-to-r from-indigo-500 via-violet-600 to-indigo-500 bg-clip-text text-transparent">{{ transaction.name }}</h1>
+                <p class="text-sm text-slate-400 mt-1">{{ transaction.account.name }}</p>
             </div>
             <div class="flex items-center gap-4">
                 <div class="text-right">
-                    <p class="text-sm text-gray-500 dark:text-gray-400">Amount</p>
-                    <p class="text-3xl font-bold {% if transaction.amount < 0 %}text-emerald-600 dark:text-emerald-400{% else %}text-zinc-900 dark:text-zinc-100{% endif %} tabular-nums tracking-tight font-mono">
+                    <p class="text-sm text-slate-400">Amount</p>
+                    <p class="text-3xl font-bold {% if transaction.amount < 0 %}text-emerald-400{% else %}text-gray-200{% endif %} tabular-nums tracking-tight font-mono">
                         {{ transaction.amount|real_br }}
                     </p>
                 </div>
@@ -27,42 +27,42 @@
     </div>
     
     <div class="card">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Transaction Details</h2>
+        <h2 class="text-lg font-semibold text-gray-200 mb-4">Transaction Details</h2>
         <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Date</dt>
-                <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">{{ transaction.date|date:"F d, Y" }}</dd>
+                <dt class="text-sm font-medium text-slate-400">Date</dt>
+                <dd class="mt-1 text-sm text-gray-200">{{ transaction.date|date:"F d, Y" }}</dd>
             </div>
             <div>
-                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Account</dt>
-                <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">
-                    <a href="{% url 'account_detail' transaction.account.pk %}" class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300">
+                <dt class="text-sm font-medium text-slate-400">Account</dt>
+                <dd class="mt-1 text-sm text-gray-200">
+                    <a href="{% url 'account_detail' transaction.account.pk %}" class="text-indigo-400 hover:text-indigo-300">
                         {{ transaction.account.name }}
                     </a>
                 </dd>
             </div>
             <div>
-                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Category</dt>
-                <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">{{ transaction.category.name|default:"—" }}</dd>
+                <dt class="text-sm font-medium text-slate-400">Category</dt>
+                <dd class="mt-1 text-sm text-gray-200">{{ transaction.category.name|default:"—" }}</dd>
             </div>
             <div>
-                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Kind</dt>
-                <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">{{ transaction.get_kind_display }}</dd>
+                <dt class="text-sm font-medium text-slate-400">Kind</dt>
+                <dd class="mt-1 text-sm text-gray-200">{{ transaction.get_kind_display }}</dd>
             </div>
             {% if transaction.is_installment %}
             <div>
-                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Installment</dt>
-                <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">{{ transaction.installment_current }} of {{ transaction.installment_total }}</dd>
+                <dt class="text-sm font-medium text-slate-400">Installment</dt>
+                <dd class="mt-1 text-sm text-gray-200">{{ transaction.installment_current }} of {{ transaction.installment_total }}</dd>
             </div>
             {% endif %}
             <div>
-                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Currency</dt>
-                <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">{{ transaction.currency }}</dd>
+                <dt class="text-sm font-medium text-slate-400">Currency</dt>
+                <dd class="mt-1 text-sm text-gray-200">{{ transaction.currency }}</dd>
             </div>
             {% if transaction.notes %}
             <div class="md:col-span-2">
-                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Notes</dt>
-                <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">{{ transaction.notes }}</dd>
+                <dt class="text-sm font-medium text-slate-400">Notes</dt>
+                <dd class="mt-1 text-sm text-gray-200">{{ transaction.notes }}</dd>
             </div>
             {% endif %}
         </dl>

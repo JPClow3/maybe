@@ -6,13 +6,13 @@
 {% block content %}
 <div class="px-4 py-6 sm:px-0">
     <div class="mb-6">
-        <a href="{% url 'budget_list' %}" class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 mb-4 inline-block">← Voltar para Orçamentos</a>
+        <a href="{% url 'budget_list' %}" class="text-indigo-400 hover:text-indigo-300 mb-4 inline-block">← Voltar para Orçamentos</a>
         <div class="flex justify-between items-center">
             <div>
-                <h1 class="text-3xl font-bold bg-gradient-to-r from-primary-600 via-primary-500 to-primary-400 dark:from-primary-400 dark:via-primary-300 dark:to-primary-200 bg-clip-text text-transparent">
+                <h1 class="text-3xl font-bold tracking-tight bg-gradient-to-r from-indigo-500 via-violet-600 to-indigo-500 bg-clip-text text-transparent">
                     Orçamento {{ budget.start_date|date:"F Y" }}
                 </h1>
-                <p class="text-sm text-gray-700 dark:text-gray-300 mt-1">
+                <p class="text-sm text-slate-400 mt-1">
                     {{ budget.start_date|date:"d/m/Y" }} - {{ budget.end_date|date:"d/m/Y" }}
                 </p>
             </div>
@@ -25,21 +25,21 @@
     {# Overall budget summary #}
     {% if budget.budgeted_spending %}
     <div class="card mb-6">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Resumo do Orçamento</h2>
+        <h2 class="text-lg font-semibold text-gray-200 mb-4">Resumo do Orçamento</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-                <p class="text-sm text-gray-700 dark:text-gray-300 mb-1">Orçado</p>
-                <p class="text-2xl font-bold text-gray-900 dark:text-gray-100 balance-display">{{ budget.budgeted_spending|real_br }}</p>
+                <p class="text-sm text-slate-400 mb-1">Orçado</p>
+                <p class="text-2xl font-bold text-gray-200 balance-display font-mono">{{ budget.budgeted_spending|real_br }}</p>
             </div>
             <div>
-                <p class="text-sm text-gray-700 dark:text-gray-300 mb-1">Gasto</p>
-                <p class="text-2xl font-bold {% if budget.actual_spending > budget.budgeted_spending %}text-danger-600{% else %}text-gray-900 dark:text-gray-100{% endif %} balance-display">
+                <p class="text-sm text-slate-400 mb-1">Gasto</p>
+                <p class="text-2xl font-bold {% if budget.actual_spending > budget.budgeted_spending %}text-rose-400{% else %}text-gray-200{% endif %} balance-display font-mono">
                     {{ budget.actual_spending|real_br }}
                 </p>
             </div>
             <div>
-                <p class="text-sm text-gray-700 dark:text-gray-300 mb-1">Disponível</p>
-                <p class="text-2xl font-bold {% if budget.available_to_spend < 0 %}text-danger-600{% else %}text-success-600{% endif %} balance-display">
+                <p class="text-sm text-slate-400 mb-1">Disponível</p>
+                <p class="text-2xl font-bold {% if budget.available_to_spend < 0 %}text-rose-400{% else %}text-emerald-400{% endif %} balance-display font-mono">
                     {{ budget.available_to_spend|real_br }}
                 </p>
             </div>
@@ -49,12 +49,12 @@
         {% with percent=budget.actual_spending|div:budget.budgeted_spending|mul:100|floatformat:0 %}
         <div class="mt-4">
             <div class="flex justify-between text-sm mb-2">
-                <span class="text-gray-700 dark:text-gray-300">Progresso</span>
-                <span class="font-semibold text-gray-900 dark:text-gray-100">{{ percent }}%</span>
+                <span class="text-slate-400">Progresso</span>
+                <span class="font-semibold text-gray-200 font-mono">{{ percent }}%</span>
             </div>
-            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+            <div class="w-full bg-white/5 rounded-full h-3">
                 <div 
-                    class="h-3 rounded-full transition-all {% if percent|add:0 > 100 %}bg-danger-600{% elif percent|add:0 > 80 %}bg-warning-500{% else %}bg-success-600{% endif %}"
+                    class="h-3 rounded-full transition-all {% if percent|add:0 > 100 %}bg-rose-500{% elif percent|add:0 > 80 %}bg-amber-400{% else %}bg-emerald-500{% endif %}"
                     style="width: {% if percent|add:0 > 100 %}100{% else %}{{ percent }}{% endif %}%"
                 ></div>
             </div>
@@ -65,32 +65,32 @@
     
     {# Category breakdown #}
     <div class="card">
-        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Gastos por Categoria</h2>
+        <h2 class="text-lg font-semibold text-gray-200 mb-4">Gastos por Categoria</h2>
         
         {% if budget_categories %}
         <div class="space-y-4">
             {% for bc in budget_categories %}
             {% if not bc.subcategory %}
-            <div class="border-b border-gray-200 dark:border-gray-700 pb-4 last:border-0">
+            <div class="border-b border-white/5 pb-4 last:border-0">
                 <div class="flex justify-between items-start mb-2">
                     <div class="flex-1">
-                        <h3 class="font-medium text-gray-900 dark:text-gray-100">
+                        <h3 class="font-medium text-gray-200">
                             {{ bc.category.name|default:"Sem categoria" }}
                         </h3>
                         <div class="flex justify-between text-sm mt-2">
-                            <span class="text-gray-700 dark:text-gray-300">
+                            <span class="text-slate-400">
                                 Orçado: {{ bc.budgeted_spending|real_br|default:"R$ 0,00" }}
                             </span>
-                            <span class="text-gray-700 dark:text-gray-300">
+                            <span class="text-slate-400">
                                 Gasto: {{ bc.actual|real_br }}
                             </span>
                         </div>
                     </div>
                     <div class="text-right ml-4">
-                        <p class="text-lg font-semibold {% if bc.available < 0 %}text-danger-600{% else %}text-success-600{% endif %} balance-display">
+                        <p class="text-lg font-semibold {% if bc.available < 0 %}text-rose-400{% else %}text-emerald-400{% endif %} balance-display font-mono">
                             {{ bc.available|real_br }}
                         </p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">disponível</p>
+                        <p class="text-xs text-slate-400">disponível</p>
                     </div>
                 </div>
                 
@@ -98,13 +98,13 @@
                 {% if bc.budgeted_spending %}
                 {% with percent=bc.actual|div:bc.budgeted_spending|mul:100|floatformat:0 %}
                 <div class="mt-2">
-                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                    <div class="w-full bg-white/5 rounded-full h-2">
                         <div 
-                            class="h-2 rounded-full transition-all {% if percent|add:0 > 100 %}bg-danger-600{% elif percent|add:0 > 80 %}bg-warning-500{% else %}bg-success-600{% endif %}"
+                            class="h-2 rounded-full transition-all {% if percent|add:0 > 100 %}bg-rose-500{% elif percent|add:0 > 80 %}bg-amber-400{% else %}bg-emerald-500{% endif %}"
                             style="width: {% if percent|add:0 > 100 %}100{% else %}{{ percent }}{% endif %}%"
                         ></div>
                     </div>
-                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ percent }}% utilizado</p>
+                    <p class="text-xs text-slate-400 mt-1 font-mono">{{ percent }}% utilizado</p>
                 </div>
                 {% endwith %}
                 {% endif %}
@@ -113,7 +113,7 @@
             {% endfor %}
         </div>
         {% else %}
-            <p class="text-gray-700 dark:text-gray-300">Nenhuma categoria configurada. Edite o orçamento para adicionar categorias.</p>
+            <p class="text-slate-400">Nenhuma categoria configurada. Edite o orçamento para adicionar categorias.</p>
         {% endif %}
     </div>
 </div>

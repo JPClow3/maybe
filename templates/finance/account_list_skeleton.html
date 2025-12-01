@@ -1,12 +1,44 @@
-{# Account list skeleton loading state #}
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 skeleton-fade-in" role="list" aria-label="Accounts list loading">
-    {% for i in "123456"|make_list %}
-    <article class="card p-5" role="listitem">
-        <div class="h-6 skeleton-shimmer rounded w-32 mb-2"></div>
-        <div class="h-4 skeleton-shimmer rounded w-24 mb-3"></div>
-        <div class="h-8 skeleton-shimmer rounded w-28 mb-2"></div>
-        <div class="h-4 skeleton-shimmer rounded w-24"></div>
-    </article>
-    {% endfor %}
-</div>
+{# Account list skeleton loading state - Table layout #}
+<div class="card overflow-hidden min-h-[500px] animate-pulse">
+    {# Table Header Skeleton #}
+    <div class="grid grid-cols-12 gap-4 px-6 py-3 border-b border-white/5 bg-black/20">
+        <div class="col-span-6 md:col-span-5 h-4 bg-white/5 rounded w-24"></div>
+        <div class="col-span-3 hidden md:block h-4 bg-white/5 rounded w-20"></div>
+        <div class="col-span-3 hidden md:block h-4 bg-white/5 rounded w-16"></div>
+        <div class="col-span-6 md:col-span-1 h-4 bg-white/5 rounded w-20 ml-auto"></div>
+    </div>
 
+    {# Table Rows Skeleton #}
+    <div class="divide-y divide-white/5">
+        {% for i in "1234"|make_list %}
+        <div class="grid grid-cols-12 gap-4 px-6 py-4 items-center">
+            {# Account Name Column #}
+            <div class="col-span-6 md:col-span-5 flex items-center gap-4">
+                <div class="w-10 h-10 rounded-xl bg-white/5"></div>
+                <div class="flex-1">
+                    <div class="h-4 bg-white/5 rounded w-32 mb-2"></div>
+                    <div class="h-3 bg-white/5 rounded w-24 md:hidden"></div>
+                </div>
+            </div>
+            {# Institution Column #}
+            <div class="col-span-3 hidden md:flex items-center gap-2">
+                <div class="w-5 h-5 rounded-full bg-white/5"></div>
+                <div class="h-4 bg-white/5 rounded w-20"></div>
+            </div>
+            {# Type Column #}
+            <div class="col-span-3 hidden md:block">
+                <div class="h-5 bg-white/5 rounded w-20"></div>
+            </div>
+            {# Balance Column #}
+            <div class="col-span-6 md:col-span-1 text-right hidden md:block">
+                <div class="h-4 bg-white/5 rounded w-24 ml-auto mb-1"></div>
+                <div class="h-3 bg-white/5 rounded w-16 ml-auto"></div>
+            </div>
+            {# Mobile chevron skeleton #}
+            <div class="absolute right-4 top-1/2 -translate-y-1/2 md:hidden">
+                <div class="w-4 h-4 bg-white/5 rounded"></div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>

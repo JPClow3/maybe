@@ -1,7 +1,22 @@
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
-from .models import Transaction, Valuation
+from django.core.cache import cache
+from .models import Transaction, Valuation, Account, Balance
 from .services.account_syncer import AccountSyncer
+
+def invalidate_dashboard_cache(user_id):
+    """Invalidate all dashboard cache keys for a user"""
+    periods = ['1Y', 'YTD', 'ALL']
+    for period in periods:
+        cache_key = f'dashboard_stats:{user_id}:{period}'
+        cache.delete(cache_key)
+
+# Import Trade and Holding for signal handlers (avoid circular import)
+try:
+    from investments.models import Trade, Holding
+except ImportError:
+    Trade = None
+    Holding = None
 
 @receiver(post_save, sender=Transaction)
 @receiver(post_save, sender=Valuation)
@@ -16,4 +31,42 @@ def sync_account_on_entry_change(sender, instance, **kwargs):
     account = instance.account
     syncer = AccountSyncer(account)
     syncer.sync()
+    
+    # Invalidate dashboard cache for the user
+    invalidate_dashboard_cache(account.user.id)
+
+@receiver(post_save, sender=Account)
+@receiver(post_delete, sender=Account)
+def invalidate_cache_on_account_change(sender, instance, **kwargs):
+    """Invalidate dashboard cache when account is created/updated/deleted"""
+    if kwargs.get('raw', False):
+        return
+    invalidate_dashboard_cache(instance.user.id)
+
+@receiver(post_save, sender=Balance)
+@receiver(post_delete, sender=Balance)
+def invalidate_cache_on_balance_change(sender, instance, **kwargs):
+    """Invalidate dashboard cache when balance is created/updated/deleted"""
+    if kwargs.get('raw', False):
+        return
+    invalidate_dashboard_cache(instance.account.user.id)
+
+# Handle Trade and Holding signals if investments app is available
+if Trade:
+    @receiver(post_save, sender=Trade)
+    @receiver(post_delete, sender=Trade)
+    def invalidate_cache_on_trade_change(sender, instance, **kwargs):
+        """Invalidate dashboard cache when trade is created/updated/deleted"""
+        if kwargs.get('raw', False):
+            return
+        invalidate_dashboard_cache(instance.account.user.id)
+
+if Holding:
+    @receiver(post_save, sender=Holding)
+    @receiver(post_delete, sender=Holding)
+    def invalidate_cache_on_holding_change(sender, instance, **kwargs):
+        """Invalidate dashboard cache when holding is created/updated/deleted"""
+        if kwargs.get('raw', False):
+            return
+        invalidate_dashboard_cache(instance.account.user.id)
 

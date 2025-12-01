@@ -27,9 +27,26 @@ def dashboard(request):
     
     from datetime import date, timedelta
     from decimal import Decimal
+    from django.core.cache import cache
+    from core.services.net_worth_calculator import NetWorthCalculator
+    
+    period = request.GET.get('period', '1Y')  # Default to 1Y
+    cache_key = f'dashboard_stats:{request.user.id}:{period}'
+    
+    # Try to get from cache
+    cached_context = cache.get(cache_key)
+    if cached_context is not None:
+        return render(request, 'core/dashboard.html', cached_context)
     
     accounts = Account.objects.filter(user=request.user, status='active')
     transactions = Transaction.objects.filter(account__user=request.user)
+    
+    # Net Worth Calculator
+    net_worth_calc = NetWorthCalculator(request.user)
+    net_worth_series = net_worth_calc.get_time_series(period)
+    current_net_worth = net_worth_calc.get_current_net_worth()
+    net_worth_change_pct = net_worth_calc.get_period_change(period)
+    chart_path = net_worth_calc.get_chart_path(period)
     
     # Calculate "Caixa Livre" (Free Cash) - sum of depository account balances
     depository_accounts = accounts.filter(accountable_type='depository')
@@ -48,12 +65,28 @@ def dashboard(request):
     # Calculate total balance (all active accounts)
     total_balance = accounts.aggregate(Sum('balance'))['balance__sum'] or Decimal('0')
     
+    # Monthly Income and Spending (current month)
+    today = date.today()
+    first_day_this_month = today.replace(day=1)
+    
+    monthly_income = transactions.filter(
+        date__gte=first_day_this_month,
+        excluded=False,
+        category__classification='income'
+    ).aggregate(Sum('amount'))['amount__sum'] or Decimal('0')
+    # Income is typically negative in the system, so we take absolute value
+    monthly_income = abs(monthly_income)
+    
+    monthly_spending = transactions.filter(
+        date__gte=first_day_this_month,
+        excluded=False,
+        category__classification='expense'
+    ).aggregate(Sum('amount'))['amount__sum'] or Decimal('0')
+    
     # Get recent transactions for display
     recent_transactions = transactions.order_by('-date', '-created_at')[:10]
     
     # Calculate spending comparison (this month vs last month) - simplified
-    today = date.today()
-    first_day_this_month = today.replace(day=1)
     if first_day_this_month.month == 1:
         first_day_last_month = first_day_this_month.replace(year=first_day_this_month.year - 1, month=12)
     else:
@@ -74,6 +107,54 @@ def dashboard(request):
     if last_month_expenses > 0:
         spending_change = ((this_month_expenses - last_month_expenses) / last_month_expenses) * 100
     
+    # Asset Allocation Breakdown
+    asset_allocation = {}
+    total_net_worth = float(current_net_worth)
+    CIRCUMFERENCE = 251.2  # 2 * PI * 40 (radius)
+    
+    if total_net_worth > 0:
+        # Stocks (Investment accounts)
+        stocks_total = investment_accounts.aggregate(Sum('balance'))['balance__sum'] or Decimal('0')
+        stocks_pct = float((stocks_total / current_net_worth) * 100) if current_net_worth > 0 else 0
+        stocks_dash = (stocks_pct / 100) * CIRCUMFERENCE
+        
+        asset_allocation['Stocks'] = {
+            'value': float(stocks_total),
+            'percentage': stocks_pct,
+            'dash': stocks_dash
+        }
+        
+        # Crypto
+        crypto_accounts = accounts.filter(accountable_type='crypto')
+        crypto_total = crypto_accounts.aggregate(Sum('balance'))['balance__sum'] or Decimal('0')
+        crypto_pct = float((crypto_total / current_net_worth) * 100) if current_net_worth > 0 else 0
+        crypto_dash = (crypto_pct / 100) * CIRCUMFERENCE
+        
+        asset_allocation['Crypto'] = {
+            'value': float(crypto_total),
+            'percentage': crypto_pct,
+            'dash': crypto_dash,
+            'offset': -stocks_dash
+        }
+        
+        # Cash (Depository accounts)
+        cash_total = depository_accounts.aggregate(Sum('balance'))['balance__sum'] or Decimal('0')
+        cash_pct = float((cash_total / current_net_worth) * 100) if current_net_worth > 0 else 0
+        cash_dash = (cash_pct / 100) * CIRCUMFERENCE
+        
+        asset_allocation['Cash'] = {
+            'value': float(cash_total),
+            'percentage': cash_pct,
+            'dash': cash_dash,
+            'offset': -(stocks_dash + crypto_dash)
+        }
+    else:
+        asset_allocation = {
+            'Stocks': {'value': 0, 'percentage': 0, 'dash': 0},
+            'Crypto': {'value': 0, 'percentage': 0, 'dash': 0, 'offset': 0},
+            'Cash': {'value': 0, 'percentage': 0, 'dash': 0, 'offset': 0}
+        }
+    
     # Get current month budget if exists
     from finance.models import Budget
     current_month_start = today.replace(day=1)
@@ -93,7 +174,19 @@ def dashboard(request):
         'spending_change': spending_change,
         'recent_transactions': recent_transactions,
         'current_budget': current_budget,
+        # New LUMA dashboard context
+        'net_worth_series': net_worth_series,
+        'current_net_worth': current_net_worth,
+        'net_worth_change_pct': net_worth_change_pct,
+        'chart_path': chart_path,
+        'monthly_income': monthly_income,
+        'monthly_spending': monthly_spending,
+        'asset_allocation': asset_allocation,
+        'period': period,
     }
+    
+    # Cache for 5 minutes (300 seconds)
+    cache.set(cache_key, context, 300)
     
     return render(request, 'core/dashboard.html', context)
 
