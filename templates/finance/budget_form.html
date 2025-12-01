@@ -7,7 +7,7 @@
     <div class="max-w-2xl mx-auto">
         <a href="{% if budget %}{% url 'budget_detail' budget.pk %}{% else %}{% url 'budget_list' %}{% endif %}" class="text-indigo-400 hover:text-indigo-300 mb-4 inline-block">← Voltar</a>
         <div class="mb-6">
-            <h1 class="text-3xl font-bold tracking-tight bg-gradient-to-r from-indigo-500 via-violet-600 to-indigo-500 bg-clip-text text-transparent">
+            <h1 class="text-3xl font-bold tracking-tighter bg-gradient-to-r from-indigo-500 via-violet-600 to-indigo-500 bg-clip-text text-transparent">
                 {% if budget %}Editar{% else %}Novo{% endif %} Orçamento
             </h1>
         </div>

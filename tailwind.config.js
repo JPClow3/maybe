@@ -165,10 +165,20 @@ module.exports = {
           cyan: 'rgba(6, 182, 212, 0.15)', // Luma cyan-500 (Cyber Cyan)
           orange: 'rgba(249, 115, 22, 0.15)', // Luma orange-400 (Crypto/Volatile)
         },
+        
+        // Luma color aliases for easier reference
+        'luma-indigo': '#6366f1',
+        'luma-violet': '#7c3aed',
+        'luma-fuchsia': '#ec4899',
+        'luma-cyan': '#06b6d4',
+        'luma-emerald': '#10b981',
+        'luma-rose': '#f43f5e',
+        surface: '#050505',
+        'glass-base': 'rgba(18, 18, 18, 0.4)',
       },
       boxShadow: {
         // Luma Design System shadows
-        'glow': '0 0 20px rgba(99, 102, 241, 0.3)', // Primary Brand glow - Luma spec
+        'glow': '0 0 20px rgba(99, 102, 241, 0.15)', // Primary Brand glow - Luma spec
         'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.36)', // Glass panel shadow
         // Legacy shadows (for backward compatibility)
         'float': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
@@ -181,6 +191,9 @@ module.exports = {
         'glow-cyan': '0 0 15px rgba(6, 182, 212, 0.4)', // Cyber Cyan glow - Luma spec
         'glow-orange': '0 0 15px rgba(249, 115, 22, 0.4)', // Crypto/Volatile glow - Luma spec
       },
+      dropShadow: {
+        'neon': '0 0 10px rgba(99, 102, 241, 0.5)', // Neon glow for lines and text
+      },
       backgroundImage: {
         // Mesh gradient utilities
         'mesh-emerald': 'radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.1) 0px, transparent 50%), radial-gradient(at 100% 0%, rgba(99, 102, 241, 0.1) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(244, 63, 94, 0.1) 0px, transparent 50%), radial-gradient(at 0% 100%, rgba(16, 185, 129, 0.1) 0px, transparent 50%)', // Luma emerald-500
@@ -189,6 +202,9 @@ module.exports = {
         '18': '4.5rem',
         '88': '22rem',
       },
+      scale: {
+        '102': '1.02', /* LUMA spec: Button hover scale */
+      },
       fontFamily: {
         sans: ['Inter', 'Geist Sans', 'system-ui', 'sans-serif'], // Interface font
         mono: ['JetBrains Mono', 'Geist Mono', 'monospace'], // Data font
@@ -196,6 +212,8 @@ module.exports = {
       animation: {
         'blob': 'blob 7s infinite',
         'fade-in-up': 'fadeInUp 0.6s ease-out forwards',
+        'float': 'float 20s infinite ease-in-out',
+        'pulse-slow': 'pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
       keyframes: {
         blob: {
@@ -207,6 +225,10 @@ module.exports = {
         fadeInUp: {
           '0%': { opacity: '0', transform: 'translateY(20px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        float: {
+          '0%, 100%': { transform: 'translate(0, 0)' },
+          '50%': { transform: 'translate(20px, -20px)' },
         },
       },
     },

@@ -195,13 +195,15 @@
 /* Custom component styles */
 @layer components {
   /* Buttons - Luma Design System - Electric Indigo primary */
+  /* LUMA spec: "The Beam" - bg-indigo-600, rounded-xl, inner glow (inset-0 ring-1 ring-white/20), hover brightens to indigo-500, scale 1.02 */
   .btn-primary {
-    @apply bg-indigo-500 text-white px-4 py-2 rounded-lg min-h-[44px] active:scale-95 transition-all duration-300 ease-out hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-indigo-500 disabled:active:scale-100;
-    box-shadow: 0 0 20px rgba(99, 102, 241, 0.3); /* Luma spec: Primary Brand glow */
+    @apply bg-indigo-600 text-white px-4 py-2 rounded-xl min-h-[44px] active:scale-95 transition-all duration-300 ease-out hover:bg-indigo-500 hover:scale-102 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-indigo-600 disabled:hover:scale-100 disabled:active:scale-100;
+    /* Inner glow + Outer glow - LUMA spec: inset-0 ring-1 ring-white/20 + Primary Brand glow */
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2), 0 0 20px rgba(99, 102, 241, 0.3);
   }
   
   .btn-primary:hover {
-    box-shadow: 0 0 24px rgba(99, 102, 241, 0.4); /* stronger glow on hover */
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2), 0 0 24px rgba(99, 102, 241, 0.4); /* stronger glow on hover */
   }
   
   .btn-secondary {
@@ -212,51 +214,53 @@
     @apply bg-rose-600 text-white px-4 py-2 rounded-lg min-h-[44px] active:scale-95 transition-all duration-200 ease-in-out hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-rose-600 disabled:active:scale-100;
   }
   
+  /* LUMA spec: "The Ghost" - Transparent background, border-white/10, hover: bg-white/5, text-white */
   .btn-ghost {
     @apply px-4 py-2 rounded-lg min-h-[44px] active:scale-95 transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100;
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    background-color: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background-color: transparent; /* LUMA spec: Transparent */
+    border: 1px solid rgba(255, 255, 255, 0.1); /* LUMA spec: border-white/10 */
     color: #d1d5db; /* gray-300 */
     font-size: 0.875rem;
   }
   
   .btn-ghost:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    color: white;
+    background-color: rgba(255, 255, 255, 0.05); /* LUMA spec: bg-white/5 */
+    color: white; /* LUMA spec: text-white */
   }
   
   .dark .btn-ghost {
-    background-color: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background-color: transparent; /* LUMA spec: Transparent */
+    border: 1px solid rgba(255, 255, 255, 0.1); /* LUMA spec: border-white/10 */
     color: #d1d5db;
   }
   
   .dark .btn-ghost:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    color: white;
+    background-color: rgba(255, 255, 255, 0.05); /* LUMA spec: bg-white/5 */
+    color: white; /* LUMA spec: text-white */
   }
   
   /* Form inputs - Visual DNA v2.0: Input Field Physics (The Command Bar) */
+  /* LUMA spec: "The Void" - bg-white/5, border-transparent (rest), focus: bg-black/50, border-indigo-500/50, ring-4 ring-indigo-500/10, placeholder gray-600 */
   .form-input {
     @apply mt-1 block w-full rounded-lg px-3 py-2 text-sm min-h-[44px] transition-all duration-300 ease-out focus:outline-none;
     /* Rest state */
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid transparent; /* LUMA spec: border-transparent at rest */
+    background: rgba(255, 255, 255, 0.05); /* LUMA spec: bg-white/5 */
     color: #ffffff;
   }
   
   .form-input::placeholder {
-    color: #6b7280; /* gray-500 */
+    color: #4b5563; /* gray-600 - LUMA spec */
   }
   
   /* Focus state */
   .form-input:focus {
     border-color: rgba(99, 102, 241, 0.5); /* indigo-500/50 */
     background: rgba(0, 0, 0, 0.5); /* bg-black/50 */
-    box-shadow: 0 0 20px rgba(99, 102, 241, 0.15); /* shadow-glow */
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1), 0 0 20px rgba(99, 102, 241, 0.15); /* LUMA spec: ring-4 ring-indigo-500/10 + shadow-glow */
   }
   
   /* Validation error state */
@@ -280,15 +284,15 @@
 
   .form-select {
     @apply mt-1 block w-full rounded-lg px-3 py-2 text-sm min-h-[44px] transition-all duration-300 ease-out focus:outline-none;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid transparent; /* LUMA spec: border-transparent at rest */
+    background: rgba(255, 255, 255, 0.05); /* LUMA spec: bg-white/5 */
     color: #ffffff;
   }
   
   .form-select:focus {
-    border-color: rgba(99, 102, 241, 0.5);
-    background: rgba(0, 0, 0, 0.5);
-    box-shadow: 0 0 20px rgba(99, 102, 241, 0.15);
+    border-color: rgba(99, 102, 241, 0.5); /* indigo-500/50 */
+    background: rgba(0, 0, 0, 0.5); /* bg-black/50 */
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1), 0 0 20px rgba(99, 102, 241, 0.15); /* LUMA spec: ring-4 ring-indigo-500/10 + shadow-glow */
   }
   
   @media (max-width: 768px) {
@@ -299,15 +303,15 @@
 
   .form-textarea {
     @apply mt-1 block w-full rounded-lg px-3 py-2 text-sm transition-all duration-300 ease-out focus:outline-none;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid transparent; /* LUMA spec: border-transparent at rest */
+    background: rgba(255, 255, 255, 0.05); /* LUMA spec: bg-white/5 */
     color: #ffffff;
   }
   
   .form-textarea:focus {
-    border-color: rgba(99, 102, 241, 0.5);
-    background: rgba(0, 0, 0, 0.5);
-    box-shadow: 0 0 20px rgba(99, 102, 241, 0.15);
+    border-color: rgba(99, 102, 241, 0.5); /* indigo-500/50 */
+    background: rgba(0, 0, 0, 0.5); /* bg-black/50 */
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1), 0 0 20px rgba(99, 102, 241, 0.15); /* LUMA spec: ring-4 ring-indigo-500/10 + shadow-glow */
   }
   
   @media (max-width: 768px) {
@@ -338,14 +342,14 @@
   /* Card variants with colored accents - Luma Design System */
   .card-primary {
     @apply p-5 transition-all duration-300 ease-out;
-    border-radius: 0.75rem; /* rounded-xl default */
+    border-radius: 1rem; /* rounded-2xl default - LUMA spec */
     background: rgba(18, 18, 18, 0.4); /* Luma spec: glass-base */
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
     border-left: 4px solid #6366f1; /* Electric Indigo accent */
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
-    border-right: 1px solid rgba(255, 255, 255, 0.05);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-top: 1px solid rgba(255, 255, 255, 0.1); /* LUMA spec: border-white/10 */
+    border-right: 1px solid rgba(255, 255, 255, 0.1); /* LUMA spec: border-white/10 */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* LUMA spec: border-white/10 */
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.36);
   }
   
@@ -360,6 +364,9 @@
   
   .card-primary:hover {
     background: rgba(255, 255, 255, 0.05); /* Luma spec: glass-highlight */
+    border-top-color: rgba(255, 255, 255, 0.2); /* LUMA spec: Border lightens to white/20 */
+    border-right-color: rgba(255, 255, 255, 0.2); /* LUMA spec: Border lightens to white/20 */
+    border-bottom-color: rgba(255, 255, 255, 0.2); /* LUMA spec: Border lightens to white/20 */
     transform: translateY(-2px);
   }
   
@@ -493,6 +500,7 @@
   }
   
   /* Noise overlay - Visual DNA v2.0 */
+  /* LUMA spec: 5% opacity static noise overlay */
   .noise-overlay {
     position: fixed;
     top: 0;
@@ -501,7 +509,7 @@
     height: 100%;
     z-index: 50;
     pointer-events: none;
-    opacity: 0.2; /* opacity-20 for film grain effect */
+    opacity: 0.05; /* LUMA spec: 5% opacity */
     mix-blend-mode: overlay; /* mix-blend-overlay */
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
   }
@@ -521,7 +529,7 @@
   }
   
   .orb-indigo {
-    background: radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, transparent 70%); /* LUMA spec: Indigo #6366f1, opacity-20 */
   }
   
   .orb-rose {
@@ -538,12 +546,12 @@
   /* Glass Panel - Luma Design System: The Glass Panel (Standard Card) */
   .glass-panel {
     background: rgba(18, 18, 18, 0.4); /* Luma spec: glass-base */
-    border: 1px solid rgba(255, 255, 255, 0.05); /* border-white/5 */
+    border: 1px solid rgba(255, 255, 255, 0.1); /* border-white/10 - LUMA spec */
     border-radius: 1rem;
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.36); /* shadow-glass */
     backdrop-filter: blur(24px); /* High blur for "frosted" premium look */
     -webkit-backdrop-filter: blur(24px);
-    transition: transform 0.3s ease-out, box-shadow 0.3s ease-out, background 0.3s ease-out;
+    transition: transform 0.3s ease-out, box-shadow 0.3s ease-out, background 0.3s ease-out, border-color 0.3s ease-out;
   }
   
   /* Reduce blur on mobile for better performance */
@@ -564,6 +572,7 @@
   /* Glass panel hover - Spotlight interaction */
   .glass-panel:hover {
     background: rgba(255, 255, 255, 0.05); /* Luma spec: glass-highlight */
+    border-color: rgba(255, 255, 255, 0.2); /* LUMA spec: Border lightens to white/20 */
     transform: translateY(-2px);
   }
   
@@ -692,16 +701,42 @@
   }
   
   /* Card class - uses glass-panel with proper styling */
+  /* LUMA spec: "The Shard" - rounded-2xl (1rem) or rounded-3xl (1.5rem), border white/10, hover border white/20 */
   .card {
     @apply p-5 transition-all duration-300 ease-out;
     /* Default border-radius, can be overridden with rounded-* classes */
-    border-radius: 0.75rem; /* rounded-xl default */
+    border-radius: 1rem; /* rounded-2xl default - LUMA spec */
     /* Luma Design System glass panel specifications */
     background: rgba(18, 18, 18, 0.4); /* Luma spec: glass-base */
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.05); /* border-white/5 */
+    border: 1px solid rgba(255, 255, 255, 0.1); /* border-white/10 - LUMA spec */
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.36); /* shadow-glass */
+  }
+
+  /* Luma Glass Components */
+  .luma-panel {
+    background: rgba(18, 18, 18, 0.4);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.36);
+    transition: all 0.3s ease-out;
+  }
+
+  .luma-panel:hover {
+    background: rgba(255, 255, 255, 0.02);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .luma-sidebar {
+    background: rgba(10, 10, 10, 0.6);
+    backdrop-filter: blur(20px);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .luma-input {
+    @apply w-full bg-white/[0.03] border border-white/5 text-white placeholder-gray-500 rounded-2xl py-4 pl-12 pr-20 text-lg transition-all duration-200 focus:bg-black/40 focus:border-indigo-500/50 focus:shadow-[0_0_0_1px_rgba(99,102,241,0.5),0_0_20px_rgba(99,102,241,0.1)] focus:outline-none;
   }
   
   /* Allow border-radius overrides */
@@ -720,6 +755,7 @@
   /* Hover: Spotlight interaction */
   .card:hover {
     background: rgba(255, 255, 255, 0.05); /* Luma spec: glass-highlight */
+    border-color: rgba(255, 255, 255, 0.2); /* LUMA spec: Border lightens to white/20 */
     transform: translateY(-2px);
   }
   
@@ -774,6 +810,25 @@
     color: #e5e5e5 !important; /* gray-200 - never pure white */
   }
   
+  /* Typography - LUMA Design System: "The HUD" */
+  /* Display text: Bold (700), tracking-tighter */
+  .text-display {
+    @apply font-bold tracking-tighter;
+    font-weight: 700;
+  }
+  
+  /* Body text: Regular (400), tracking-normal */
+  .text-body {
+    @apply font-normal tracking-normal;
+    font-weight: 400;
+  }
+  
+  /* Labels: Medium (500), tracking-wide, uppercase, text-xs */
+  .text-label {
+    @apply font-medium tracking-wide uppercase text-xs;
+    font-weight: 500;
+  }
+  
   /* ============================================================================
      END GLASS COMPONENTS
      ============================================================================ */
@@ -784,6 +839,16 @@
   /* Shadow refinements */
   .shadow-soft {
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+  }
+
+  /* Scrollbar hiding */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }
 

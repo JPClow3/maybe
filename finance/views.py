@@ -178,7 +178,7 @@ def account_new(request):
 
 @login_required
 def transaction_list(request):
-    transactions = Transaction.objects.filter(account__user=request.user).order_by('-date', '-created_at')
+    transactions = Transaction.objects.filter(account__user=request.user).select_related('account', 'category').order_by('-date', '-created_at')
     categories = Category.objects.filter(user=request.user)
     context = {
         'transactions': transactions,

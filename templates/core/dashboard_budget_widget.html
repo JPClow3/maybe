@@ -1,65 +1,59 @@
-{# Budget widget for dashboard - shows current month budget status #}
+{# Monthly Flow widget for dashboard - shows current month income and spending #}
 {% load money_filters %}
+{% load humanize %}
+{% load math_filters %}
 
-{% if current_budget and current_budget.budgeted_spending %}
-<div class="card mb-8">
-    <div class="flex justify-between items-center mb-4">
-        <h2 class="text-lg font-semibold text-gray-200">Orçamento do Mês</h2>
-        <a href="{% url 'budget_detail' current_budget.pk %}" class="text-sm text-indigo-400 hover:text-indigo-300" hx-boost="true" hx-target="#main-content" hx-select="#main-content" hx-swap="innerHTML">
-            Ver detalhes →
-        </a>
-    </div>
+<div class="luma-panel rounded-3xl p-6 relative overflow-hidden h-full">
+    <div class="absolute -right-6 -top-6 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl"></div>
     
-    <div class="space-y-4">
-        {# Overall progress #}
+    <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-6 relative z-10">Monthly Flow</h3>
+    
+    <div class="space-y-6 relative z-10">
         <div>
             <div class="flex justify-between text-sm mb-2">
-                <span class="text-slate-400">Gasto do mês</span>
-                <span class="font-semibold text-gray-200 font-mono">
-                    {{ current_budget.actual_spending|real_br }} / {{ current_budget.budgeted_spending|real_br }}
+                <span class="text-gray-400">Income</span>
+                <span class="text-emerald-400 font-mono tracking-tight text-shadow-emerald">
+                    +${{ monthly_income|default:0|floatformat:0|intcomma }}
                 </span>
             </div>
-            {% with percent=current_budget.actual_spending|div:current_budget.budgeted_spending|mul:100|floatformat:0 %}
-            {% with percent_int=percent|add:0 %}
-            <div class="w-full bg-white/5 rounded-full h-3">
-                <div 
-                    class="h-3 rounded-full transition-all {% if percent_int > 100 %}bg-rose-500{% elif percent_int > 80 %}bg-amber-400{% else %}bg-emerald-500{% endif %}"
-                    {% if percent_int > 100 %}
-                    style="--progress-width: 100%; width: var(--progress-width);"
-                    {% else %}
-                    style="--progress-width: {{ percent_int }}%; width: var(--progress-width);"
-                    {% endif %}
-                ></div>
+            <div class="w-full bg-white/5 rounded-full h-1 overflow-hidden">
+                {% if monthly_income and monthly_spending %}
+                    {% with total=monthly_income|add:monthly_spending %}
+                        {% if total > 0 %}
+                            {% widthratio monthly_income total 100 as income_pct %}
+                            <div class="bg-emerald-500 h-full rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]" style="--width: {{ income_pct|default:0|floatformat:0 }}%; width: var(--width);"></div>
+                        {% else %}
+                            <div class="bg-emerald-500 h-full rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]" style="width: 100%"></div>
+                        {% endif %}
+                    {% endwith %}
+                {% else %}
+                    <div class="bg-emerald-500 h-full rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]" style="width: 75%"></div>
+                {% endif %}
             </div>
-            <p class="text-xs text-slate-400 mt-1 font-mono">{{ percent }}% utilizado</p>
-            {% endwith %}
-            {% endwith %}
         </div>
         
-        {# Available to spend #}
-        <div class="pt-4 border-t border-white/5">
-            <div class="flex justify-between items-center">
-                <div>
-                    <p class="text-sm text-slate-400">Disponível para gastar</p>
-                    <p class="text-2xl font-bold {% if current_budget.available_to_spend < 0 %}text-rose-400{% else %}text-emerald-400{% endif %} balance-display mt-1 font-mono">
-                        {{ current_budget.available_to_spend|real_br }}
-                    </p>
-                </div>
-                <a href="{% url 'budget_available_to_spend' %}" class="btn-secondary text-sm" hx-boost="true" hx-target="#main-content" hx-select="#main-content" hx-swap="innerHTML">
-                    Quanto posso gastar?
-                </a>
+        <div>
+            <div class="flex justify-between text-sm mb-2">
+                <span class="text-gray-400">Spending</span>
+                <span class="text-rose-400 font-mono tracking-tight text-shadow-rose">
+                    -${{ monthly_spending|default:0|floatformat:0|intcomma }}
+                </span>
+            </div>
+            <div class="w-full bg-white/5 rounded-full h-1 overflow-hidden">
+                {% if monthly_income and monthly_spending %}
+                    {% with total=monthly_income|add:monthly_spending %}
+                        {% if total > 0 %}
+                            {% widthratio monthly_spending total 100 as spending_pct %}
+                            <div class="bg-rose-500 h-full rounded-full shadow-[0_0_10px_rgba(244,63,94,0.5)]" style="--width: {{ spending_pct|default:0|floatformat:0 }}%; width: var(--width);"></div>
+                        {% else %}
+                            <div class="bg-rose-500 h-full rounded-full shadow-[0_0_10px_rgba(244,63,94,0.5)]" style="width: 25%"></div>
+                        {% endif %}
+                    {% endwith %}
+                {% else %}
+                    <div class="bg-rose-500 h-full rounded-full shadow-[0_0_10px_rgba(244,63,94,0.5)]" style="width: 25%"></div>
+                {% endif %}
             </div>
         </div>
     </div>
 </div>
-{% elif not current_budget %}
-<div class="card mb-8">
-    <div class="text-center py-6">
-        <p class="text-sm text-slate-400 mb-4">Crie um orçamento para acompanhar seus gastos mensais</p>
-        <a href="{% url 'budget_create' %}" class="btn-primary inline-block" hx-boost="true" hx-target="#main-content" hx-select="#main-content" hx-swap="innerHTML">
-            Criar Orçamento
-        </a>
-    </div>
-</div>
-{% endif %}
 

@@ -110,7 +110,22 @@ class CSVParser:
             return None
         
         # Remove currency symbols and whitespace
-        amount_str = amount_str.replace('R$', '').replace('$', '').replace(',', '').strip()
+        amount_str = amount_str.replace('R$', '').replace('$', '').strip()
+        
+        # Handle Brazilian format: comma as decimal separator (e.g., "100,50" -> "100.50")
+        # Check if comma is used as decimal separator (if there's a comma and it's not the thousands separator)
+        if ',' in amount_str and '.' not in amount_str:
+            # Brazilian format: replace comma with dot
+            amount_str = amount_str.replace(',', '.')
+        elif ',' in amount_str and '.' in amount_str:
+            # Mixed format: assume comma is thousands separator, dot is decimal
+            # Remove commas (thousands separator)
+            amount_str = amount_str.replace(',', '')
+        else:
+            # No comma, just remove any dots if they're thousands separators
+            # If there are multiple dots, they're likely thousands separators
+            if amount_str.count('.') > 1:
+                amount_str = amount_str.replace('.', '')
         
         try:
             return Decimal(amount_str)

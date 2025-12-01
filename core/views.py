@@ -198,24 +198,25 @@ def dashboard_stats(request):
     
     accounts = Account.objects.filter(user=request.user, status='active')
     
-    # Calculate "Caixa Livre" (Free Cash) - sum of depository account balances
-    depository_accounts = accounts.filter(accountable_type='depository')
-    free_cash = depository_accounts.aggregate(Sum('balance'))['balance__sum'] or Decimal('0')
+    # Calculate Total Assets - sum of all asset account balances
+    asset_accounts = accounts.filter(
+        accountable_type__in=['depository', 'investment', 'crypto', 'property', 'vehicle', 'other_asset']
+    )
+    total_assets = asset_accounts.aggregate(Sum('balance'))['balance__sum'] or Decimal('0')
     
-    # Calculate "Fatura Atual" (Current Credit Card Bill) - sum of credit card balances (negative)
-    credit_cards = accounts.filter(accountable_type='credit_card')
-    credit_card_debt = credit_cards.aggregate(Sum('balance'))['balance__sum'] or Decimal('0')
-    # Credit card balances are typically negative (debt), so we show absolute value
-    current_bill = abs(credit_card_debt)
+    # Calculate Total Liabilities - sum of all liability account balances (absolute value)
+    liability_accounts = accounts.filter(
+        accountable_type__in=['credit_card', 'loan', 'other_liability']
+    )
+    total_liabilities = abs(liability_accounts.aggregate(Sum('balance'))['balance__sum'] or Decimal('0'))
     
-    # Calculate "Investimentos" (Investments) - sum of investment account balances
-    investment_accounts = accounts.filter(accountable_type='investment')
-    investments = investment_accounts.aggregate(Sum('balance'))['balance__sum'] or Decimal('0')
+    # Calculate Net Worth
+    net_worth = total_assets - total_liabilities
     
     context = {
-        'free_cash': free_cash,
-        'current_bill': current_bill,
-        'investments': investments,
+        'total_assets': total_assets,
+        'total_liabilities': total_liabilities,
+        'net_worth': net_worth,
     }
     
     return render(request, 'core/dashboard_stats_partial.html', context)

@@ -22,6 +22,11 @@
     <link rel="preload" href="{% static 'fonts/Geist-Regular.woff2' %}" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="{% static 'fonts/Geist-Medium.woff2' %}" as="font" type="font/woff2" crossorigin>
     
+    {# Favicon #}
+    <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'favicon-16x16.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'favicon-32x32.png' %}">
+    
     {# Manifest and theme #}
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#3b82f6">
@@ -38,21 +43,27 @@
     {# HTMX - defer for non-blocking load #}
     <script defer src="https://unpkg.com/htmx.org@1.9.10"></script>
     
-    {# Alpine.js - already deferred #}
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    {# Lucide Icons - for Luma design system #}
+    <script src="https://unpkg.com/lucide@latest"></script>
     
     {# Cleave.js - defer since only needed for forms #}
     <script defer src="https://cdn.jsdelivr.net/npm/cleave.js@1.6.0/dist/cleave.min.js"></script>
     
-    {# Money input component - depends on Alpine.js, so defer #}
+    {# Money input component - must load before Alpine.js to register component #}
     <script defer src="{% static 'js/money-input.js' %}"></script>
+    
+    {# Alpine.js - already deferred, loads after money-input.js #}
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
-<body class="dark bg-[#050505] text-gray-200">
+<body class="bg-surface text-[#e5e5e5] antialiased font-sans selection:bg-luma-indigo/30 selection:text-luma-indigo overflow-x-hidden">
     {# Ambient background layers - orbs and noise #}
-    <div class="ambient-light" id="ambient-light">
-        {# Orbs will be added via JavaScript based on performance mode #}
+    <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        {# Orb 1 (Top Left): Indigo #6366f1, opacity-20 - LUMA spec #}
+        <div class="absolute top-[-10%] left-[-5%] w-[50vw] h-[50vw] bg-[radial-gradient(circle,rgba(99,102,241,0.2)_0%,transparent_70%)] blur-[80px] animate-float"></div>
+        {# Orb 2 (Bottom Right): Fuchsia #d946ef, opacity-15 - LUMA spec #}
+        <div class="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] bg-[radial-gradient(circle,rgba(217,70,239,0.15)_0%,transparent_70%)] blur-[80px] animate-[float_15s_infinite_ease-in-out_reverse]"></div>
+        <div class="absolute inset-0 opacity-5 mix-blend-overlay" style="background-image: url('data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.65\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\' opacity=\'0.05\'/%3E%3C/svg%3E');"></div>
     </div>
-    <div class="noise-overlay"></div>
     <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 focus:z-50 focus:p-2 focus:bg-primary-600 focus:text-white">Skip to main content</a>
     
     {# Sidebar Navigation - Desktop Only #}
@@ -113,5 +124,13 @@
     
     {# Base application JavaScript - HTMX handlers, loading states, UI interactions #}
     <script defer src="{% static 'js/base-app.js' %}"></script>
+    
+    {# Initialize Lucide Icons #}
+    <script>
+        // Initialize Icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    </script>
 </body>
 </html>

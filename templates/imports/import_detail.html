@@ -8,7 +8,7 @@
         <a href="{% url 'import_list' %}" class="text-indigo-400 hover:text-indigo-300 mb-4 inline-block">← Back to Imports</a>
         <div class="flex justify-between items-center">
             <div>
-                <h1 class="text-3xl font-bold tracking-tight bg-gradient-to-r from-indigo-500 via-violet-600 to-indigo-500 bg-clip-text text-transparent">Import Details</h1>
+                <h1 class="text-3xl font-bold tracking-tighter bg-gradient-to-r from-indigo-500 via-violet-600 to-indigo-500 bg-clip-text text-transparent">Import Details</h1>
                 <p class="text-sm text-slate-400 mt-1">{{ import_obj.get_type_display }} - {{ import_obj.created_at|date:"d/m/Y H:i" }}</p>
             </div>
             <div class="text-right">

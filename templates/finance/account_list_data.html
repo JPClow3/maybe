@@ -75,16 +75,32 @@
 
         <div class="divide-y divide-white/5">
             {% for account in accounts %}
-            <a href="{% url 'account_detail' account.pk %}" class="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-white/[0.03] transition-colors group cursor-pointer relative" hx-boost="true" hx-target="#main-content" hx-select="#main-content" hx-swap="innerHTML">
+            <a href="{% url 'account_detail' account.pk %}" class="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-white/[0.03] transition-all cursor-pointer relative border-l-2 border-transparent hover:border-luma-indigo" hx-boost="true" hx-target="#main-content" hx-select="#main-content" hx-swap="innerHTML">
                 {# Account Name Column #}
                 <div class="col-span-6 md:col-span-5 flex items-center gap-4">
-                    <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/5 group-hover:border-white/20 group-hover:shadow-[0_0_20px_rgba(99,102,241,0.15)] transition-all duration-300
-                        {% if account.accountable_type == 'investment' %}text-fuchsia-500
+                    <div class="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/5 group-hover:border-white/20 group-hover:shadow-glow transition-all duration-300
+                        {% if account.accountable_type == 'investment' %}text-luma-fuchsia
                         {% elif account.accountable_type == 'depository' %}text-emerald-400
-                        {% elif account.accountable_type == 'credit_card' %}text-rose-400
+                        {% elif account.accountable_type == 'credit_card' %}text-luma-rose
                         {% elif account.accountable_type == 'crypto' %}text-orange-400
                         {% else %}text-slate-400{% endif %}">
-                        {% include 'partials/account_type_icon.html' %}
+                        {% if account.accountable_type == 'depository' %}
+                            <i data-lucide="wallet" class="w-5 h-5"></i>
+                        {% elif account.accountable_type == 'investment' %}
+                            <i data-lucide="trending-up" class="w-5 h-5"></i>
+                        {% elif account.accountable_type == 'credit_card' %}
+                            <i data-lucide="credit-card" class="w-5 h-5"></i>
+                        {% elif account.accountable_type == 'loan' %}
+                            <i data-lucide="landmark" class="w-5 h-5"></i>
+                        {% elif account.accountable_type == 'crypto' %}
+                            <i data-lucide="bitcoin" class="w-5 h-5"></i>
+                        {% elif account.accountable_type == 'property' %}
+                            <i data-lucide="home" class="w-5 h-5"></i>
+                        {% elif account.accountable_type == 'vehicle' %}
+                            <i data-lucide="car" class="w-5 h-5"></i>
+                        {% else %}
+                            <i data-lucide="circle" class="w-5 h-5"></i>
+                        {% endif %}
                     </div>
                     <div>
                         <div class="font-medium text-white group-hover:text-indigo-400 transition-colors">{{ account.name }}</div>
@@ -110,9 +126,7 @@
                         {% endwith %}
                         <span class="text-sm text-gray-400">{{ account.accountable_data.institution }}</span>
                     {% else %}
-                        <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/>
-                        </svg>
+                        <i data-lucide="circle" class="w-4 h-4 text-gray-600"></i>
                         <span class="text-sm text-gray-400">Manual Account</span>
                     {% endif %}
                 </div>
@@ -120,7 +134,7 @@
                 {# Type Column #}
                 <div class="col-span-3 hidden md:block">
                     {% if account.accountable_type == 'investment' %}
-                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium tracking-wide uppercase bg-fuchsia-500/10 text-fuchsia-500 border border-fuchsia-500/20">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium tracking-wide uppercase bg-luma-fuchsia/10 text-luma-fuchsia border border-luma-fuchsia/20">
                             Investment
                         </span>
                     {% elif account.accountable_type == 'depository' %}
@@ -162,9 +176,7 @@
 
                 {# Mobile chevron #}
                 <div class="absolute right-4 top-1/2 -translate-y-1/2 md:hidden text-gray-600">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8.25 4.5l7.5 7.5-7.5 7.5"/>
-                    </svg>
+                    <i data-lucide="chevron-right" class="w-4 h-4"></i>
                 </div>
             </a>
             {% endfor %}
@@ -173,9 +185,7 @@
         {# Empty State #}
         <div class="flex flex-col items-center justify-center py-12 text-center">
             <div class="opacity-20 mb-4">
-                <svg class="w-16 h-16 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m8 9v6m0 0l-3-3m3 3l3-3m0 0v-6m0 6l-3 3m3-3l3 3"/>
-                </svg>
+                <i data-lucide="wallet" class="w-16 h-16 text-slate-400"></i>
             </div>
             <h3 class="text-lg font-semibold text-gray-200 mb-2">No accounts found</h3>
             <p class="text-sm text-slate-400 mb-6">Get started by creating your first account to track your finances.</p>

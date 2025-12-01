@@ -37,6 +37,12 @@ class DuplicateDetector:
         
         # Check each import row
         for row in import_rows:
+            # Ensure duplicate_hash is calculated
+            if not row.duplicate_hash:
+                row.duplicate_hash = row.calculate_duplicate_hash() or ''
+                if row.duplicate_hash:
+                    row.save(update_fields=['duplicate_hash'])
+            
             if not row.duplicate_hash:
                 continue
             
@@ -48,11 +54,18 @@ class DuplicateDetector:
             else:
                 # Also check within the same import
                 for other_row in import_rows:
-                    if other_row.id != row.id and other_row.duplicate_hash == row.duplicate_hash:
-                        row.status = 'duplicate'
-                        row.save(update_fields=['status'])
-                        duplicates.append(row)
-                        break
+                    if other_row.id != row.id:
+                        # Ensure other_row hash is calculated
+                        if not other_row.duplicate_hash:
+                            other_row.duplicate_hash = other_row.calculate_duplicate_hash() or ''
+                            if other_row.duplicate_hash:
+                                other_row.save(update_fields=['duplicate_hash'])
+                        
+                        if other_row.duplicate_hash == row.duplicate_hash:
+                            row.status = 'duplicate'
+                            row.save(update_fields=['status'])
+                            duplicates.append(row)
+                            break
         
         return duplicates
     

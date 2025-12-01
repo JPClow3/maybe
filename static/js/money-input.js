@@ -2,7 +2,14 @@
  * Alpine.js component for Brazilian money input formatting
  * Uses Cleave.js for real-time formatting
  */
-document.addEventListener('alpine:init', () => {
+function registerMoneyInput() {
+  // Check if Alpine is available (might be already initialized)
+  if (typeof Alpine === 'undefined') {
+    // Alpine not loaded yet, wait for it
+    document.addEventListener('alpine:init', registerMoneyInput);
+    return;
+  }
+  
   Alpine.data('moneyInput', (initialValue = '') => {
     return {
       cleaveInstance: null,
@@ -63,5 +70,8 @@ document.addEventListener('alpine:init', () => {
       }
     };
   });
-});
+}
+
+// Register the component when script loads
+registerMoneyInput();
 
