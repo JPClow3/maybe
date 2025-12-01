@@ -16,11 +16,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
     {# Luma Design System Fonts: Inter (Interface) and JetBrains Mono (Data) #}
+    {# Geist fonts remain as fallback in tailwind.config.js but are not preloaded #}
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-    
-    {# Preload critical fonts - Geist as fallback #}
-    <link rel="preload" href="{% static 'fonts/Geist-Regular.woff2' %}" as="font" type="font/woff2" crossorigin>
-    <link rel="preload" href="{% static 'fonts/Geist-Medium.woff2' %}" as="font" type="font/woff2" crossorigin>
     
     {# Favicon #}
     <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
