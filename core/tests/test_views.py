@@ -53,8 +53,9 @@ class DashboardTestCase(TestCase):
         # Test the stats endpoint directly since main dashboard shows skeleton
         response = self.client.get(reverse('dashboard_stats'))
         self.assertEqual(response.status_code, 200)
-        # Should show free cash
-        self.assertContains(response, 'Caixa Livre')
+        # Should show Total Assets (which includes depository accounts)
+        self.assertContains(response, 'Total Assets')
+        self.assertContains(response, '$2.000')  # Check for the value
     
     def test_dashboard_credit_card_debt(self):
         """Test dashboard calculates credit card debt"""
@@ -70,7 +71,9 @@ class DashboardTestCase(TestCase):
         # Test the stats endpoint directly since main dashboard shows skeleton
         response = self.client.get(reverse('dashboard_stats'))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Fatura Atual')
+        # Should show Total Liabilities (which includes credit card debt)
+        self.assertContains(response, 'Total Liabilities')
+        self.assertContains(response, '$1.000')  # Check for the value
     
     def test_dashboard_investments(self):
         """Test dashboard shows investments"""
@@ -86,7 +89,9 @@ class DashboardTestCase(TestCase):
         # Test the stats endpoint directly since main dashboard shows skeleton
         response = self.client.get(reverse('dashboard_stats'))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Investimentos')
+        # Should show Total Assets (which includes investment accounts)
+        self.assertContains(response, 'Total Assets')
+        self.assertContains(response, '$10.000')  # Check for the value
 
     def test_dashboard_contains_skeleton_and_htmx(self):
         """Dashboard HTML should include skeleton container and HTMX attributes"""

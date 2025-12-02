@@ -501,35 +501,10 @@ document.body.addEventListener('htmx:afterSwap', function(evt) {
     }, 10);
 });
 
-// Dark mode toggle functionality
+// Dark mode: enforce always-on and create ambient orbs based on performance mode
 (function() {
-    const themeToggle = document.getElementById('theme-toggle');
     const html = document.documentElement;
-    
-    // Check for saved theme preference or default to light mode
-    const currentTheme = localStorage.getItem('theme') || 'light';
-    
-    // Apply theme on page load
-    if (currentTheme === 'dark') {
-        html.classList.add('dark');
-    } else {
-        html.classList.remove('dark');
-    }
-    
-    // Toggle theme on button click
-    if (themeToggle) {
-        themeToggle.addEventListener('click', function() {
-            const isDark = html.classList.contains('dark');
-            
-            if (isDark) {
-                html.classList.remove('dark');
-                localStorage.setItem('theme', 'light');
-            } else {
-                html.classList.add('dark');
-                localStorage.setItem('theme', 'dark');
-            }
-        });
-    }
+    html.classList.add('dark');
     
     // Create ambient orbs based on performance mode
     function createAmbientOrbs() {
@@ -594,3 +569,50 @@ document.body.addEventListener('htmx:afterSwap', function(evt) {
     });
 })();
 
+// Spotlight interaction for cards
+function setupCardSpotlight() {
+    const cards = document.querySelectorAll('.card-spotlight');
+    cards.forEach(card => {
+        card.addEventListener('mousemove', function (event) {
+            const rect = card.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            card.style.setProperty('--mouse-x', `${x}px`);
+            card.style.setProperty('--mouse-y', `${y}px`);
+        });
+    });
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupCardSpotlight);
+} else {
+    setupCardSpotlight();
+}
+
+document.body.addEventListener('htmx:afterSwap', function() {
+    setupCardSpotlight();
+});
+
+// Initialize Lucide Icons after DOM is ready and Lucide is loaded
+(function() {
+    function initLucideIcons() {
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        } else {
+            // Retry if Lucide hasn't loaded yet (deferred script may not be ready)
+            setTimeout(initLucideIcons, 50);
+        }
+    }
+    
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initLucideIcons);
+    } else {
+        // DOM already loaded, but Lucide might still be loading (deferred)
+        initLucideIcons();
+    }
+    
+    // Re-initialize icons after HTMX swaps
+    document.body.addEventListener('htmx:afterSwap', function() {
+        initLucideIcons();
+    });
+})();

@@ -354,25 +354,64 @@ class DashboardViewsTestCase(FinanceViewsTestCase):
     def test_dashboard_stats_endpoint(self):
         """Test dashboard stats endpoint that returns data cards"""
         self.login()
+        # Create accounts to test calculations
+        Account.objects.create(
+            user=self.user,
+            name='Checking',
+            accountable_type='depository',
+            balance=Decimal('1000.00'),
+            currency='BRL',
+            status='active'
+        )
+        Account.objects.create(
+            user=self.user,
+            name='Investment',
+            accountable_type='investment',
+            balance=Decimal('5000.00'),
+            currency='BRL',
+            status='active'
+        )
+        Account.objects.create(
+            user=self.user,
+            name='Credit Card',
+            accountable_type='credit_card',
+            balance=Decimal('-500.00'),
+            currency='BRL',
+            status='active'
+        )
         response = self.client.get(reverse('dashboard_stats'))
         self.assertEqual(response.status_code, 200)
         # Should show the three main cards with actual data
-        self.assertContains(response, 'Caixa Livre')
-        self.assertContains(response, 'Fatura Atual')
-        self.assertContains(response, 'Investimentos')
+        self.assertContains(response, 'Total Assets')
+        self.assertContains(response, 'Total Liabilities')
+        self.assertContains(response, 'Net Worth')
     
     def test_dashboard_calculations(self):
         """Test that dashboard calculates values correctly"""
         self.login()
+        # Create additional accounts to test calculations
+        # Note: setUp already creates credit_card (-500) and investment (5000)
+        Account.objects.create(
+            user=self.user,
+            name='Checking',
+            accountable_type='depository',
+            balance=Decimal('1000.00'),
+            currency='BRL',
+            status='active'
+        )
         # Test the stats endpoint directly since main dashboard shows skeleton
         response = self.client.get(reverse('dashboard_stats'))
         self.assertEqual(response.status_code, 200)
-        # Free cash should be depository balance
-        self.assertContains(response, 'R$ 1.000,00')  # Or similar format
-        # Credit card debt should be shown
-        self.assertContains(response, 'R$ 500,00')
-        # Investments should be shown
-        self.assertContains(response, 'R$ 5.000,00')
+        # Account for all accounts:
+        # - From FinanceViewsTestCase setUp: depository account (1000)
+        # - From DashboardViewsTestCase setUp: investment (5000), credit_card (-500)
+        # - From this test: depository account (1000)
+        # Total Assets = 1000 + 5000 + 1000 = 7000
+        # Total Liabilities = 500 (absolute value of -500)
+        # Net Worth = 7000 - 500 = 6500
+        self.assertContains(response, '$7.000')
+        self.assertContains(response, '$500')
+        self.assertContains(response, '$6.500')
 
 
 class FinanceViewsE2ETestCase(FinanceViewsTestCase):

@@ -46,14 +46,29 @@ def account_list(request):
 
 @login_required
 def account_list_data(request):
-    """HTMX endpoint that returns only the account list content"""
-    accounts = Account.objects.filter(user=request.user, status='active').order_by('name')
+    """HTMX endpoint that returns only the account list content, with optional classification filter"""
+    filter_value = request.GET.get('filter', 'all')
     
-    # Calculate summary statistics
-    asset_accounts = accounts.filter(
+    accounts_qs = Account.objects.filter(user=request.user, status='active')
+    if filter_value == 'assets':
+        accounts = accounts_qs.filter(
+            accountable_type__in=['depository', 'investment', 'crypto', 'property', 'vehicle', 'other_asset']
+        )
+    elif filter_value == 'liabilities':
+        accounts = accounts_qs.filter(
+            accountable_type__in=['credit_card', 'loan', 'other_liability']
+        )
+    else:
+        filter_value = 'all'
+        accounts = accounts_qs
+
+    accounts = accounts.order_by('name')
+    
+    # Calculate summary statistics (always global across all accounts)
+    asset_accounts = accounts_qs.filter(
         accountable_type__in=['depository', 'investment', 'crypto', 'property', 'vehicle', 'other_asset']
     )
-    liability_accounts = accounts.filter(
+    liability_accounts = accounts_qs.filter(
         accountable_type__in=['credit_card', 'loan', 'other_liability']
     )
     
@@ -67,6 +82,7 @@ def account_list_data(request):
         'total_liabilities': total_liabilities,
         'net_worth': net_worth,
         'account_count': accounts.count(),
+        'account_filter': filter_value,
     })
 
 @login_required

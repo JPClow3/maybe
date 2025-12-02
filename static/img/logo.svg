@@ -1,0 +1,71 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="lumaHexStroke" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#6366F1"/>
+      <stop offset="1" stop-color="#06B6D4"/>
+    </linearGradient>
+    <linearGradient id="lumaFacetA" x1="16" y1="8" x2="112" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0F172A"/>
+      <stop offset="1" stop-color="#1D2A6A"/>
+    </linearGradient>
+    <linearGradient id="lumaFacetB" x1="16" y1="64" x2="112" y2="120" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1D2A6A"/>
+      <stop offset="1" stop-color="#1E1B4B"/>
+    </linearGradient>
+    <radialGradient id="lumaGlow" cx="50%" cy="50%" r="60%">
+      <stop offset="0" stop-color="#6366F1" stop-opacity="0.85"/>
+      <stop offset="1" stop-color="#6366F1" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Outer glow -->
+  <circle cx="64" cy="64" r="60" fill="url(#lumaGlow)" />
+
+  <!-- Hexagon outline -->
+  <path
+    d="M64 8L108 32V80L64 120L20 80V32L64 8Z"
+    fill="#020617"
+    stroke="url(#lumaHexStroke)"
+    stroke-width="4"
+    stroke-linejoin="round"
+  />
+
+  <!-- Inner prism facets -->
+  <path
+    d="M64 16L100 36V76L64 104L28 76V36L64 16Z"
+    fill="#020617"
+    stroke="rgba(148,163,184,0.25)"
+    stroke-width="1.5"
+  />
+
+  <!-- Light beam facet -->
+  <path
+    d="M64 16L64 64L28 44L64 16Z"
+    fill="url(#lumaFacetA)"
+  />
+
+  <!-- Deep facet -->
+  <path
+    d="M64 16L100 36L64 64L64 16Z"
+    fill="#0B1120"
+  />
+
+  <!-- Lower left facet -->
+  <path
+    d="M28 44L64 64L64 104L28 76L28 44Z"
+    fill="url(#lumaFacetB)"
+  />
+
+  <!-- Lower right facet -->
+  <path
+    d="M64 64L100 36V76L64 104V64Z"
+    fill="#020617"
+  />
+
+  <!-- Beam highlight -->
+  <path
+    d="M64 16L64 64L44 54L64 16Z"
+    fill="#38BDF8"
+    fill-opacity="0.7"
+  />
+</svg>

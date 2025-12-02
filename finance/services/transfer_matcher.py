@@ -109,20 +109,25 @@ class TransferMatcher:
         
         matches = []
         
+        # Prefetch all outflow candidates with accounts to avoid N+1 queries
+        # We'll filter by date range in Python for better performance
+        all_outflows = list(
+            outflow_candidates.select_related('account')
+            .order_by('date', 'id')
+        )
+        
         # For each inflow, try to find matching outflow
         for inflow in inflow_candidates.select_related('account'):
             # Find outflows from different accounts, within 4 days
             date_range_start = inflow.date - timedelta(days=4)
             date_range_end = inflow.date + timedelta(days=4)
             
-            potential_outflows = outflow_candidates.filter(
-                account__user=self.user,
-                account__status='active',
-                date__gte=date_range_start,
-                date__lte=date_range_end
-            ).exclude(
-                account_id=inflow.account_id
-            ).select_related('account')
+            # Filter outflows in Python (more efficient than per-inflow queries)
+            potential_outflows = [
+                outflow for outflow in all_outflows
+                if (outflow.account_id != inflow.account_id and
+                    date_range_start <= outflow.date <= date_range_end)
+            ]
             
             for outflow in potential_outflows:
                 if self._amounts_match(inflow, outflow):
@@ -165,8 +170,12 @@ class TransferMatcher:
                 converted_outflow = abs(outflow.amount) * exchange_rate.rate
                 inflow_abs = abs(inflow.amount)
                 
+                # If inflow amount is zero, cannot match
+                if inflow_abs == 0:
+                    return False
+                
                 # Check if within 5% tolerance
-                ratio = converted_outflow / inflow_abs if inflow_abs > 0 else 0
+                ratio = converted_outflow / inflow_abs
                 return Decimal('0.95') <= ratio <= Decimal('1.05')
             except Exception:
                 return False
@@ -174,10 +183,19 @@ class TransferMatcher:
     def _get_date_diff(self, inflow_id: str, outflow_id: str) -> int:
         """Get absolute date difference between two transactions"""
         try:
-            inflow = Transaction.objects.get(id=inflow_id)
-            outflow = Transaction.objects.get(id=outflow_id)
-            return abs((inflow.date - outflow.date).days)
-        except Transaction.DoesNotExist:
+            transactions = list(
+                Transaction.objects.filter(
+                    id__in=[inflow_id, outflow_id]
+                ).values('id', 'date')
+            )
+            
+            if len(transactions) != 2:
+                return 999
+            
+            # Convert UUIDs to strings for dictionary key matching
+            dates = {str(t['id']): t['date'] for t in transactions}
+            return abs((dates[str(inflow_id)] - dates[str(outflow_id)]).days)
+        except (Transaction.DoesNotExist, KeyError):
             return 999
     
     def _get_transfer_kind_for_account(self, account: Account) -> str:

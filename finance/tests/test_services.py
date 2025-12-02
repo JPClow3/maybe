@@ -88,13 +88,16 @@ class AccountSyncerTestCase(TestCase):
         # Should complete without error
         self.assertTrue(True)
     
-    def test_sync_later_placeholder(self):
+    @patch('finance.tasks.sync_account_balance.delay')
+    def test_sync_later_placeholder(self, mock_delay):
         """Test sync_later method (currently syncs immediately)"""
+        # Mock the Celery task to avoid Redis connection requirement
+        mock_delay.return_value = None
         syncer = AccountSyncer(self.account)
         syncer.sync_later()
         
-        # Should complete without error
-        self.assertTrue(True)
+        # Should have called the async task
+        mock_delay.assert_called_once_with(self.account.id, strategy=None)
     
     def test_sync_with_valuation(self):
         """Test sync with valuation anchor"""

@@ -107,7 +107,13 @@ class Importer:
     def _get_default_account(self):
         """Get default account for user"""
         from finance.models import Account
-        return Account.objects.filter(user=self.import_obj.user).first()
+        account = Account.objects.filter(user=self.import_obj.user).first()
+        if not account:
+            raise ValueError(
+                f"No accounts found for user {self.import_obj.user.id}. "
+                "Please create an account first before importing transactions."
+            )
+        return account
     
     def _get_or_create_category(self, category_name: str) -> Category:
         """Get or create category"""

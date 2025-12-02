@@ -291,13 +291,13 @@ NEWFILEUID:NONE
             currency='BRL'
         )
         
-        # Delete account to cause error
+        # Delete account to cause error - this will set account to None due to SET_NULL
         account_id = self.account.id
         self.account.delete()
-        import_obj.account_id = account_id  # Set to deleted account
-        import_obj.save()
+        import_obj.refresh_from_db()  # Refresh to get updated account (should be None due to SET_NULL)
         
         # Test _import_rows directly instead of process() to avoid OFX parsing
+        # The import_obj now has account=None, which should cause an error when processing rows
         importer = Importer(import_obj)
         rows = [row]
         imported_count = importer._import_rows(rows)

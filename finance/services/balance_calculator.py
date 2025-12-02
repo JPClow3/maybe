@@ -31,7 +31,7 @@ class BaseBalanceCalculator:
     def holdings_value_for_date(self, target_date: date) -> Decimal:
         """Calculate total holdings value for a date"""
         holdings = self.sync_cache.get_holdings(target_date)
-        return sum(h.amount for h in holdings)
+        return sum(h.amount for h in holdings if h.amount is not None) or Decimal('0')
     
     def derive_cash_balance_on_date_from_total(self, total_balance: Decimal, target_date: date) -> Decimal:
         """Derive cash balance from total balance"""

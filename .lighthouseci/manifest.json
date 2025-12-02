@@ -1,0 +1,41 @@
+[
+  {
+    "url": "http://localhost:8000/",
+    "isRepresentativeRun": false,
+    "htmlPath": "C:\\Github\\maybe\\.lighthouseci\\localhost-_-2025_12_02_17_55_40.report.html",
+    "jsonPath": "C:\\Github\\maybe\\.lighthouseci\\localhost-_-2025_12_02_17_55_40.report.json",
+    "summary": {
+      "performance": 0.86,
+      "accessibility": 1,
+      "best-practices": 1,
+      "seo": 1,
+      "pwa": 0.56
+    }
+  },
+  {
+    "url": "http://localhost:8000/",
+    "isRepresentativeRun": false,
+    "htmlPath": "C:\\Github\\maybe\\.lighthouseci\\localhost-_-2025_12_02_17_55_54.report.html",
+    "jsonPath": "C:\\Github\\maybe\\.lighthouseci\\localhost-_-2025_12_02_17_55_54.report.json",
+    "summary": {
+      "performance": 0.7,
+      "accessibility": 1,
+      "best-practices": 1,
+      "seo": 1,
+      "pwa": 0.56
+    }
+  },
+  {
+    "url": "http://localhost:8000/",
+    "isRepresentativeRun": true,
+    "htmlPath": "C:\\Github\\maybe\\.lighthouseci\\localhost-_-2025_12_02_17_55_24.report.html",
+    "jsonPath": "C:\\Github\\maybe\\.lighthouseci\\localhost-_-2025_12_02_17_55_24.report.json",
+    "summary": {
+      "performance": 0.65,
+      "accessibility": 1,
+      "best-practices": 1,
+      "seo": 1,
+      "pwa": 0.56
+    }
+  }
+]

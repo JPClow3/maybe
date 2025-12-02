@@ -46,10 +46,9 @@ class InvestmentViewsTestCase(TestCase):
             account=self.account,
             security=self.security,
             date=date.today(),
-            qty=Decimal('10.00'),
+            qty=Decimal('10.00'),  # Positive qty = buy
             price=Decimal('30.50'),
-            currency='BRL',
-            kind='buy'
+            currency='BRL'
         )
     
     def login(self):
@@ -92,14 +91,16 @@ class InvestmentViewsTestCase(TestCase):
         self.login()
         response = self.client.get(reverse('holding_list'))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Petrobras')
+        # Check for ticker (PETR4.SA) which is what the template displays
+        self.assertContains(response, 'PETR4.SA')
     
     def test_holding_list_with_account_filter(self):
         """Test holding list with account filter"""
         self.login()
         response = self.client.get(reverse('holding_list'), {'account': str(self.account.pk)})
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Petrobras')
+        # Check for ticker (PETR4.SA) which is what the template displays
+        self.assertContains(response, 'PETR4.SA')
     
     def test_holding_list_with_invalid_account(self):
         """Test holding list with invalid account filter"""
@@ -218,10 +219,9 @@ class InvestmentViewsTestCase(TestCase):
             account=other_account,
             security=self.security,
             date=date.today(),
-            qty=Decimal('5.00'),
+            qty=Decimal('5.00'),  # Positive qty = buy
             price=Decimal('30.50'),
-            currency='BRL',
-            kind='buy'
+            currency='BRL'
         )
         
         response = self.client.get(reverse('trade_list'))

@@ -522,6 +522,7 @@
     will-change: transform;
     opacity: 0.2; /* opacity-20 */
     z-index: -1;
+    pointer-events: none;
   }
   
   .orb-emerald {
@@ -758,6 +759,31 @@
     border-color: rgba(255, 255, 255, 0.2); /* LUMA spec: Border lightens to white/20 */
     transform: translateY(-2px);
   }
+
+  /* Card spotlight - mouse-follow glow */
+  .card-spotlight {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-spotlight::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+      rgba(255, 255, 255, 0.10),
+      transparent 60%
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease-out;
+    pointer-events: none;
+    mix-blend-mode: screen;
+  }
+
+  .card-spotlight:hover::before {
+    opacity: 1;
+  }
   
   /* Reduce blur on mobile for better performance */
   @media (max-width: 768px) {
@@ -982,19 +1008,16 @@
     }
   }
   
-  /* Body background - Visual DNA v2.0: The Void */
+  /* Body background - Visual DNA v2.0: The Void (Dark-mode first) */
   body {
-    @apply bg-gradient-to-br from-slate-50 via-gray-50 to-slate-50 min-h-screen;
-  }
-  
-  .dark body {
     background: #000000; /* Singularity - deepest layer */
     background-attachment: fixed;
+    min-height: 100vh;
   }
   
   /* Main app canvas - Deep Space */
-  .dark #app,
-  .dark main {
+  #app,
+  main {
     background: #050505; /* Deep Space - primary app canvas */
   }
   

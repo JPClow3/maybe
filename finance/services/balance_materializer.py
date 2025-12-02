@@ -117,11 +117,14 @@ class BalanceMaterializer:
         if not self._balances:
             return
         
+        # Reload account with select_for_update to prevent race conditions
+        account = Account.objects.select_for_update().get(id=self.account.id)
+        
         # Get the most recent balance
         latest_balance = max(self._balances, key=lambda b: b.date)
         
         # Update account cache
-        self.account.balance = latest_balance.balance
-        self.account.cash_balance = latest_balance.cash_balance
-        self.account.save(update_fields=['balance', 'cash_balance'])
+        account.balance = latest_balance.balance
+        account.cash_balance = latest_balance.cash_balance
+        account.save(update_fields=['balance', 'cash_balance'])
 

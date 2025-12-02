@@ -1,8 +1,11 @@
+import logging
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.core.cache import cache
 from .models import Transaction, Valuation, Account, Balance
 from .services.account_syncer import AccountSyncer
+
+logger = logging.getLogger(__name__)
 
 def invalidate_dashboard_cache(user_id):
     """Invalidate all dashboard cache keys for a user"""
@@ -28,12 +31,17 @@ def sync_account_on_entry_change(sender, instance, **kwargs):
     if kwargs.get('raw', False):
         return
     
-    account = instance.account
-    syncer = AccountSyncer(account)
-    syncer.sync()
-    
-    # Invalidate dashboard cache for the user
-    invalidate_dashboard_cache(account.user.id)
+    try:
+        account = instance.account
+        syncer = AccountSyncer(account)
+        syncer.sync()
+        invalidate_dashboard_cache(account.user.id)
+    except Exception as e:
+        logger.error(
+            f"Failed to sync account {instance.account.id} after {sender.__name__} change: {e}",
+            exc_info=True
+        )
+        # Don't re-raise - signal handlers shouldn't break the main operation
 
 @receiver(post_save, sender=Account)
 @receiver(post_delete, sender=Account)
